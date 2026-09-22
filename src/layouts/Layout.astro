@@ -28,8 +28,12 @@ const { title } = Astro.props;
 
 <style>
   html{
-    background: light-dark(#f7f8f7, #141817);
+    background: #f7f8f7;
     background-image: var(--gradient-bg-cyan);
+  }
+
+  html.dark-mode {
+    background-color: #141817;
   }
 </style>
 
