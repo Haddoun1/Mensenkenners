@@ -77,40 +77,50 @@
 
 html {
   scroll-behavior: smooth;
-  color-scheme: light;
 
---color-text: light-dark(#222020, #ffffff);
---color-text-inverse: light-dark(#ffffff, #142621);
---color-background: light-dark(#ffffff, #ffffff);
---color-green: light-dark(#2AB789, #142621);
---color-cyan: light-dark(#B1F2D9, #1e4d3a);
---color-cyan-dark: light-dark(#8bcab2, #2d6b52);
---color-pink: light-dark(#FF94E1, #7a3d63);
---color-blue: light-dark(#2241dd, #2d3f8a);
---color-red: light-dark(#FF6631, #8a3318);
---color-yellow: light-dark(#E9F279, #6b6e12);
---button-background: light-dark(transparent, #6ecfab2b);
+  --color-text: #222020;
+  --color-background: #ffffff;
+  --color-green: #2AB789;
+  --color-cyan: #B1F2D9;
+  --color-cyan-dark: #8bcab2;
+  --color-pink: #FF94E1;
+  --color-blue: #647bef;
+  --color-red: #FF6631;
+  --color-yellow: #E9F279;
+  --onboarding-text: #7e7676;
+  --onboarding-label:#73747a;
+  --onboarding-text-dark: #525252;
+  --onboarding-back-button: #ABADAC;
+  --error-login: #b43f3f;
+  --button-background: transparent;
 
---color-text-muted: light-dark(#6b6e73, #a3a9ae);
---color-surface: light-dark(#ffffff, #1b1f1d);
---color-surface-strong: light-dark(#ffffff, #232827);
+  --module-card-background: #ffffffb8;
+  --module-wrong-error: #fff0ed;
+  --module-right-correct: #ecfff7;
+  --module-feedback-wrong: #fff0ed;
+  --module-option-label: #ffffff80;
+  --module-option-label-hover: #ffffffe6;
+  --module-option-checked: color-mix(in srgb, var(--color-accent) 50%, white);
+  --module-option-checked-letter: #ffffff;
+  --module-text-input: #ffffffcc;
 
---color-success-bg: light-dark(#ecfff7, #12301f);
---color-success-border: light-dark(#2fbf7f, #2fbf7f);
---color-success-text: light-dark(#126341, #8fe9c2);
+  --simulator-background: #000;
+  --simulator-background-panel: #ffffff;
+  --simulator-num: #00000014;
 
---color-error-bg: light-dark(#fff0ed, #35180f);
---color-error-border: light-dark(#ff6631, #ff6631);
---color-error-text: light-dark(#9f2b00, #ffb199);
+  --select-dropdown: #ffffff00;
 
---color-warning-bg: light-dark(#fff8df, #332804);
---color-warning-border: light-dark(#e0aa00, #e0aa00);
---color-warning-text: light-dark(#725500, #f0cf6b);
+  --accent-intro: #B1F2D9;
+  --accent-module-1: #FF94E1;
+  --accent-module-2: #E9F279;
+  --accent-module-3: #FF6631;
+  --accent-module-4: #647bef;
 
---color-info-bg: light-dark(#f5f7ff, #1a1f3d);
---color-info-border: light-dark(#8796ff, #8796ff);
---color-info-text: light-dark(#20285c, #b9c2ff);
-
+  --accent-intro-dark: #1e4d3a;
+  --accent-module-1-dark: #7a3d63;
+  --accent-module-2-dark: #6b6e12;
+  --accent-module-3-dark: #8a3318;
+  --accent-module-4-dark: #2d3f8a;
 
   --gradient-bg-cyan: radial-gradient(circle at 0% 0%, rgb(181 219 206 / 0.4) 0%, transparent);
   --gradient-bg-cyan-card: #fff;
@@ -119,22 +129,7 @@ html {
   --gradient-bg-blue: radial-gradient(circle at 0% 0%, rgb(34 65 221 / 0.2) 0%, transparent);
   --gradient-bg-yellow: radial-gradient(circle at 0% 0%, rgb(233 242 121 / 0.4) 0%, transparent);
   --gradient-bg-red: radial-gradient(circle at 0% 0%, rgb(255 102 49 / 0.4) 0%, transparent);
-  --gradient-bg-header: radial-gradient(circle at 0% 0%,rgb(181 219 206 / 0.4) 0%,transparent);
-
-  &.dark-mode {
-    color-scheme: dark;
-
-    --gradient-bg-cyan: radial-gradient(circle at 0% 0%, rgb(59, 129, 102) 0%, rgb(26 26 26));
-    --gradient-bg-cyan-card: radial-gradient(circle at 0% 0%, rgb(181 219 206 / 0.4) 0%);
-    --gradient-bg-green: radial-gradient(circle at 0% 0%, rgb(29 143 105) 0%, rgb(26 26 26));
-    --gradient-bg-pink: radial-gradient(circle at 0% 0%, rgb(196 96 159) 0%, rgb(26 26 26));
-    --gradient-bg-blue: radial-gradient(circle at 0% 0%, rgb(79 106 245) 0%, rgb(26 26 26));
-    --gradient-bg-yellow: radial-gradient(circle at 0% 0%, rgb(184 193 42) 0%, rgb(26 26 26));
-    --gradient-bg-red: radial-gradient(circle at 0% 0%, rgb(204 74 31) 0%, rgb(26 26 26));
-    --gradient-bg-header: radial-gradient(circle at 0% 0%, rgb(4 5 5 / 40%) 0%,transparent);
-    --gradient-bg-cyan-card: #1b1f1d;
-
-  }
+  --gradient-bg-header: radial-gradient(circle at 0% 0%, rgb(181 219 206 / 0.4) 0%, transparent);
 
   --font-bold: 'Plus Jakarta Sans Bold', sans-serif;
   --font-bold-italic: 'Plus Jakarta Sans Bold Italic', sans-serif;
@@ -169,10 +164,55 @@ html {
   font-family: var(--font-bold);
   color: var(--color-text);
   background-color: var(--color-background);
+}
 
-  &.dark-mode {
-    color-scheme: dark;
-  }
+html.dark-mode {
+  --color-text: #ffffff;
+  --color-background: #fff;
+  --color-green: #142621;
+  --color-cyan: #1e4d3a;
+  --color-cyan-dark: #2d6b52;
+  --color-pink: #7a3d63;
+  --color-blue: #2d3f8a;
+  --color-red: #8a3318;
+  --color-yellow: #6b6e12;
+  --onboarding-text: #fff;
+  --onboarding-text-dark: #fff;
+  --onboarding-label:#fff;
+  --onboarding-back-button: #565656;
+  --error-login: #fa4545;
+  --button-background: #6ecfab2b;
+
+  --module-card-background: #9ebfaf47;
+  --module-wrong-error: #ffffff00;
+  --module-right-correct: #ffffff00;
+  --module-feedback-wrong: #eec6be;
+  --module-option-label: #789889c7;
+  --module-option-label-hover: #e2e2e290;
+  --module-option-checked: var(--color-accent);
+  --module-option-checked-letter: #ffffff00;
+  --module-text-input: #a0b4acab;
+
+  --simulator-background: #000;
+  --simulator-background-panel: #bababa;
+  --simulator-num: #00000033;
+
+  --select-dropdown: #00000047;
+
+  --accent-intro: var(--accent-intro-dark);
+  --accent-module-1: var(--accent-module-1-dark);
+  --accent-module-2: var(--accent-module-2-dark);
+  --accent-module-3: var(--accent-module-3-dark);
+  --accent-module-4: var(--accent-module-4-dark);
+
+  --gradient-bg-cyan: radial-gradient(circle at 0% 0%, rgb(59, 129, 102) 0%, rgb(26 26 26));
+  --gradient-bg-cyan-card: radial-gradient(circle at 0% 0%, rgb(181 219 206 / 0.4) 0%);
+  --gradient-bg-green: radial-gradient(circle at 0% 0%, rgb(29 143 105) 0%, rgb(26 26 26));
+  --gradient-bg-pink: radial-gradient(circle at 0% 0%, rgb(196 96 159) 0%, rgb(26 26 26));
+  --gradient-bg-blue: radial-gradient(circle at 0% 0%, rgb(79 106 245) 0%, rgb(26 26 26));
+  --gradient-bg-yellow: radial-gradient(circle at 0% 0%, rgb(184 193 42) 0%, rgb(26 26 26));
+  --gradient-bg-red: radial-gradient(circle at 0% 0%, rgb(204 74 31) 0%, rgb(26 26 26));
+  --gradient-bg-header: radial-gradient(circle at 0% 0%, rgb(4 5 5 / 40%) 0%, transparent);
 }
 
 

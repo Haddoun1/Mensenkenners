@@ -5,6 +5,8 @@ import data from "../../data/mensenkennersvragen.json";
 import { slugify } from "../../utils/slugify";
 import AccessibilitySimulator from "../../components/Accessibilitysimulator.astro";
 import QuestionNav from "../../components/Questionnav.astro";
+import BottomNav from "../../components/BottomNav.astro";
+import BaseHead from '../../components/BaseHead.astro';
 
 export async function getStaticPaths() {
 
@@ -118,308 +120,306 @@ const progressPct = Math.round(
 
 // Koppelt elke module aan een accentkleur.
 
-const categoryColorMap: Record<string, string> = {
-  "intro": "#B1F2D9",
-  "module-1": "#FF94E1",
-  "module-2": "#E9F279",
-  "module-3": "#FF6631",
-  "module-4": "#2241dd",
+const categoryColorMap = {
+  "intro": "var(--accent-intro)",
+  "module-1": "var(--accent-module-1)",
+  "module-2": "var(--accent-module-2)",
+  "module-3": "var(--accent-module-3)",
+  "module-4": "var(--accent-module-4)",
 };
 
 const accentColor = categoryColorMap[categorySlug] ?? "#B1F2D9";
 ---
+<html lang="nl">
+  <head>
+    <BaseHead title={category} />
+    <link rel="stylesheet" href="/styles/global.css" />
+  </head>
+  <body>
 
-<link rel="stylesheet" href="/styles/global.css" />
-<script is:inline>
-  if (localStorage.getItem("theme") === "dark") {
-    document.documentElement.classList.add("dark-mode");
-  }
-</script>
+    <!-- Zijmenu met alle stappen binnen de huidige module. -->
+    <div class="nav-overlay" id="navOverlay"></div>
 
-<!-- Zijmenu met alle stappen binnen de huidige module. -->
-<div class="nav-overlay" id="navOverlay"></div>
+    <nav class="nav-panel" id="navPanel" aria-label="Vragennavigatie">
+      <div class="nav-panel-header">
+        <span class="nav-panel-title">{category}</span>
+        <button class="nav-close-btn" id="navCloseBtn" aria-label="Sluit menu"
+          >&#10005</button
+        >
+      </div>
+      <ul class="nav-list">
+        {
+          categoryItems.map((navItem, idx) => (
+            <li>
+              <a
+                href={`/${categorySlug}/${idx + 1}`}
+                class={idx + 1 === currentStep ? "active" : ""}
+              >
+                <span class="nav-step-num">{idx + 1}</span>
+                <span class="nav-step-title">
+                  {navItem.title || navItem.question || `Stap ${idx + 1}`}
+                </span>
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
 
-<nav class="nav-panel" id="navPanel" aria-label="Vragennavigatie">
-  <div class="nav-panel-header">
-    <span class="nav-panel-title">{category}</span>
-    <button class="nav-close-btn" id="navCloseBtn" aria-label="Sluit menu"
-      >&#10005</button
-    >
-  </div>
-  <ul class="nav-list">
-    {
-      categoryItems.map((navItem, idx) => (
-        <li>
-          <a
-            href={`/${categorySlug}/${idx + 1}`}
-            class={idx + 1 === currentStep ? "active" : ""}
-          >
-            <span class="nav-step-num">{idx + 1}</span>
-            <span class="nav-step-title">
-              {navItem.title || navItem.question || `Stap ${idx + 1}`}
-            </span>
-          </a>
-        </li>
-      ))
-    }
-  </ul>
-</nav>
+    <!-- Toegankelijkheidssimulator voor ervaringsopdrachten. -->
+    <AccessibilitySimulator />
 
-<!-- Toegankelijkheidssimulator voor ervaringsopdrachten. -->
-<AccessibilitySimulator />
+    <!-- Hoofdlayout van de cursuspagina. -->
+    <div class="page-shell" style={`--color-accent: ${accentColor}`}>
+      <aside class="sidebar-left" aria-label="Navigatiemenu"></aside>
 
-<!-- Hoofdlayout van de cursuspagina. -->
-<div class="page-shell" style={`--color-accent: ${accentColor}`}>
-  <aside class="sidebar-left" aria-label="Navigatiemenu"></aside>
+      <main
+        class="content-col"
+        data-step-id={String(currentStep)}
+        data-category={categorySlug}
+        data-requires-check={isCheckableQuestion ? "true" : "false"}
+        data-input-type={item.input_type || ""}
+      >
 
-  <main
-    class="content-col"
-    data-step-id={String(currentStep)}
-    data-category={categorySlug}
-    data-requires-check={isCheckableQuestion ? "true" : "false"}
-    data-input-type={item.input_type || ""}
-  >
+      <!-- Bovenste navigatie met dashboardlink, modulelabel, stappenmenu en instellingen. -->
+        <header class="page-header">
+          <a href="/" class="back-button header-btn">Dashboard</a>
 
-  <!-- Bovenste navigatie met dashboardlink, modulelabel, stappenmenu en instellingen. -->
-    <header class="page-header">
-      <a href="/index.html" class="back-button">Dashboard</a>
-      <p class="category-pill">{category}</p>
-
-      <QuestionNav
-        category={category}
-        categorySlug={categorySlug}
-        categoryItems={categoryItems}
-        currentStep={currentStep}
-        totalSteps={totalSteps}
-        accentColor={accentColor}
-      />
-
-      <button class="setting-btn" id="settingBtn" aria-label="Open instellingen">
-        &#9881;
-      </button>
-    </header>
-
-  <!-- Contentkaart met tekst, video, vraag of eindscherm. -->
-    <section class="card">
-      {item.title && <h1 class="card-title">{item.title}</h1>}
-      {item.subtitle && <p class="card-subtitle">{item.subtitle}</p>}
-      {item.text && <p class="card-body">{item.text}</p>}
-      {item.list && Array.isArray(item.list) && (
-  <ul class="card-list">
-    {item.list.map((point) => <li>{point}</li>)}
-  </ul>
-)}
-
-      {item.source && (
-        <p class="card-source">
-          <span class="source-label">Bron</span>
-          {item.source}
-        </p>
-      )}
-
-    <!-- Videoblok. -->
-      {item.type === "video" && embedUrl && embedUrl.trim() !== "" && (
-        <div class="video-wrapper">
-          <iframe
-            src={embedUrl}
-            title={item.title}
-            frameborder="0"
-            allow="autoplay; fullscreen; picture-in-picture"
-            allowfullscreen
+          <QuestionNav
+            category={category}
+            categorySlug={categorySlug}
+            categoryItems={categoryItems}
+            currentStep={currentStep}
+            totalSteps={totalSteps}
+            accentColor={accentColor}
           />
-        </div>
-      )}
 
-    <!-- Vraagblok. De inhoud wordt bepaald door input_type uit de JSON. -->
-      {item.type === "question" && (
-        <div class="question-block">
-          {item.question && <h2 class="question-text">{item.question}</h2>}
-          {item.description && <p class="card-body">{item.description}</p>}
-          {item.label && <label class="field-label">{item.label}</label>}
+          <p class="category-pill">{category}</p>
 
-          {item.input_type === "text" && (
-            <input class="text-input" type="text" placeholder={item.placeholder || "Typ hier je antwoord"} />
-          )}
-          
-          {/* Input type email is ongebruikt
+          <button
+            class="setting-btn header-btn"
+            id="settingBtn"
+            aria-label="Open instellingen"
+          >
+            <img class="accessibility-icon" src="/images/accessibility.svg" alt="Accessibility" aria-hidden="true">
+            Menu
+          </button>
+        </header>
 
-          {item.input_type === "email" && ( 
-            <input class="text-input" type="email" placeholder="Typ hier je e-mailadres" />
-          )} */}
-
-          {item.input_type === "long_text" && (
-            <textarea class="text-area" rows="5" placeholder={item.placeholder || "Typ hier je antwoord"} />
-          )}
-
-          {item.input_type === "single_choice" && (
-            <ul class="options-list" role="radiogroup">
-              {options.map((option, index) => {
-                const text = typeof option === "string" ? option : option.text;
-                return (
-                  <li>
-                    <label class="option-label">
-                      <input
-                        type="radio"
-                        name={item.id}
-                        value={text}
-                        class="option-input"
-                        data-correct={typeof option === "object" && option.is_correct === true ? "true" : "false"}
-                      />
-                      <span class="option-key">{String.fromCharCode(65 + index)}</span>
-                      <span class="option-text">{text}</span>
-                    </label>
-                  </li>
-                );
-              })}
+      <!-- Contentkaart met tekst, video, vraag of eindscherm. -->
+        <section class="card">
+          {item.title && <h1 class="card-title">{item.title}</h1>}
+          {item.subtitle && <p class="card-subtitle">{item.subtitle}</p>}
+          {item.text && <p class="card-body">{item.text}</p>}
+          {item.list && Array.isArray(item.list) && (
+            <ul class="card-list">
+              {item.list.map((point) => <li>{point}</li>)}
             </ul>
           )}
 
-          {/* Multiple-choicevraag. */}
-
-          {item.input_type === "multiple_choice" && (
-            <div data-multiple-choice data-max-selections={maxSelections}>
-              <p class="mc-hint">Selecteer maximaal {maxSelections} opties</p>
-              <ul class="options-list" role="group">
-                {options.map((option, index) => {
-                  const text = typeof option === "string" ? option : option.text;
-                  return (
-                    <li>
-                      <label class="option-label">
-                        <input
-                          type="checkbox"
-                          name={item.id}
-                          value={text}
-                          class="option-input"
-                          data-correct={typeof option === "object" && option.is_correct === true ? "true" : "false"}
-                        />
-                        <span class="option-key">{String.fromCharCode(65 + index)}</span>
-                        <span class="option-text">{text}</span>
-                      </label>
-                    </li>
-                  );
-                })}
-              </ul>
-              <div class="mc-error" role="alert" aria-live="polite" id="mc-error" hidden>
-                Je kunt maximaal {maxSelections} opties selecteren.
-              </div>
-            </div>
+          {item.source && (
+            <p class="card-source">
+              <span class="source-label">Bron</span>
+              {item.source}
+            </p>
           )}
 
-          {/* Ratingvraag. */}
-
-          {item.input_type === "rating" && (
-            <div class="rating-block">
-              {scale.min_label && <span class="rating-label">{scale.min_label}</span>}
-              <div class="rating-row">
-                {ratings.map((ratingValue) => (
-                  <label class="rating-option">
-                    <input
-                      type="radio"
-                      id={`rating-${item.id}-${ratingValue}`}
-                      name={`rating-${item.id}`}
-                      value={ratingValue}
-                      class="option-input"
-                    />
-                    <span class="rating-pip">{ratingValue}</span>
-                  </label>
-                ))}
-              </div>
-              {scale.max_label && <span class="rating-label">{scale.max_label}</span>}
-            </div>
-          )}
-
-        {/* Zin-afmaken-vraag. */}
-
-          {item.input_type === "sentence_completion" && (
-            <div class="sentence-completion-block">
-              <textarea
-                class="text-area"
-                rows="4"
-                name={item.id}
-                placeholder={item.placeholder || "Vul je antwoord aan"}
-                required={item.required}
+        <!-- Videoblok. -->
+          {item.type === "video" && embedUrl && embedUrl.trim() !== "" && (
+            <div class="video-wrapper">
+              <iframe
+                src={embedUrl}
+                title={item.title}
+                frameborder="0"
+                allow="autoplay; fullscreen; picture-in-picture"
+                allowfullscreen
               />
             </div>
           )}
-        
-        {/* Matchingvraag. */}
 
-          {item.input_type === "matching" && (
-            <div class="matching-block" data-matching data-question-id={item.id}>
-              <div class="matching-grid">
-                {(item.pairs || []).map((pair, index) => (
-                  <div class="matching-row">
-                    <div class="matching-prompt">
-                      <span class="option-key">{index + 1}</span>
-                      <span>{pair.prompt}</span>
-                    </div>
-                    <select
-                      class="matching-select"
-                      name={`${item.id}-${index}`}
-                      required={item.required}
-                      data-correct-answer={pair.answer}
-                    >
-                      <option value="">Kies een antwoord</option>
-                      {(item.pairs || []).map((answerPair) => (
-                        <option value={answerPair.answer}>{answerPair.answer}</option>
-                      ))}
-                    </select>
+        <!-- Vraagblok. De inhoud wordt bepaald door input_type uit de JSON. -->
+          {item.type === "question" && (
+            <div class="question-block">
+              {item.question && <h2 class="question-text">{item.question}</h2>}
+              {item.description && <p class="card-body">{item.description}</p>}
+              {item.label && <label class="field-label">{item.label}</label>}
+
+              {item.input_type === "text" && (
+                <input class="text-input" type="text" placeholder={item.placeholder || "Typ hier je antwoord"} />
+              )}
+
+              {/* Input type email is ongebruikt
+
+              {item.input_type === "email" && ( 
+                <input class="text-input" type="email" placeholder="Typ hier je e-mailadres" />
+              )} */}
+
+              {item.input_type === "long_text" && (
+                <textarea class="text-area" rows="5" placeholder={item.placeholder || "Typ hier je antwoord"} />
+              )}
+
+              {item.input_type === "single_choice" && (
+                <ul class="options-list" role="radiogroup">
+                  {options.map((option, index) => {
+                    const text = typeof option === "string" ? option : option.text;
+                    return (
+                      <li>
+                        <label class="option-label">
+                          <input
+                            type="radio"
+                            name={item.id}
+                            value={text}
+                            class="option-input"
+                            data-correct={typeof option === "object" && option.is_correct === true ? "true" : "false"}
+                          />
+                          <span class="option-key">{String.fromCharCode(65 + index)}</span>
+                          <span class="option-text">{text}</span>
+                        </label>
+                      </li>
+                    );
+                  })}
+                </ul>
+              )}
+
+              {/* Multiple-choicevraag. */}
+
+              {item.input_type === "multiple_choice" && (
+                <div data-multiple-choice data-max-selections={maxSelections}>
+                  <p class="mc-hint">Selecteer maximaal {maxSelections} opties</p>
+                  <ul class="options-list" role="group">
+                    {options.map((option, index) => {
+                      const text = typeof option === "string" ? option : option.text;
+                      return (
+                        <li>
+                          <label class="option-label">
+                            <input
+                              type="checkbox"
+                              name={item.id}
+                              value={text}
+                              class="option-input"
+                              data-correct={typeof option === "object" && option.is_correct === true ? "true" : "false"}
+                            />
+                            <span class="option-key">{String.fromCharCode(65 + index)}</span>
+                            <span class="option-text">{text}</span>
+                          </label>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                  <div class="mc-error" role="alert" aria-live="polite" id="mc-error" hidden>
+                    Je kunt maximaal {maxSelections} opties selecteren.
                   </div>
-                ))}
-              </div>
+                </div>
+              )}
+
+              {/* Ratingvraag. */}
+
+              {item.input_type === "rating" && (
+                <div class="rating-block">
+                  {scale.min_label && <span class="rating-label">{scale.min_label}</span>}
+                  <div class="rating-row">
+                    {ratings.map((ratingValue) => (
+                      <label class="rating-option">
+                        <input
+                          type="radio"
+                          id={`rating-${item.id}-${ratingValue}`}
+                          name={`rating-${item.id}`}
+                          value={ratingValue}
+                          class="option-input"
+                        />
+                        <span class="rating-pip">{ratingValue}</span>
+                      </label>
+                    ))}
+                  </div>
+                  {scale.max_label && <span class="rating-label">{scale.max_label}</span>}
+                </div>
+              )}
+
+              {/* Zin-afmaken-vraag. */}
+
+              {item.input_type === "sentence_completion" && (
+                <div class="sentence-completion-block">
+                  <textarea
+                    class="text-area"
+                    rows="4"
+                    name={item.id}
+                    placeholder={item.placeholder || "Vul je antwoord aan"}
+                    required={item.required}
+                  />
+                </div>
+              )}
+
+              {/* Matchingvraag. */}
+
+              {item.input_type === "matching" && (
+                <div class="matching-block" data-matching data-question-id={item.id}>
+                  <div class="matching-grid">
+                    {(item.pairs || []).map((pair, index) => (
+                      <div class="matching-row">
+                        <div class="matching-prompt">
+                          <span class="option-key">{index + 1}</span>
+                          <span>{pair.prompt}</span>
+                        </div>
+                        <select
+                          class="matching-select"
+                          name={`${item.id}-${index}`}
+                          required={item.required}
+                          data-correct-answer={pair.answer}
+                        >
+                          <option value="">Kies een antwoord</option>
+                          {(item.pairs || []).map((answerPair) => (
+                            <option value={answerPair.answer}>{answerPair.answer}</option>
+                          ))}
+                        </select>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {isCheckableQuestion && (
+                <div class="question-check-row">
+                  <button type="button" class="btn btn--primary" id="check-answer-btn">
+                    Check antwoord
+                  </button>
+                  <div
+                    class="answer-feedback"
+                    id="answer-feedback"
+                    role="status"
+                    aria-live="polite"
+                    hidden
+                    data-explanation={item.explanation || ""}
+                    data-example-answer={exampleAnswer}
+                  />
+                </div>
+              )}
             </div>
           )}
 
-          {isCheckableQuestion && (
-            <div class="question-check-row">
-              <button type="button" class="btn btn--primary" id="check-answer-btn">
-                Check antwoord
-              </button>
-              <div
-                class="answer-feedback"
-                id="answer-feedback"
-                role="status"
-                aria-live="polite"
-                hidden
-                data-explanation={item.explanation || ""}
-                data-example-answer={exampleAnswer}
-              />
+          <!-- Eindscherm met dashboardlink en optionele link naar de volgende module. -->
+
+          {item.id?.endsWith("_submit") && (
+            <div class="action-row">
+              <a href="/" class="btn btn--ghost">Dashboard</a>
+              {nextSectionUrl && (
+                <a href={nextSectionUrl} class="btn btn--primary">Volgend deel</a>
+              )}
             </div>
           )}
-        </div>
-      )}
+        </section>
 
-      <!-- Eindscherm met dashboardlink en optionele link naar de volgende module. -->
+        <!-- Vaste navigatie onderaan met vorige en volgende stap. -->
+        <BottomNav previousPage={previousPage} nextPage={nextPage} />
 
-      {item.id?.endsWith("_submit") && (
-        <div class="action-row">
-          <a href="/index.html" class="btn btn--ghost">Dashboard</a>
-          {nextSectionUrl && (
-            <a href={nextSectionUrl} class="btn btn--primary">Volgend deel</a>
-          )}
-        </div>
-      )}
-    </section>
+      </main>
 
-    <!-- Vaste navigatie onderaan met vorige en volgende stap. -->
+      <aside class="sidebar-right" aria-hidden="true"></aside>
+    </div>
 
-    <nav class="bottom-nav" aria-label="Navigatie">
-      {previousPage ? (
-        <a class="nav-btn nav-btn--prev" href={previousPage}> Vorige</a>
-      ) : (
-        <span class="nav-btn nav-btn--disabled" aria-disabled="true"> Vorige</span>
-      )}
+  </body>
+</html>
 
-      {nextPage ? (
-        <a class="nav-btn nav-btn--next" href={nextPage} id="nav-next">Volgende </a>
-      ) : (
-        <span class="nav-btn nav-btn--disabled" aria-disabled="true">Volgende </span>
-      )}
-    </nav>
-  </main>
-
-  <aside class="sidebar-right" aria-hidden="true"></aside>
-</div>
+<!-- MARK: JAVASCRIPT  -->
 
 <script>
   // @ts-nocheck
@@ -554,6 +554,36 @@ const accentColor = categoryColorMap[categorySlug] ?? "#B1F2D9";
       });
   }
 
+  // Markeert matching-antwoorden visueel als goed of fout.
+  function markMatchingFeedback() {
+    const matchingSelects = document.querySelectorAll(
+      ".matching-select[data-correct-answer]"
+    );
+
+    matchingSelects.forEach((select) => {
+      const row = select.closest(".matching-row");
+      const prompt = row?.querySelector(".matching-prompt");
+
+      select.classList.remove(
+        "matching-select--correct",
+        "matching-select--incorrect"
+      );
+
+      prompt?.classList.remove(
+        "matching-prompt--correct",
+        "matching-prompt--incorrect"
+      );
+
+      if (select.value === select.dataset.correctAnswer) {
+        select.classList.add("matching-select--correct");
+        prompt?.classList.add("matching-prompt--correct");
+      } else {
+        select.classList.add("matching-select--incorrect");
+        prompt?.classList.add("matching-prompt--incorrect");
+      }
+    });
+  }
+
   function getOpenQuestionResult() {
     const openInput = document.querySelector(
       ".question-block textarea, .question-block input[type='text']",
@@ -600,10 +630,6 @@ const accentColor = categoryColorMap[categorySlug] ?? "#B1F2D9";
         };
       }
 
-      const allCorrect = [...matchingSelects].every(
-        (select) => select.value === select.dataset.correctAnswer,
-      );
-
       markMatchingFeedback();
 
       return {
@@ -626,6 +652,7 @@ const accentColor = categoryColorMap[categorySlug] ?? "#B1F2D9";
   checkAnswerBtn?.addEventListener("click", () => {
     const result = getQuestionResult();
     answerFeedback.hidden = false;
+    console.log("de button werkt");
 
     if (!result.valid) {
       answerFeedback.className = "answer-feedback answer-feedback--warning";
@@ -765,6 +792,9 @@ const accentColor = categoryColorMap[categorySlug] ?? "#B1F2D9";
   settingOverlay?.addEventListener("click", closeSetting);
 </script>
 
+
+<!-- MARK: CSS -->
+
 <style>
   body {
     background: var(--gradient-bg-cyan);
@@ -840,7 +870,7 @@ const accentColor = categoryColorMap[categorySlug] ?? "#B1F2D9";
     justify-content: center;
     font-size: 16px;
     color: var(--color-text);
-    transition: background 0.15s;
+    transition: 0.15s;
     flex-shrink: 0;
   }
 
@@ -864,7 +894,7 @@ const accentColor = categoryColorMap[categorySlug] ?? "#B1F2D9";
     padding: 0.6rem 1.25rem;
     text-decoration: none;
     color: var(--color-text);
-    transition: background 0.15s;
+    transition: 0.15s;
   }
 
   .nav-list li a:hover {
@@ -898,7 +928,6 @@ const accentColor = categoryColorMap[categorySlug] ?? "#B1F2D9";
     color: var(--color-text);
   }
 
-
   /* Knop om het zijmenu te openen. */
 
   .hamburger-btn {
@@ -913,11 +942,7 @@ const accentColor = categoryColorMap[categorySlug] ?? "#B1F2D9";
     margin: 0;
     line-height: 1.4;
     text-decoration: none;
-    transition:
-      background 0.18s,
-      color 0.18s,
-      transform 0.12s,
-      box-shadow 0.18s;
+    transition: 0.18s, color 0.18s, transform 0.12s, box-shadow 0.18s;
     display: inline-flex;
     align-items: center;
     gap: 0.2rem;
@@ -925,33 +950,67 @@ const accentColor = categoryColorMap[categorySlug] ?? "#B1F2D9";
 
   .hamburger-btn:hover {
     background: var(--color-accent);
-    box-shadow: 0 4px 14px
-      color-mix(in srgb, var(--color-accent) 50%, transparent);
+    box-shadow: 0 4px 14px color-mix(in srgb, var(--color-accent) 50%, transparent);
     transform: scale(1.07);
   }
 
-  /* Knop om het instellingenpaneel te openen. */
+  /* ── Header buttons (back + setting) — gelijke hoogte en stijl ── */
 
-  .setting-btn {
+  .header-btn {
     font-family: var(--font-semi-bold);
-    font-size: var(--size-lg);
+    font-size: var(--size-sm);
+    height: 2.25rem;
+    padding: 0 0.85rem;
     background: color-mix(in srgb, var(--color-accent) 35%, transparent);
     border: 1px solid color-mix(in srgb, var(--color-accent) 60%, transparent);
     border-radius: 999px;
-    padding: 0.15rem 0.45rem;
     color: var(--color-text);
-    margin-left: auto;
-    line-height: 1.4;
-    transition: background 0.18s, transform 0.12s, box-shadow 0.18s;
+    line-height: 1;
+    text-decoration: none;
+    white-space: nowrap;
     display: inline-flex;
     align-items: center;
+    gap: 0.35rem;
     cursor: pointer;
+    transition: background 0.18s, transform 0.12s, box-shadow 0.18s;
+    flex-shrink: 0;
   }
 
-  .setting-btn:hover {
+  .header-btn:hover {
     background: var(--color-accent);
+    border-color: color-mix(in srgb, var(--color-accent) 80%, black);
+    transform: translateY(-1px);
     box-shadow: 0 4px 14px color-mix(in srgb, var(--color-accent) 50%, transparent);
-    transform: scale(1.07);
+  }
+
+  .header-btn:active {
+    transform: scale(0.97);
+  }
+
+  /* Pijltje alleen op back-button */
+  .back-button::before {
+    content: "←";
+    font-size: var(--size-lg);
+    transition: transform 0.2s;
+    margin-top: -2px;
+  }
+
+  .back-button:hover::before {
+    transform: translateX(-2px);
+  }
+
+  .accessibility-icon {
+    width: 16px;
+    height: 16px;
+  }
+
+  html.dark-mode .accessibility-icon {
+  filter: invert(1);
+}
+
+  /* Knop om het instellingenpaneel te openen (margin-left auto blijft) */
+  .setting-btn {
+    margin-left: auto;
   }
 
   /* Hoofdlayout van de cursuspagina. */
@@ -987,63 +1046,23 @@ const accentColor = categoryColorMap[categorySlug] ?? "#B1F2D9";
     gap: 1rem;
   }
 
+  /* Category pill — verborgen op mobile */
+
   .category-pill {
     font-family: var(--font-semi-bold);
-    font-size: var(--size-sm);
+    font-size: var(--size-base);
     letter-spacing: 0.06em;
     text-transform: uppercase;
-    background: color-mix(in srgb, var(--color-accent) 35%, transparent);
-    border: 1px solid color-mix(in srgb, var(--color-accent) 60%, transparent);
-    border-radius: 99px;
     padding: 0.25rem 0.85rem;
     color: var(--color-text);
     margin: 0;
     line-height: 1.4;
   }
 
-  .back-button {
-    font-family: var(--font-semi-bold);
-    font-size: var(--size-sm);
-    letter-spacing: 0.06em;
-    background: color-mix(in srgb, var(--color-accent) 35%, transparent);
-    border: 1px solid color-mix(in srgb, var(--color-accent) 60%, transparent);
-    border-radius: 99px;
-    padding: 0.25rem 0.85rem;
-    color: var(--color-text);
-    margin: 0;
-    line-height: 1.4;
-    text-decoration: none;
-    transition: background 0.18s, transform 0.12s, box-shadow 0.18s;
-    display: inline-flex;
-    align-items: center;
-    gap: 0.4rem;
-  }
-
-  .back-button::before {
-    content: "←";
-    display: inline-block;
-    transition: transform 0.2s;
-  }
-
-  .back-button:hover {
-    background: var(--color-accent);
-    border-color: color-mix(in srgb, var(--color-accent) 80%, black);
-    transform: translateY(-1px);
-    box-shadow: 0 4px 14px color-mix(in srgb, var(--color-accent) 50%, transparent);
-  }
-
-  .back-button:hover::before {
-    transform: translateX(-2px);
-  }
-
-  .back-button:active {
-    transform: scale(0.97);
-  }
-
-  /* ── Card ────────────────────────────────────────────────────── */
+  /* CARD */
 
   .card {
-    background: color-mix(in srgb, var(--color-surface) 72%, transparent);
+    background: var(--module-card-background);
     backdrop-filter: blur(8px);
     border: 1px solid color-mix(in srgb, var(--color-text) 8%, transparent);
     border-radius: 20px;
@@ -1077,33 +1096,33 @@ const accentColor = categoryColorMap[categorySlug] ?? "#B1F2D9";
   }
 
   .card-list {
-  margin: 0;
-  padding: 0;
-  list-style: none;
-  display: flex;
-  flex-direction: column;
-  gap: 0.6rem;
-}
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+  }
 
-.card-list li {
-  font-family: var(--font-light);
-  font-size: var(--size-lg);
-  line-height: 1.5;
-  color: var(--color-text);
-  display: flex;
-  align-items: flex-start;
-  gap: 0.75rem;
-}
+  .card-list li {
+    font-family: var(--font-light);
+    font-size: var(--size-lg);
+    line-height: 1.5;
+    color: var(--color-text);
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
 
-.card-list li::before {
-  content: "";
-  flex-shrink: 0;
-  width: 0.5rem;
-  height: 0.5rem;
-  margin-top: 0.55rem;
-  border-radius: 50%;
-  background: var(--color-accent);
-}
+  .card-list li::before {
+    content: "";
+    flex-shrink: 0;
+    width: 0.5rem;
+    height: 0.5rem;
+    margin-top: 0.55rem;
+    border-radius: 50%;
+    background: var(--color-accent);
+  }
 
   .card-source {
     font-family: var(--font-light);
@@ -1137,7 +1156,7 @@ const accentColor = categoryColorMap[categorySlug] ?? "#B1F2D9";
     border: none;
   }
 
-  /* ── Question block ──────────────────────────────────────────── */
+  /* QUESTION */
 
   .question-block {
     display: flex;
@@ -1168,7 +1187,7 @@ const accentColor = categoryColorMap[categorySlug] ?? "#B1F2D9";
     font-size: var(--size-base);
     border: 2px solid color-mix(in srgb, var(--color-text) 15%, transparent);
     border-radius: 10px;
-    background: color-mix(in srgb, var(--color-surface) 80%, transparent);
+    background: var(--module-text-input);
     color: var(--color-text);
     outline: none;
     transition: border-color 0.2s, box-shadow 0.2s;
@@ -1186,7 +1205,7 @@ const accentColor = categoryColorMap[categorySlug] ?? "#B1F2D9";
     box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-accent) 30%, transparent);
   }
 
-  /* ── Options ─────────────────────────────────────────────────── */
+  /* OPTIONS */
 
   .mc-hint {
     font-family: var(--font-light);
@@ -1219,7 +1238,7 @@ const accentColor = categoryColorMap[categorySlug] ?? "#B1F2D9";
     padding: 0.7rem 1rem 0.7rem 0.75rem;
     border: 1.5px solid color-mix(in srgb, var(--color-text) 10%, transparent);
     border-radius: 12px;
-    background: color-mix(in srgb, var(--color-surface) 50%, transparent);
+    background: var(--module-card-background);
     cursor: pointer;
     transition: background 0.18s ease, border-color 0.18s ease, transform 0.12s ease, box-shadow 0.18s ease;
     user-select: none;
@@ -1227,8 +1246,8 @@ const accentColor = categoryColorMap[categorySlug] ?? "#B1F2D9";
   }
 
   .option-label:hover {
-    background: color-mix(in srgb, var(--color-surface) 90%, transparent);
-    border-color: color-mix(in srgb, var(--color-text) 22%, transparent);
+    background: var(--module-option-label-hover);
+    border-color: rgba(0, 0, 0, 0.22);
     transform: translateX(3px);
     box-shadow: 0 2px 8px color-mix(in srgb, var(--color-text) 7%, transparent);
   }
@@ -1239,9 +1258,12 @@ const accentColor = categoryColorMap[categorySlug] ?? "#B1F2D9";
     box-shadow: 0 2px 12px color-mix(in srgb, var(--color-accent) 40%, transparent);
   }
 
+  html.dark-mode .option-label:has(.option-input:checked) {
+    background: color-mix(in srgb, var(--color-accent) 50%, #1a1a1a56);
+  }
+
   .option-label:has(.option-input:checked) .option-key {
-    background: var(--color-text);
-    color: var(--color-text-inverse);
+    background: var(--module-option-checked-letter);
     border-color: var(--color-text);
   }
 
@@ -1283,7 +1305,7 @@ const accentColor = categoryColorMap[categorySlug] ?? "#B1F2D9";
 
   .mc-error[hidden] { display: none; }
 
-  /* ── Rating ──────────────────────────────────────────────────── */
+  /* RATING */
 
   .rating-block {
     display: flex;
@@ -1360,7 +1382,7 @@ const accentColor = categoryColorMap[categorySlug] ?? "#B1F2D9";
     padding: 0.7rem 1rem 0.7rem 0.75rem;
     border: 1.5px solid color-mix(in srgb, var(--color-text) 10%, transparent);
     border-radius: 12px;
-    background: color-mix(in srgb, var(--color-surface) 50%, transparent);
+    background: var(--module-card-background);
     font-family: var(--font-semi-bold);
     font-size: var(--size-base);
     line-height: 1.35;
@@ -1373,7 +1395,7 @@ const accentColor = categoryColorMap[categorySlug] ?? "#B1F2D9";
     font-size: var(--size-base);
     border: 2px solid color-mix(in srgb, var(--color-text) 15%, transparent);
     border-radius: 10px;
-    background: color-mix(in srgb, var(--color-surface) 85%, transparent);
+    background: var(--module-card-background);
     color: var(--color-text);
     outline: none;
   }
@@ -1384,7 +1406,7 @@ const accentColor = categoryColorMap[categorySlug] ?? "#B1F2D9";
     box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-accent) 30%, transparent);
   }
 
-  /* ── Feedback ────────────────────────────────────────────────── */
+  /* FEEDBACK */
 
   .question-check-row {
     display: flex;
@@ -1413,9 +1435,9 @@ const accentColor = categoryColorMap[categorySlug] ?? "#B1F2D9";
   }
 
   .answer-feedback--incorrect {
-    background: var(--color-error-bg);
-    border-color: var(--color-error-border);
-    color: var(--color-error-text);
+    background: var(--module-feedback-wrong);
+    border-color: #ff6631;
+    color: #9f2b00;
     padding-left: 2vw;
   }
 
@@ -1456,14 +1478,14 @@ const accentColor = categoryColorMap[categorySlug] ?? "#B1F2D9";
   }
 
   .option-label.option-label--correct {
-    border-color: var(--color-success-border) !important;
-    background: var(--color-success-bg) !important;
+    border-color: #2fbf7f !important;
+    background: var(--module-right-correct) !important;
     box-shadow: 0 0 0 2px rgba(47, 191, 127, 0.25) !important;
   }
 
   .option-label.option-label--incorrect {
-    border-color: var(--color-error-border) !important;
-    background: var(--color-error-bg) !important;
+    border-color: #ff6631 !important;
+    background: var(--module-wrong-error) !important;
     box-shadow: 0 0 0 2px rgba(255, 102, 49, 0.25) !important;
   }
 
@@ -1479,31 +1501,35 @@ const accentColor = categoryColorMap[categorySlug] ?? "#B1F2D9";
     border-color: var(--color-error-border) !important;
   }
 
-.matching-prompt.matching-prompt--correct,
-.matching-select.matching-select--correct {
-  border-color: var(--color-success-border) !important;
-  background: var(--color-success-bg) !important;
-  box-shadow: 0 0 0 2px rgba(47, 191, 127, 0.25) !important;
-}
+  .matching-prompt.matching-prompt--correct,
+  .matching-select.matching-select--correct {
+    border-color: #2fbf7f !important;
+    background: var(--module-right-correct) !important;
+    box-shadow: 0 0 0 2px rgba(47, 191, 127, 0.25) !important;
+  }
 
-.matching-prompt.matching-prompt--incorrect,
-.matching-select.matching-select--incorrect {
-  border-color: var(--color-error-border) !important;
-  background: var(--color-error-bg) !important;
-  box-shadow: 0 0 0 2px rgba(255, 102, 49, 0.25) !important;
-}
+  .matching-prompt.matching-prompt--incorrect,
+  .matching-select.matching-select--incorrect {
+    border-color: #ff6631 !important;
+    background: var(--module-wrong-error) !important;
+    box-shadow: 0 0 0 2px rgba(255, 102, 49, 0.25) !important;
+  }
 
-.matching-prompt.matching-prompt--correct .option-key {
-  background: var(--color-success-border) !important;
-  color: white !important;
-  border-color: var(--color-success-border) !important;
-}
+  .matching-select option {
+    background-color: var(--select-dropdown);
+  }
 
-.matching-prompt.matching-prompt--incorrect .option-key {
-  background: var(--color-error-border) !important;
-  color: white !important;
-  border-color: var(--color-error-border) !important;
-}
+  .matching-prompt.matching-prompt--correct .option-key {
+    background: #2fbf7f !important;
+    color: white !important;
+    border-color: #2fbf7f !important;
+  }
+
+  .matching-prompt.matching-prompt--incorrect .option-key {
+    background: #ff6631 !important;
+    color: white !important;
+    border-color: #ff6631 !important;
+  }
 
   .btn:disabled {
     opacity: 0.55;
@@ -1561,7 +1587,7 @@ const accentColor = categoryColorMap[categorySlug] ?? "#B1F2D9";
 
   .btn--ghost:active { transform: scale(0.97); }
 
-  /* ── Bottom nav ──────────────────────────────────────────────── */
+  /* BOTTOM NAV */
 
   .bottom-nav {
     position: fixed;
@@ -1574,7 +1600,7 @@ const accentColor = categoryColorMap[categorySlug] ?? "#B1F2D9";
     justify-content: space-between;
     gap: 1rem;
     z-index: 100;
-    background: color-mix(in srgb, var(--color-surface) 60%, transparent);
+    background: var(--module-card-background);
     backdrop-filter: blur(10px);
     border: 1px solid color-mix(in srgb, var(--color-text) 7%, transparent);
     border-radius: 99px;
@@ -1621,7 +1647,6 @@ const accentColor = categoryColorMap[categorySlug] ?? "#B1F2D9";
       gap: 0 1rem;
       padding: 0 0.75rem;
     }
-    .bottom-nav { width: min(80%, 700px); }
   }
 
   @media (max-width: 700px) {
@@ -1637,8 +1662,28 @@ const accentColor = categoryColorMap[categorySlug] ?? "#B1F2D9";
     .card { padding: 1.5rem 1.25rem; border-radius: 14px; }
     .card-title { font-size: clamp(1.35rem, 6vw, 1.8rem); }
     .rating-pip { width: 2.4rem; height: 2.4rem; font-size: var(--size-sm); }
-    .bottom-nav { width: calc(100% - 2rem); bottom: 1rem; border-radius: 16px; }
+
+    /* Verberg category-pill op mobile */
+    .category-pill { display: none; }
+
+    /* Iets kleinere header-knoppen op mobile */
+    .header-btn {
+      font-size: var(--size-xs, 0.75rem);
+      height: 2rem;
+      padding: 0 0.65rem;
+      gap: 0.25rem;
+    }
+
+    .back-button::before {
+      font-size: var(--size-base);
+    }
+
+    .accessibility-icon {
+      width: 14px;
+      height: 14px;
+    }
   }
+
 
   /* Animatie voor foutmeldingen. */
 

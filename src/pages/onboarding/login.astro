@@ -20,12 +20,20 @@ export const prerender = false;
   showDashboardButton={false}
   variant="login"
 >
-  <img
-    class="logo-desktop-login"
-    src="/images/Mensenkenners-logo-hori.png"
-    alt="Mensenkenners logo"
-  />
+  
+  <div class="logo-container-theme">
+    <img
+      class="logo-image logo-image--light"
+      src="/images/logohorizontaal.png"
+      alt="Stichting Mensenkenners logo"
+    />
+    <img
+      class="logo-image logo-image--dark"
+      src="/images/mensenkennerslogowit.png"
+      alt="Stichting Mensenkenners logo"
+    />
 
+  </div>
   <form class="login-form" method="post">
     <fieldset>
       <div class="title-login">
@@ -67,6 +75,27 @@ export const prerender = false;
     </div>
   </form>
 </MainLayout>
+
+<style>
+  .logo-image {
+    height: 40px;
+    width: 160px;
+    object-fit: contain;
+    object-position: left;
+  }
+
+  .logo-image--dark {
+    display: none;
+  }
+
+  :global(html.dark-mode) .logo-image--light {
+    display: none;
+  }
+
+  :global(html.dark-mode) .logo-image--dark {
+    display: block;
+  }
+</style>
 
 <script>
   // @ts-nocheck

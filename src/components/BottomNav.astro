@@ -1,0 +1,88 @@
+---
+interface Props {
+  previousPage: string | null;
+  nextPage: string | null;
+}
+
+const { previousPage, nextPage } = Astro.props;
+---
+
+<nav class="bottom-nav" aria-label="Navigatie">
+  {previousPage ? (
+    <a class="nav-btn nav-btn--prev" href={previousPage}> Vorige</a>
+  ) : (
+    <span class="nav-btn nav-btn--disabled" aria-disabled="true"> Vorige</span>
+  )}
+
+  {nextPage ? (
+    <a class="nav-btn nav-btn--next" href={nextPage} id="nav-next">Volgende </a>
+  ) : (
+    <span class="nav-btn nav-btn--disabled" aria-disabled="true">Volgende </span>
+  )}
+</nav>
+
+<style>
+  .bottom-nav {
+    position: fixed;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%);
+    width: min(66.67%, 800px);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    z-index: 100;
+    background: var(--module-card-background);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(0, 0, 0, 0.07);
+    border-radius: 99px;
+    padding: 0.5rem 0.75rem;
+  }
+
+  .nav-btn {
+    font-family: var(--font-bold);
+    font-size: var(--size-base);
+    padding: 0.6rem 1.4rem;
+    border-radius: 25px;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    transition: background 0.18s, color 0.18s, transform 0.12s, box-shadow 0.18s;
+    background: var(--color-accent);
+    color: var(--color-text);
+    border: 1.5px solid rgba(0, 0, 0, 0.12);
+  }
+
+  .nav-btn:hover {
+    background: color-mix(in srgb, var(--color-accent) 70%, black);
+    color: white;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 14px color-mix(in srgb, var(--color-accent) 50%, transparent);
+  }
+
+  .nav-btn:active {
+    transform: scale(0.97);
+  }
+
+  .nav-btn--disabled {
+    background: rgba(0, 0, 0, 0.05);
+    color: rgba(0, 0, 0, 0.28);
+    border-color: transparent;
+    pointer-events: none;
+    cursor: default;
+  }
+
+  @media (max-width: 900px) {
+    .bottom-nav { width: min(80%, 700px); }
+  }
+
+  @media (max-width: 600px) {
+    .bottom-nav {
+      width: calc(100% - 2rem);
+      bottom: 1rem;
+      border-radius: 16px;
+    }
+  }
+</style>

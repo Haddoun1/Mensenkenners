@@ -1,6 +1,8 @@
 ---
 // @ts-nocheck
 import { ClientRouter } from "astro:transitions";
+import BaseHead from '../components/BaseHead.astro';
+
 
 const bounceTransition = {
   forwards: {
@@ -63,39 +65,52 @@ const {
     <title>{title}</title>
     <link rel="stylesheet" href="/styles/global.css" />
     <link rel="stylesheet" href="/styles/onboarding.css" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=2" />
-    <ClientRouter />
-    <script is:inline>
-    if (localStorage.getItem("theme") === "dark") {
-    document.documentElement.classList.add("dark-mode");
-  }
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png?v=2" />
+      <BaseHead title={title} />
+  <link rel="stylesheet" href="/styles/onboarding.css" />
+  <ClientRouter />
 </script>
   </head>
 
   <body>
-    <main class={`container ${variant}`}     
-    data-step-id={stepId}
-    data-category={category} 
+    <main
+      class={`container ${variant}`}
+      data-step-id={stepId}
+      data-category={category}
     >
-    <div class="wrapper-dashboardBtn">
-  {showDashboardButton && (
-    <div class="wrapper-dashboardBtn">
-      <a href="/index.html" class="back-button">
-        Dashboard
-      </a>
-    </div>
-  )}
-    </div>
+      <div class="wrapper-dashboardBtn">
+        {
+          showDashboardButton && (
+            <div class="wrapper-dashboardBtn">
+              <a href="/" class="back-button">
+                Dashboard
+              </a>
+            </div>
+          )
+        }
+      </div>
       <div class="logo-mobile">
-        <img
-          src="/images/Mensenkenners-logo-hori.png"
-          alt="Mensenkenners logo"
-        />
+        <div>
+          <img
+            class="logo-image logo-image--light"
+            src="/images/logohorizontaal.png"
+            alt="Stichting Mensenkenners logo"
+          />
+          <img
+            class="logo-image logo-image--dark"
+            src="/images/mensenkennerslogowit.png"
+            alt="Stichting Mensenkenners logo"
+          />
+        </div>
       </div>
 
-      <div class="content" transition:animate="none" transition:name="content">
+      <div class="content">
         <!-- Links op desktop: slot voor bv. een afbeelding of illustratie -->
-        <div class="panel-left">
+        <div
+          class="panel-left"
+          transition:name="panel-left"
+          transition:animate="none"
+        >
           <slot />
         </div>
 
@@ -103,13 +118,25 @@ const {
         <div class="panel-right">
           {mockupSrc && <img class="mockup" src={mockupSrc} alt="mockup" />}
           <div class="logo-desktop">
-            <img
-              src="/images/Mensenkenners-logo-hori.png"
-              alt="Mensenkenners logo"
-            />
+                <div>
+          <img
+            class="logo-image logo-image--light"
+            src="/images/logohorizontaal.png"
+            alt="Stichting Mensenkenners logo"
+          />
+          <img
+            class="logo-image logo-image--dark"
+            src="/images/mensenkennerslogowit.png"
+            alt="Stichting Mensenkenners logo"
+          />
+        </div>
           </div>
 
-          <div class="text-section">
+          <div
+            class="text-section"
+            transition:animate="none"
+            transition:name="content"
+          >
             {
               showProgress && (
                 <div class="progress-bar">
@@ -122,10 +149,13 @@ const {
               )
             }
 
-            <div class="question-wrapper">
-              <slot name="question" />
-            </div>
-
+            {
+              Astro.slots.has("question") && (
+                <div class="question-wrapper">
+                  <slot name="question" />
+                </div>
+              )
+            }
             <div class="questionnaire">
               <h1>{headingText}</h1>
               <p>{bodyText}</p>
@@ -159,374 +189,30 @@ const {
   </body>
 </html>
 
-<!-- <style>
-  html {
-    background-image: var(--gradient-bg-cyan);
-    animation: pulse 2s ease-in-out infinite;
+<style>
+  .logo-image {
+    height: 40px;
+    width: 160px;
+    object-fit: contain;
+    object-position: left;
   }
 
-  @keyframes pulse {
-    0%,
-    100% {
-      background-size: 100% 100%;
-    }
-    50% {
-      background-size: 120% 120%;
-    }
-  }
-
-  /* ── Layout ── */
-  .container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    height: 100vh;
-    overflow: hidden;
-    padding: var(--size-base) var(--size-2xl);
-  }
-
-  :global(.content) {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    flex: 1;
-    width: 100%;
-  }
-
-  .panel-left {
-    display: flex;
-    flex: 1;
-    flex-direction: column;
-  }
-
-  .panel-right {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    flex: 1;
-  }
-
-  .text-section {
-    display: flex;
-    flex-direction: column;
-    gap: var(--size-xs);
-    align-items: center;
-    text-align: center;
-
-    & .question-wrapper {
-      order: 1;
-    }
-
-    & .progress-bar {
-      order: 2;
-      align-items: center;
-      justify-content: center;
-    }
-  }
-
-  /* ── Logo ── */
-  .logo-mobile {
-    display: flex;
-    justify-content: center;
-    width: 100%;
-    padding: var(--size-xl) 0 0;
-
-    & img {
-      width: 60%;
-    }
-  }
-
-  .logo-desktop {
+  .logo-image--dark {
     display: none;
-    padding: .3rem;
   }
 
-  /* ── Text & progress ── */
-  .text-section {
-    display: flex;
-    flex-direction: column;
-    gap: var(--size-xs);
+  .logo-mobile .logo-image{
+    transform: scale(1.8);
   }
 
-  .questionnaire {
-    display: flex;
-    flex-direction: column;
-    gap: var(--size-xxs);
-    color: var(--color-text);
-
-    & h1 {
-      font-family: "Plus Jakarta Sans", sans-serif;
-      font-size: var(--size-2xl);
-      font-weight: 800;
-      color: var(--color-text);
-    }
-
-    & p {
-      font-size: var(--size-sm);
-      font-family: var(--font-regular);
-      color: var(--color-text-muted);
-      line-height: 1.2;
-    }
+  :global(html.dark-mode) .logo-image--light {
+    display: none;
   }
 
-  .progress-bar {
-    display: flex;
-    gap: var(--size-xxs);
-    padding: var(--size-xxs) 0;
-    width: 100%;
+  :global(html.dark-mode) .logo-image--dark {
+    display: block;
   }
-
-  .progress {
-    width: var(--size-xxs);
-    height: var(--size-xxs);
-    background-color: color-mix(in srgb, var(--color-text) 20%, transparent);
-    border-radius: 50px;
-  }
-
-  .progress.done-small {
-    background-color: var(--color-green);
-  }
-
-  .progress.done {
-    width: 15%;
-    background-color: var(--color-green);
-  }
-
-  /* ── Buttons ── */
-
-  .wrapper-dashboardBtn {
-    display: flex;
-    align-self: flex-start;
-  }
-
-  .back-button {
-    font-family: var(--font-semi-bold);
-    font-size: var(--size-sm);
-    letter-spacing: 0.06em;
-    background: var(--color-green);
-    border: 1px solid color-mix(in srgb, var(--color-text) 8%, transparent);
-    border-radius: 99px;
-    padding: 0.25rem 0.85rem;
-    color: var(--color-text);
-    margin: 0;
-    text-decoration: none;
-    max-width:fit-content;
-
-    &&::before {
-      content: "←";
-      display: inline-block;
-      margin-left: 0.2rem;
-      transition: transform 0.2s;
-    }
-
-    &&:hover {
-    background: light-dark(color-mix(in srgb, var(--color-green) 70%, black), color-mix(in srgb, var(--color-green) 70%, white));
-    color: white;
-    transform: translateY(-1px);
-    box-shadow: 0 4px 14px rgba(42,183,137,0.25);
-    transition: transform 0.2s;
-  }
-}
-
-  .buttons-onboarding {
-    display: flex;
-    flex-direction: column;
-    gap: var(--size-xxs);
-    width: 100%;
-    padding: var(--size-base) 0;
-  }
-
-  .button-next,
-  .button-back {
-    width: 100%;
-
-    & button {
-      width: 100%;
-      padding: var(--size-xs) var(--size-2xl);
-      border-radius: 25px;
-      border: none;
-      font-weight: 600;
-      cursor: pointer;
-    }
-  }
-
-  .button-next button {
-    background-color: var(--color-green);
-    color: var(--color-background);
-    transition:
-      background-color 0.3s ease,
-      color 0.3s ease;
-
-    &:hover {
-      background-color: var(--color-cyan);
-    }
-  }
-
-  .button-back button {
-    background-color: var(--color-background);
-    color: var(--color-green);
-    border: 2px solid var(--color-green);
-    transition:
-      background-color 0.3s ease,
-      color 0.3s ease;
-
-    &:hover {
-      background-color: var(--color-green);
-      color: var(--color-background);
-    }
-  }
-
-  ::view-transition-old(content) {
-    animation: 0.3s ease-in bounceOut forwards;
-  }
-  ::view-transition-new(content) {
-    animation: 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) 0.3s bounceIn backwards;
-  }
-
-  html.is-going-back::view-transition-old(content) {
-    animation: 0.3s ease-in bounceOutRight forwards;
-  }
-  html.is-going-back::view-transition-new(content) {
-    animation: 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) 0.3s bounceInLeft
-      backwards;
-  }
-
-  @keyframes bounceIn {
-    from {
-      opacity: 0;
-      transform: translateX(100%);
-    }
-    to {
-      opacity: 1;
-      transform: translateX(0);
-    }
-  }
-  @keyframes bounceOut {
-    from {
-      opacity: 1;
-      transform: translateX(0);
-    }
-    to {
-      opacity: 0;
-      transform: translateX(-100%);
-    }
-  }
-  @keyframes bounceInLeft {
-    from {
-      opacity: 0;
-      transform: translateX(-100%);
-    }
-    to {
-      opacity: 1;
-      transform: translateX(0);
-    }
-  }
-  @keyframes bounceOutRight {
-    from {
-      opacity: 1;
-      transform: translateX(0);
-    }
-    to {
-      opacity: 0;
-      transform: translateX(100%);
-    }
-  }
-
-  /* ── Desktop / tablet ── */
-  @media (min-width: 768px) {
-    .container {
-      padding: var(--size-2xl) var(--size-4xl);
-      justify-content: center;
-    }
-
-    .logo-mobile {
-      display: none;
-    }
-
-    :global(.content) {
-      flex-direction: row;
-      align-items: stretch;
-      gap: var(--size-2xl);
-    }
-
-    .panel-left {
-      display: flex;
-      flex: 1;
-      align-items: center;
-      justify-content: center;
-      border-radius: var(--size-base);
-
-      .mockup {
-        width: 100%;
-      }
-    }
-
-    .panel-right {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      justify-content: flex-start;
-    }
-
-    .text-section {
-      align-items: flex-start;
-      text-align: left;
-      & .progress-bar {
-        justify-content: flex-start;
-      }
-    }
-
-    .logo-desktop {
-      display: block;
-      padding-bottom: var(--size-2xl);
-
-      & img {
-        width: 150px;
-      }
-    }
-
-    .questionnaire {
-      text-align: left;
-      align-items: flex-start;
-    }
-
-    .buttons-onboarding {
-      margin-top: auto;
-      flex-direction: row-reverse;
-    }
-  }
-
-  @media (min-width: 1024px) {
-    .container {
-      padding: var(--size-5xl) var(--size-4xl);
-      justify-content: center;
-    }
-
-    .logo-desktop {
-      & img {
-        width: 200px;
-      }
-    }
-
-    .progress.done {
-      width: 5%;
-    }
-    .questionnaire {
-      & h1 {
-        font-size: var(--size-3xl);
-      }
-
-      & p {
-        font-size: var(--size-base);
-      }
-    }
-    .panel-left {
-      .mockup {
-        margin: 0;
-      }
-    }
-  }
-</style> -->
+</style>
 
 <!-- https://claude.ai/chat/c67f7248-9580-489f-a97f-bb6489468314 het terugnavigeren met view transitions voor de backbuttons -->
 <script>
@@ -578,7 +264,8 @@ const {
         body: JSON.stringify({
           userId: user.id,
           email: user.email || localStorage.getItem("email") || null,
-          name: user.user_metadata?.name || localStorage.getItem("name") || null,
+          name:
+            user.user_metadata?.name || localStorage.getItem("name") || null,
           stepId,
           category,
           currentUrl: window.location.pathname,
@@ -645,5 +332,4 @@ const {
   });
 </script>
 
-
-
+<!-- https://claude.ai/chat/c67f7248-9580-489f-a97f-bb6489468314 het terugnavigeren met view transitions voor de backbuttons -->

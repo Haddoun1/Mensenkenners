@@ -1,10 +1,9 @@
 ---
+// @ts-nocheck
 const { question, options, name } = Astro.props;
 ---
 
 <div class="question">
-  <!-- <p>{question}</p> -->
-
   <div class="questions-single">
     {
       options.map((opt) => (
@@ -65,9 +64,9 @@ const { question, options, name } = Astro.props;
     display: flex;
     flex-direction: row;
     
-    border: 1px solid var(--color-text-muted);
-    color: var(--color-text-muted);
-
+    border: 1px solid var(--onboarding-label);
+    color: var(--onboarding-label);
+    
     transition: 0.5s;
     text-align: center;
     height: 100%;
@@ -94,5 +93,11 @@ const { question, options, name } = Astro.props;
     opacity: 0;
     width: 0;
     height: 0;
+  }
+
+  @media (min-width: 1200px) {
+    .questions-single label {
+      font-size: var(--size-lg);
+    }
   }
 </style>

@@ -1,0 +1,36 @@
+---
+export const prerender = false;
+import MainLayout from "../../layouts/Layout-onboarding.astro";
+import QuestionSingle from "../../components/QuestionSingle.astro";
+import QuestionMulti from "../../components/QuestionMulti.astro";
+import steps from "../../data/onboarding-steps.json";
+
+const { step } = Astro.params;
+const stepNumber = parseInt(step?.replace("step-", "") ?? "1");
+const data = steps.find(s => s.id === stepNumber);
+
+if (!data) return Astro.redirect("/onboarding/step-1");
+---
+
+<MainLayout
+  title={data.title}
+  nextHref={data.nextHref}
+  backHref={data.backHref}
+  headingText={data.headingText}
+  bodyText={data.bodyText}
+  step={data.step}
+  totalSteps={data.totalSteps}
+  stepId={data.stepId}
+  category={data.category}
+  variant={data.variant}
+  showProgress={data.showProgress ?? true}
+>
+  {data.question?.type === "single" && (
+    <QuestionSingle slot="question" name={data.question.name} options={data.question.options} />
+  )}
+  {data.question?.type === "multi" && (
+    <QuestionMulti slot="question" name={data.question.name} options={data.question.options} />
+  )}
+
+  <img class="mockup" src={data.imageSrc} alt={data.imageAlt} />
+</MainLayout>

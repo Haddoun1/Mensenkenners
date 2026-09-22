@@ -1,0 +1,52 @@
+---
+export const prerender = false;
+import MainLayout from "../../layouts/Layout-onboarding.astro";
+---
+
+<!-- nextHref="/onboarding/result" -->
+<MainLayout
+  title="Stap 9"
+  nextHref="/"
+  backHref="/onboarding/step-9"
+  headingText="Resultaat"
+  bodyText="Op basis van jouw antwoorden hebben we een aanbeveling voor jou opgesteld."
+  showProgress={false}
+  stepId="onboarding_step-9"
+  category="onboarding"
+  variant="steps-quiz"
+>
+  <div class="result" slot="question">
+    <div class="result-content">
+      <p>geen ervaring</p>
+      <p>geen ervaring met enkele groep</p>
+      <p>vermijd liever contact</p>
+      <p>ik weet het niet</p>
+      <p>harder praten</p>
+      <p>ongemakkelijk</p>
+    </div>
+
+    <div class = "result-text">
+      <h2>Onze aanbeveling</h2>
+      <p>We raden het jou aan om te beginnen met de onboarding cursus.</p>
+
+      <div class = "result-onboarding">
+        <img
+          src="/images/mockupmensenkenners.png"
+          alt="Mensenkenners logo"
+        />
+        
+        <div class="result-onboarding-text">
+          <h3>Onboarding cursus</h3>
+          <p>In deze cursus leer je meer over de verschillende soorten beperkingen en hoe je hier het beste mee om kunt gaan. Zo kun je jouw ervaring op een veilige manier uitbreiden.</p>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <img
+    class="mockup"
+    src="/images/Mensenkennerskadervisueel.png"
+    alt="Mensenkenners logo"
+  />
+</MainLayout>

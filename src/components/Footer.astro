@@ -15,7 +15,7 @@ const courses = [
     <div class="footer-brand">
     <img
   class="footer-logo-image"
-  src="/src/assets/logohorizontaal.png"
+  src="/images/logohorizontaal.png"
   alt="Stichting Mensenkenners logo"
 />
       <p class="brand-tagline">Leer in jouw eigen tempo.</p>
@@ -154,7 +154,7 @@ const courses = [
     }
   }
 
- :global(html.dark-mode) .footer-logo-image {
-  content: url("/src/assets/mensenkennerslogowit.png");
+ :global(html:has(#theme-toggle-checkbox:checked)) .footer-logo-image {
+  content: url("/images/mensenkennerslogowit.png");
 }
 </style>

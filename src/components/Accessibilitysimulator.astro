@@ -344,7 +344,9 @@
 
   /* ── Setting panel (slides in from right) ────────────────────── */
 
-  
+  * {
+    color:black;
+  }
 
   .setting-panel {
     position: fixed;
@@ -352,7 +354,6 @@
     right: 0;
     height: 100%;
     width: 300px;
-    background: var(--color-accent);
     z-index: 300;
     display: flex;
     flex-direction: column;
@@ -364,6 +365,7 @@
   .setting-panel.open {
     transform: translateX(0);
     box-shadow: -4px 0 32px rgba(0, 0, 0, 0.15);
+  
   }
 
   .setting-panel-header {
@@ -373,7 +375,9 @@
     padding: 1.25rem 1.25rem 1rem;
     border-bottom: 1.5px solid color-mix(in srgb, var(--color-text) 12%, transparent);
     flex-shrink: 0;
-    background: var(--color-surface);
+    background: rgba(255, 255, 255);
+        background-color: var(--simulator-background-panel);
+
   }
 
   .setting-panel-title {
@@ -382,6 +386,7 @@
     letter-spacing: 0.07em;
     text-transform: uppercase;
     opacity: 0.6;
+    color: black;
   }
 
   .setting-close-btn {
@@ -406,7 +411,7 @@
 
   .setting-content {
     flex: 1;
-    background: var(--color-surface);
+    background-color: var(--simulator-background-panel);
     overflow-y: auto;
   }
 
@@ -414,7 +419,9 @@
 
   .setting-section {
     padding: 14px 16px;
-    border-bottom: 1px solid color-mix(in srgb, var(--color-text) 7%, transparent);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.07);
+    background-color: var(--simulator-background-panel);
+
   }
 
   .setting-section:last-of-type {
@@ -451,7 +458,7 @@
     display: block;
     font-family: var(--font-light);
     font-size: 11px;
-    color: var(--color-text-muted);
+    color: var(--simulator-background);
     margin-top: 1px;
   }
 
@@ -465,7 +472,7 @@
   .setting-slider-wrap input[type="range"] {
     flex: 1;
     height: 4px;
-    accent-color: var(--color-text);
+    accent-color: var(--simulator-background);
     cursor: pointer;
   }
 
@@ -491,7 +498,7 @@
     border: 1px solid color-mix(in srgb, var(--color-text) 15%, transparent);
     border-radius: 99px;
     background: transparent;
-    color: var(--color-text);
+    color: var(--simulator-background);
     cursor: pointer;
     transition: background 0.15s, border-color 0.15s;
   }
@@ -501,14 +508,16 @@
   }
 
   .setting-chip.active {
-    background: var(--color-text);
-    color: var(--color-text-inverse);
+    background: var(--simulator-background);
+    color: white;
     border-color: var(--color-text);
   }
 
   .setting-footer {
     padding: 10px 16px 14px;
-    border-top: 1px solid color-mix(in srgb, var(--color-text) 7%, transparent);
+    border-top: 1px solid rgba(0, 0, 0, 0.07);
+    background-color: var(--simulator-background-panel);
+
   }
 
   .setting-reset {
@@ -557,3 +566,6 @@
     display: block;
   }
 </style>
+
+<!-- Bronnen 
+  Sanne’s Code - Beperking Simulator-->

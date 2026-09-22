@@ -1,37 +1,22 @@
 ---
 export const prerender = false;
 import MainLayout from "../../layouts/Layout-onboarding.astro";
-import QuestionMulti from "../../components/QuestionMulti.astro";
 ---
 
-<MainLayout
-  title="Stap 5"
-  nextHref="/onboarding/step-6"
-  backHref="/onboarding/step-4"
-  headingText="Ervaring"
-  bodyText="Met welke groepen heb je ervaring?"
-  step={5}
-  totalSteps={9}
-  stepId="onboarding_step-5"
-  category="onboarding"
-  variant="steps-quiz"
+<MainLayout title="Stap 5" 
+nextHref="/onboarding/step-6" 
+backHref="/onboarding/step-4"
+headingText="Vragenlijst"
+bodyText="We gaan je een aantal vragen stellen over jouw ervaringen in de openbare ruimte. Dit doen we om een beter beeld te krijgen van jouw ervaringen en behoeften, zodat we je zo goed mogelijk kunnen helpen."
+step={5} 
+totalSteps={11}
+stepId="onboarding_step-5"
+category="onboarding"
 >
-  <QuestionMulti
-    slot="question"
-    name="ervaring_groepen"
-    options={[
-      "Visuele beperking",
-      "Auditieve beperking",
-      "Motorische beperking",
-      "Niet-zichtbare beperking",
-      "Verstandelijke beperking",
-      "Psychische aandoening",
-      "Geen ervaring",
-    ]}
-  />
 
-  <img class="mockup"
-    src="/images/Mensenkennerskaderdoof.png"
-    alt="Mensenkenners logo"
-  />
+<img class="mockup"
+  src="/images/Mensenkennerskadersd.png"
+  alt="Mensenkenners logo"
+/>
+  
 </MainLayout>

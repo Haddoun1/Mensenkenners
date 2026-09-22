@@ -15,10 +15,10 @@ if (Astro.request.method === "POST") {
   const formData = await Astro.request.formData();
 
   // Haalt het e-mailadres op uit het formulier.
-  const email = String(formData.get("email"));
+  const email = String(formData.get("email") || "");
 
   // Haalt het wachtwoord op uit het formulier.
-  const password = String(formData.get("password"));
+  const password = String(formData.get("password") || "");
 
   // Maakt een server-side Supabase client aan.
   const supabase = createSupabaseServerClient(Astro);
@@ -40,17 +40,35 @@ if (Astro.request.method === "POST") {
 }
 ---
 
-<form method="POST">
+<form id="admin-login-form" method="POST">
   <h1>Admin login</h1>
-    <input name="email" type="email" placeholder="E-mail" required />
-    <input name="password" type="password" placeholder="Wachtwoord" required />
-    <button type="submit"> Inloggen </button>
-  </form>
-  {errorMessage && <p>{errorMessage}</p>}
 
-  <style>
-    p {
-      color: red;
-    }
-  </style>
+  <input
+    name="email"
+    type="email"
+    placeholder="E-mail"
+    required
+  />
+
+  <input
+    name="password"
+    type="password"
+    placeholder="Wachtwoord"
+    required
+  />
+
+  <button type="submit">
+    Inloggen
+  </button>
 </form>
+
+{errorMessage && <p>{errorMessage}</p>}
+
+<style>
+  p {
+    color: red;
+  }
+</style>
+
+<!-- Bronnen
+  https://supabase.com/docs/guides/auth -->

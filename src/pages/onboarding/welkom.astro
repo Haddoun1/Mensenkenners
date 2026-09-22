@@ -30,29 +30,29 @@ import MainLayout from "../../layouts/Layout-onboarding.astro";
 
 <script>
   // @ts-nocheck
-  const loader = document.querySelector(".loader");
+const loader = document.querySelector(".loader");
 
-  if (loader) {
-    const isMobile = window.matchMedia("(max-width: 768px)").matches;
+if (loader) {
+  const isMobile = window.matchMedia("(max-width: 768px)").matches;
 
-    window.addEventListener("load", () => {
-      const prefersReduced = window.matchMedia(
-        "(prefers-reduced-motion: reduce)",
-      ).matches;
+  window.addEventListener("load", () => {
+    const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-      if (prefersReduced) {
-        loader.classList.add("hidden");
-      } else if (isMobile) {
-        setTimeout(() => {
-          loader.classList.add("hidden-mobile");
-        }, 750);
-      } else {
+    if (prefersReduced) {
+      loader.classList.add("hidden");
+    } else if (isMobile) {
+      setTimeout(() => {
+        loader.classList.add("hidden-mobile");
+      }, 750);
+    } else {
+      requestAnimationFrame(() => {
         requestAnimationFrame(() => {
-          requestAnimationFrame(() => {
-            loader.classList.add("revealed");
-          });
+          loader.classList.add("revealed");
         });
-      }
-    });
-  }
-</script>
+      });
+      setTimeout(() => {
+        loader.classList.add("hidden");
+      }, 1200);
+    }
+  });
+}

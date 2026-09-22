@@ -28,7 +28,7 @@ const { category, categorySlug, categoryItems, currentStep, totalSteps, accentCo
   aria-expanded="false"
   style={`--color-accent: ${accentColor}`}
 >
-<img class="table-of-contents-icon" src="/images/table-of-contents.svg" alt="Inhoudsopgave" aria-hidden="true">
+  <img class="table-of-contents-icon" src="/images/table-of-contents.svg" alt="Inhoudsopgave" aria-hidden="true">
   {currentStep}<span class="step-total">/{totalSteps}</span>
 </button>
 
@@ -92,10 +92,11 @@ const { category, categorySlug, categoryItems, currentStep, totalSteps, accentCo
     background: color-mix(in srgb, var(--color-accent) 35%, transparent);
     border: 1px solid color-mix(in srgb, var(--color-accent) 60%, transparent);
     border-radius: 99px;
-    padding: 0.15rem 0.85rem;
+    height: 2.25rem;
+    padding: 0 0.85rem;
     color: var(--color-text);
     margin: 0;
-    line-height: 1.4;
+    line-height: 1;
     cursor: pointer;
     transition:
       background 0.18s,
@@ -104,6 +105,8 @@ const { category, categorySlug, categoryItems, currentStep, totalSteps, accentCo
     display: inline-flex;
     align-items: center;
     gap: 0.2rem;
+    white-space: nowrap;
+    flex-shrink: 0;
   }
 
   .hamburger-btn:hover {
@@ -122,6 +125,25 @@ const { category, categorySlug, categoryItems, currentStep, totalSteps, accentCo
     font-family: var(--font-light);
     font-size: var(--size-xs);
     color: var(--color-text-muted);
+  }
+
+  :global(html.dark-mode) .table-of-contents-icon {
+  filter: invert(1);
+}
+
+  /* Responsive — zelfde breakpoint als [step].astro */
+  @media (max-width: 600px) {
+    .hamburger-btn {
+      font-size: var(--size-xs, 0.75rem);
+      height: 2rem;
+      padding: 0 0.65rem;
+      gap: 0.15rem;
+    }
+
+    .table-of-contents-icon {
+      width: 16px;
+      height: 16px;
+    }
   }
 
   .qnav-overlay {
@@ -166,7 +188,7 @@ const { category, categorySlug, categoryItems, currentStep, totalSteps, accentCo
     padding: 1.25rem 1.25rem 1rem;
     border-bottom: 1.5px solid color-mix(in srgb, var(--color-text) 12%, transparent);
     flex-shrink: 0;
-    background: var(--color-surface);
+    background: var(--simulator-background-panel);
   }
 
   .qnav-title {
@@ -175,6 +197,7 @@ const { category, categorySlug, categoryItems, currentStep, totalSteps, accentCo
     letter-spacing: 0.07em;
     text-transform: uppercase;
     opacity: 0.6;
+    color: var(--simulator-background)
   }
 
   .qnav-close-btn {
@@ -203,7 +226,7 @@ const { category, categorySlug, categoryItems, currentStep, totalSteps, accentCo
     margin: 0;
     overflow-y: auto;
     flex: 1;
-    background: var(--color-surface);
+    background: var(--simulator-background-panel);
   }
 
   .qnav-list li a {
@@ -230,13 +253,13 @@ const { category, categorySlug, categoryItems, currentStep, totalSteps, accentCo
     width: 26px;
     height: 26px;
     border-radius: 7px;
-    background: color-mix(in srgb, var(--color-text) 8%, transparent);
+    background: var(--simulator-num);
     display: flex;
     align-items: center;
     justify-content: center;
     font-family: var(--font-bold);
     font-size: var(--size-sm);
-    color: var(--color-text);
+    color: var(--simulator-background);
   }
 
   .qnav-step-title {
@@ -244,6 +267,6 @@ const { category, categorySlug, categoryItems, currentStep, totalSteps, accentCo
     font-size: var(--size-sm);
     line-height: 1.35;
     flex: 1;
-    color: var(--color-text);
+    color: var(--simulator-background);
   }
 </style>
