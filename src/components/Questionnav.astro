@@ -124,7 +124,7 @@ const { category, categorySlug, categoryItems, currentStep, totalSteps, accentCo
   .step-total {
     font-family: var(--font-light);
     font-size: var(--size-xs);
-    opacity: 0.45;
+    color: var(--color-text-muted);
   }
 
   :global(html.dark-mode) .table-of-contents-icon {
@@ -186,7 +186,7 @@ const { category, categorySlug, categoryItems, currentStep, totalSteps, accentCo
     align-items: center;
     justify-content: space-between;
     padding: 1.25rem 1.25rem 1rem;
-    border-bottom: 1.5px solid rgba(0, 0, 0, 0.12);
+    border-bottom: 1.5px solid color-mix(in srgb, var(--color-text) 12%, transparent);
     flex-shrink: 0;
     background: var(--simulator-background-panel);
   }
@@ -204,7 +204,7 @@ const { category, categorySlug, categoryItems, currentStep, totalSteps, accentCo
     width: 32px;
     height: 32px;
     border-radius: 50%;
-    background: rgba(0, 0, 0, 0.1);
+    background: color-mix(in srgb, var(--color-text) 10%, transparent);
     border: none;
     cursor: pointer;
     display: flex;
@@ -217,7 +217,7 @@ const { category, categorySlug, categoryItems, currentStep, totalSteps, accentCo
   }
 
   .qnav-close-btn:hover {
-    background: rgba(0, 0, 0, 0.22);
+    background: color-mix(in srgb, var(--color-text) 22%, transparent);
   }
 
   .qnav-list {
@@ -240,11 +240,11 @@ const { category, categorySlug, categoryItems, currentStep, totalSteps, accentCo
   }
 
   .qnav-list li a:hover {
-    background: rgba(0, 0, 0, 0.07);
+    background: color-mix(in srgb, var(--color-text) 7%, transparent);
   }
 
   .qnav-list li a.active {
-    background: rgba(0, 0, 0, 0.12);
+    background: color-mix(in srgb, var(--color-text) 12%, transparent);
     font-family: var(--font-bold);
   }
 

@@ -63,7 +63,8 @@
 //@ts-nocheck
   function setupThemeToggle() {
     const themeToggleCheckbox = document.getElementById("theme-toggle-checkbox");
-    if (!themeToggleCheckbox) return;
+    if (!themeToggleCheckbox || themeToggleCheckbox.dataset.themeBound) return;
+    themeToggleCheckbox.dataset.themeBound = "true";
 
     if (document.documentElement.classList.contains("dark-mode")) {
       themeToggleCheckbox.checked = true;
