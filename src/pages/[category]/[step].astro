@@ -1247,7 +1247,7 @@ const accentColor = categoryColorMap[categorySlug] ?? "#B1F2D9";
 
   .option-label:hover {
     background: var(--module-option-label-hover);
-    border-color: rgba(0, 0, 0, 0.22);
+    border-color: color-mix(in srgb, var(--color-text) 22%, transparent);
     transform: translateX(3px);
     box-shadow: 0 2px 8px color-mix(in srgb, var(--color-text) 7%, transparent);
   }
@@ -1435,9 +1435,9 @@ const accentColor = categoryColorMap[categorySlug] ?? "#B1F2D9";
   }
 
   .answer-feedback--incorrect {
-    background: var(--module-feedback-wrong);
-    border-color: #ff6631;
-    color: #9f2b00;
+    background: var(--color-error-bg);
+    border-color: var(--color-error-border);
+    color: var(--color-error-text);
     padding-left: 2vw;
   }
 
