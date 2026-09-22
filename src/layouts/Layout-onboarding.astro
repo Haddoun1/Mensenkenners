@@ -264,7 +264,7 @@ const {
     & p {
       font-size: var(--size-sm);
       font-family: var(--font-regular);
-      color: #7e7676;
+      color: var(--color-text-muted);
       line-height: 1.2;
     }
   }
@@ -279,7 +279,7 @@ const {
   .progress {
     width: var(--size-xxs);
     height: var(--size-xxs);
-    background-color: #cbc6c6;
+    background-color: color-mix(in srgb, var(--color-text) 20%, transparent);
     border-radius: 50px;
   }
 
@@ -304,7 +304,7 @@ const {
     font-size: var(--size-sm);
     letter-spacing: 0.06em;
     background: var(--color-green);
-    border: 1px solid rgba(0,0,0,0.08);
+    border: 1px solid color-mix(in srgb, var(--color-text) 8%, transparent);
     border-radius: 99px;
     padding: 0.25rem 0.85rem;
     color: var(--color-text);
@@ -320,7 +320,7 @@ const {
     }
 
     &&:hover {
-    background: #137f5b;
+    background: light-dark(color-mix(in srgb, var(--color-green) 70%, black), color-mix(in srgb, var(--color-green) 70%, white));
     color: white;
     transform: translateY(-1px);
     box-shadow: 0 4px 14px rgba(42,183,137,0.25);

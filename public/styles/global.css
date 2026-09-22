@@ -80,6 +80,7 @@ html {
   color-scheme: light;
 
 --color-text: light-dark(#222020, #ffffff);
+--color-text-inverse: light-dark(#ffffff, #142621);
 --color-background: light-dark(#ffffff, #ffffff);
 --color-green: light-dark(#2AB789, #142621);
 --color-cyan: light-dark(#B1F2D9, #1e4d3a);
@@ -89,6 +90,26 @@ html {
 --color-red: light-dark(#FF6631, #8a3318);
 --color-yellow: light-dark(#E9F279, #6b6e12);
 --button-background: light-dark(transparent, #6ecfab2b);
+
+--color-text-muted: light-dark(#6b6e73, #a3a9ae);
+--color-surface: light-dark(#ffffff, #1b1f1d);
+--color-surface-strong: light-dark(#ffffff, #232827);
+
+--color-success-bg: light-dark(#ecfff7, #12301f);
+--color-success-border: light-dark(#2fbf7f, #2fbf7f);
+--color-success-text: light-dark(#126341, #8fe9c2);
+
+--color-error-bg: light-dark(#fff0ed, #35180f);
+--color-error-border: light-dark(#ff6631, #ff6631);
+--color-error-text: light-dark(#9f2b00, #ffb199);
+
+--color-warning-bg: light-dark(#fff8df, #332804);
+--color-warning-border: light-dark(#e0aa00, #e0aa00);
+--color-warning-text: light-dark(#725500, #f0cf6b);
+
+--color-info-bg: light-dark(#f5f7ff, #1a1f3d);
+--color-info-border: light-dark(#8796ff, #8796ff);
+--color-info-text: light-dark(#20285c, #b9c2ff);
 
 
   --gradient-bg-cyan: radial-gradient(circle at 0% 0%, rgb(181 219 206 / 0.4) 0%, transparent);
@@ -100,7 +121,7 @@ html {
   --gradient-bg-red: radial-gradient(circle at 0% 0%, rgb(255 102 49 / 0.4) 0%, transparent);
   --gradient-bg-header: radial-gradient(circle at 0% 0%,rgb(181 219 206 / 0.4) 0%,transparent);
 
-  &:has(#theme-toggle-checkbox:checked) {
+  &.dark-mode {
     color-scheme: dark;
 
     --gradient-bg-cyan: radial-gradient(circle at 0% 0%, rgb(59, 129, 102) 0%, rgb(26 26 26));
@@ -111,6 +132,7 @@ html {
     --gradient-bg-yellow: radial-gradient(circle at 0% 0%, rgb(184 193 42) 0%, rgb(26 26 26));
     --gradient-bg-red: radial-gradient(circle at 0% 0%, rgb(204 74 31) 0%, rgb(26 26 26));
     --gradient-bg-header: radial-gradient(circle at 0% 0%, rgb(4 5 5 / 40%) 0%,transparent);
+    --gradient-bg-cyan-card: #1b1f1d;
 
   }
 
@@ -148,7 +170,7 @@ html {
   color: var(--color-text);
   background-color: var(--color-background);
 
-  &:has(#theme-toggle-checkbox:checked) {
+  &.dark-mode {
     color-scheme: dark;
   }
 }

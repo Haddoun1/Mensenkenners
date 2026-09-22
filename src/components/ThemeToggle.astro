@@ -45,21 +45,28 @@
 
   .theme-toggle-icon-dark { display: none; }
 
-  :global(html:has(#theme-toggle-checkbox:checked)) .theme-toggle-icon-light { display: none; }
-  :global(html:has(#theme-toggle-checkbox:checked)) .theme-toggle-icon-dark { display: block; }
+  :global(html.dark-mode) .theme-toggle-icon-light { display: none; }
+  :global(html.dark-mode) .theme-toggle-icon-dark { display: block; }
 </style>
 
 <script>
 //@ts-nocheck
-  document.addEventListener("astro:page-load", () => {
+  function initThemeToggle() {
     const themeToggleCheckbox = document.getElementById("theme-toggle-checkbox");
-    if (!themeToggleCheckbox) return;
+    if (!themeToggleCheckbox || themeToggleCheckbox.dataset.themeBound) return;
+    themeToggleCheckbox.dataset.themeBound = "true";
 
     const savedTheme = localStorage.getItem("theme");
-    if (savedTheme === "dark") themeToggleCheckbox.checked = true;
+    themeToggleCheckbox.checked = savedTheme === "dark";
+    document.documentElement.classList.toggle("dark-mode", savedTheme === "dark");
 
     themeToggleCheckbox.addEventListener("change", () => {
-      localStorage.setItem("theme", themeToggleCheckbox.checked ? "dark" : "light");
+      const isDark = themeToggleCheckbox.checked;
+      localStorage.setItem("theme", isDark ? "dark" : "light");
+      document.documentElement.classList.toggle("dark-mode", isDark);
     });
-  });
+  }
+
+  initThemeToggle();
+  document.addEventListener("astro:page-load", initThemeToggle);
 </script>

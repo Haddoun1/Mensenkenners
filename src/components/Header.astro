@@ -216,21 +216,17 @@ import ThemeToggle from "../components/ThemeToggle.astro";
     display: none;
   }
 
-  :global(html:has(#theme-toggle-checkbox:checked)) .logo-image--light {
+  :global(html.dark-mode) .logo-image--light {
     display: none;
   }
 
-  :global(html:has(#theme-toggle-checkbox:checked)) .logo-image--dark {
+  :global(html.dark-mode) .logo-image--dark {
     display: block;
   }
 </style>
 
 <script>
-  import { createClient } from "@supabase/supabase-js";
-  const supabase = createClient(
-    "https://ydrfkbvvpvnfawagitpk.supabase.co",
-    "sb_publishable_mbrE91Iw1nji7h3s-PliTg_p0cOzjWg",
-  );
+  import { supabase } from "../lib/supabase";
 
   const hamburger = document.querySelector(".hamburger");
   const nav = document.querySelector("nav");
@@ -240,10 +236,6 @@ import ThemeToggle from "../components/ThemeToggle.astro";
     hamburger.classList.toggle("open");
     hamburger.setAttribute("aria-expanded", String(isOpen));
   });
-
-  async function signOut() {
-    const { error } = await supabase.auth.signOut();
-  }
 
   document.addEventListener("DOMContentLoaded", () => {
     const logBtn = document.querySelector(".logout");

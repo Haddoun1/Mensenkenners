@@ -111,6 +111,11 @@ const categories = Object.entries(byCategory).map(([name, usersObj]) => ({
   href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;600&display=swap"
   rel="stylesheet"
 />
+<script is:inline>
+  if (localStorage.getItem("theme") === "dark") {
+    document.documentElement.classList.add("dark-mode");
+  }
+</script>
 
 <main>
   <div class="shell">
@@ -379,16 +384,21 @@ const categories = Object.entries(byCategory).map(([name, usersObj]) => ({
     Deze variabelen worden later overal hergebruikt.
   */
   :root {
+    color-scheme: light;
     --accent: #2ab789;
-    --accent-light: #2ab78912;
-    --accent-mid: #2ab78930;
-    --bg: #f7f8f7;
-    --surface: #ffffff;
-    --border: #e8eae8;
-    --text: #111c17;
-    --muted: #7a8c84;
+    --accent-light: light-dark(#2ab78912, #2ab78930);
+    --accent-mid: light-dark(#2ab78930, #2ab78955);
+    --bg: light-dark(#f7f8f7, #14171a);
+    --surface: light-dark(#ffffff, #1b1f1d);
+    --border: light-dark(#e8eae8, #2c3230);
+    --text: light-dark(#111c17, #f2f4f3);
+    --muted: light-dark(#7a8c84, #93a19b);
     --font: "DM Sans", sans-serif;
     --mono: "DM Mono", monospace;
+
+    &.dark-mode {
+      color-scheme: dark;
+    }
   }
 
   /*
@@ -476,14 +486,15 @@ const categories = Object.entries(byCategory).map(([name, usersObj]) => ({
     Knoppen in admin tools.
   */
   .resetBtn {
-    font-family: var(--font-semi-bold);
-    font-size: var(--size-sm);
+    font-family: var(--font);
+    font-weight: 600;
+    font-size: 0.8rem;
     letter-spacing: 0.06em;
-    background: var(--color-cyan);
-    border: 1px solid rgba(0, 0, 0, 0.08);
+    background: var(--accent-light);
+    border: 1px solid color-mix(in srgb, var(--text) 8%, transparent);
     border-radius: 99px;
     padding: 0.25rem 0.85rem;
-    color: var(--color-text);
+    color: var(--text);
     margin: 0;
     text-decoration: none;
     max-width: fit-content;
@@ -559,9 +570,9 @@ const categories = Object.entries(byCategory).map(([name, usersObj]) => ({
     Foutmelding als database ophalen mislukt.
   */
   .error-bar {
-    background: #fff5f5;
-    border: 1px solid #fecaca;
-    color: #dc2626;
+    background: light-dark(#fff5f5, #3a1414);
+    border: 1px solid light-dark(#fecaca, #6b2626);
+    color: light-dark(#dc2626, #ff9494);
     padding: 0.75rem 1rem;
     border-radius: 8px;
     margin-bottom: 1.5rem;
@@ -593,7 +604,7 @@ const categories = Object.entries(byCategory).map(([name, usersObj]) => ({
     Subtiele hover op statistiekkaart.
   */
   .stat-card:hover {
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+    box-shadow: 0 4px 16px color-mix(in srgb, var(--text) 6%, transparent);
   }
 
   /*

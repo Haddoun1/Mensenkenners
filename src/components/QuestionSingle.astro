@@ -65,9 +65,9 @@ const { question, options, name } = Astro.props;
     display: flex;
     flex-direction: row;
     
-    border: 1px solid #73747a;
-    color: #73747a;
-    
+    border: 1px solid var(--color-text-muted);
+    color: var(--color-text-muted);
+
     transition: 0.5s;
     text-align: center;
     height: 100%;
@@ -79,7 +79,7 @@ const { question, options, name } = Astro.props;
     &:has(input[type="radio"]:checked) {
       background-color: var(--color-cyan-dark);
       border-color: var(--color-cyan-dark);
-      color: var(--color-background);
+      color: white;
       font-family: var(--font-bold);
     }
 
