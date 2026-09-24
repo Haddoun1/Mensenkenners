@@ -238,19 +238,27 @@ html {
   scale:1.4;
 }
 
-  ::view-transition-old(content) {
+  ::view-transition-old(content),
+  ::view-transition-old(mockup),
+  ::view-transition-old(panel-left) {
     animation: 0.3s ease-in bounceOut forwards;
   }
 
-  ::view-transition-new(content) {
+  ::view-transition-new(content),
+  ::view-transition-new(mockup),
+  ::view-transition-new(panel-left) {
     animation: 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) 0.3s bounceIn backwards;
   }
 
-  html.is-going-back::view-transition-old(content) {
+  html.is-going-back::view-transition-old(content),
+  html.is-going-back::view-transition-old(mockup),
+  html.is-going-back::view-transition-old(panel-left) {
     animation: 0.3s ease-in bounceOutRight forwards;
   }
 
-  html.is-going-back::view-transition-new(content) {
+  html.is-going-back::view-transition-new(content),
+  html.is-going-back::view-transition-new(mockup),
+  html.is-going-back::view-transition-new(panel-left) {
     animation: 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) 0.3s bounceInLeft backwards;
   }
 
