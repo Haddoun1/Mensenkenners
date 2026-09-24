@@ -344,10 +344,6 @@
 
   /* ── Setting panel (slides in from right) ────────────────────── */
 
-  * {
-    color:black;
-  }
-
   .setting-panel {
     position: fixed;
     top: 0;
@@ -385,7 +381,7 @@
     letter-spacing: 0.07em;
     text-transform: uppercase;
     opacity: 0.6;
-    color: black;
+    color: var(--color-text);
   }
 
   .setting-close-btn {
@@ -418,7 +414,7 @@
 
   .setting-section {
     padding: 14px 16px;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.07);
+    border-bottom: 1px solid color-mix(in srgb, var(--color-text) 7%, transparent);
     background-color: var(--simulator-background-panel);
 
   }
@@ -457,7 +453,7 @@
     display: block;
     font-family: var(--font-light);
     font-size: 11px;
-    color: var(--simulator-background);
+    color: var(--color-text-muted);
     margin-top: 1px;
   }
 
@@ -471,7 +467,7 @@
   .setting-slider-wrap input[type="range"] {
     flex: 1;
     height: 4px;
-    accent-color: var(--simulator-background);
+    accent-color: var(--color-text);
     cursor: pointer;
   }
 
@@ -497,7 +493,7 @@
     border: 1px solid color-mix(in srgb, var(--color-text) 15%, transparent);
     border-radius: 99px;
     background: transparent;
-    color: var(--simulator-background);
+    color: var(--color-text);
     cursor: pointer;
     transition: background 0.15s, border-color 0.15s;
   }
@@ -507,14 +503,14 @@
   }
 
   .setting-chip.active {
-    background: var(--simulator-background);
-    color: white;
+    background: var(--color-text);
+    color: var(--color-text-inverse);
     border-color: var(--color-text);
   }
 
   .setting-footer {
     padding: 10px 16px 14px;
-    border-top: 1px solid rgba(0, 0, 0, 0.07);
+    border-top: 1px solid color-mix(in srgb, var(--color-text) 7%, transparent);
     background-color: var(--simulator-background-panel);
 
   }
