@@ -493,6 +493,23 @@ const accentColor = categoryColorMap[categorySlug] ?? "#B1F2D9";
       await saveProgress();
       window.location.href = navNext.href;
     });
+  } else {
+    // Dit is de laatste stap van de module (geen "Volgende"-knop beschikbaar).
+    // Zonder deze afhandeling wordt de laatste stap nooit als voltooid opgeslagen,
+    // waardoor de voortgang op bijvoorbeeld 90% blijft steken voor een module van 10 stappen.
+    const exitLinks = document.querySelectorAll(".action-row a");
+
+    exitLinks.forEach((link) => {
+      link.addEventListener("click", async (e) => {
+        e.preventDefault();
+        await saveProgress();
+        window.location.href = link.href;
+      });
+    });
+
+    // Vangnet voor het geval de gebruiker de pagina op een andere manier verlaat
+    // (bijv. terug-knop van de browser of tabblad sluiten).
+    document.addEventListener("pagehide", saveProgress);
   }
 
   // Maakt tekst veilig voordat deze als HTML-feedback wordt getoond.
