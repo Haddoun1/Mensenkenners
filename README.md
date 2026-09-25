@@ -139,7 +139,7 @@ import MainLayout from "../../layouts/Layout-onboarding.astro";
   stepId="onboarding_step-1"
   category="onboarding"
 >
-  <img src="/images/Mensenkennerskaderdoof.png" alt="Illustratie" />
+  <img src="/images/Mensenkennerskaderdoof.webp" alt="Illustratie" />
 </MainLayout>
 ```
 

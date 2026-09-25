@@ -10,7 +10,7 @@
     "totalSteps": 11,
     "stepId": "onboarding_step-1",
     "category": "onboarding",
-    "imageSrc": "/images/Mensenkennerskaderspraak.png",
+    "imageSrc": "/images/Mensenkennerskaderspraak.webp",
     "imageAlt": "Mensenkenners logo",
     "variant": "",
     "question": null
@@ -26,7 +26,7 @@
     "totalSteps": 11,
     "stepId": "onboarding_step-2",
     "category": "onboarding",
-    "imageSrc": "/images/Mensenkennerskaderroller.png",
+    "imageSrc": "/images/Mensenkennerskaderroller.webp",
     "imageAlt": "Mensenkenners logo",
     "variant": "",
     "question": null
@@ -58,7 +58,7 @@
     "totalSteps": 11,
     "stepId": "onboarding_step-4",
     "category": "onboarding",
-    "imageSrc": "/images/mensenkenners.gif",
+    "imageSrc": "/images/mensenkenners.webp",
     "imageAlt": "Mensenkenners logo",
     "variant": "",
     "question": null
@@ -74,7 +74,7 @@
     "totalSteps": 11,
     "stepId": "onboarding_step-5",
     "category": "onboarding",
-    "imageSrc": "/images/Mensenkennerskadersd.png",
+    "imageSrc": "/images/Mensenkennerskadersd.webp",
     "imageAlt": "Mensenkenners logo",
     "variant": "",
     "question": null
@@ -90,7 +90,7 @@
     "totalSteps": 11,
     "stepId": "onboarding_step-6",
     "category": "onboarding",
-    "imageSrc": "/images/Mensenkennerskadervisueel.png",
+    "imageSrc": "/images/Mensenkennerskadervisueel.webp",
     "imageAlt": "Mensenkenners logo",
     "variant": "steps-quiz",
     "question": {
@@ -110,7 +110,7 @@
     "totalSteps": 11,
     "stepId": "onboarding_step-7",
     "category": "onboarding",
-    "imageSrc": "/images/Mensenkennerskaderdoof.png",
+    "imageSrc": "/images/Mensenkennerskaderdoof.webp",
     "imageAlt": "Mensenkenners logo",
     "variant": "steps-quiz",
     "question": {
@@ -136,7 +136,7 @@
     "totalSteps": 11,
     "stepId": "onboarding_step-8",
     "category": "onboarding",
-    "imageSrc": "/images/Mensenkennerskaderroller.png",
+    "imageSrc": "/images/Mensenkennerskaderroller.webp",
     "imageAlt": "Mensenkenners logo",
     "variant": "steps-quiz",
     "question": {
@@ -156,7 +156,7 @@
     "totalSteps": 11,
     "stepId": "onboarding_step-9",
     "category": "onboarding",
-    "imageSrc": "/images/Mensenkennerskadersd.png",
+    "imageSrc": "/images/Mensenkennerskadersd.webp",
     "imageAlt": "Mensenkenners logo",
     "variant": "steps-quiz",
     "question": {
@@ -176,7 +176,7 @@
     "totalSteps": 11,
     "stepId": "onboarding_step-10",
     "category": "onboarding",
-    "imageSrc": "/images/Mensenkennerskaderroller.png",
+    "imageSrc": "/images/Mensenkennerskaderroller.webp",
     "imageAlt": "Mensenkenners logo",
     "variant": "steps-quiz",
     "question": {
@@ -196,7 +196,7 @@
     "totalSteps": 11,
     "stepId": "onboarding_step-11",
     "category": "onboarding",
-    "imageSrc": "/images/Mensenkennerskaderdoof.png",
+    "imageSrc": "/images/Mensenkennerskaderdoof.webp",
     "imageAlt": "Mensenkenners logo",
     "variant": "steps-quiz",
     "question": {
@@ -216,7 +216,7 @@
     "totalSteps": 11,
     "stepId": "onboarding_result",
     "category": "onboarding",
-    "imageSrc": "/images/Mensenkennerskadervisueel.png",
+    "imageSrc": "/images/Mensenkennerskadervisueel.webp",
     "imageAlt": "Mensenkenners logo",
     "variant": "steps-quiz",
     "showProgress": false,

@@ -5,7 +5,7 @@ export const courses = [
   {
     id: "onboarding",
     title: "Onboarding",
-    image: "/images/mockupmensenkenners.png",
+    image: "/images/mockupmensenkenners.webp",
     description:
       "Welkom bij de onboarding! In deze cursus maken we je wegwijs in het platform en leggen we uit wat je kunt verwachten in de verschillende delen van de cursus.",
     progress: 0,
@@ -17,7 +17,7 @@ export const courses = [
     title: "Module 1: Inclusief contact",
     description:
       "In deze module oefen je met basisprincipes die in veel situaties toepasbaar zijn.",
-    image: "/images/Mensenkennerskaderdoof.png",
+    image: "/images/Mensenkennerskaderdoof.webp",
     progress: 0,
     href: "/module-1/1",
     color: "var(--color-pink)",
@@ -27,7 +27,7 @@ export const courses = [
     title: "Module 2: Perspectief en inlevingsvermogen",
     description:
       "In deze module sta je stil bij situaties waarin bezoekers de wereld anders ervaren.",
-    image: "images/Mensenkennerskaderroller.png",
+    image: "images/Mensenkennerskaderroller.webp",
     progress: 0,
     href: "/module-2/1",
     color: "var(--color-yellow)",
@@ -37,7 +37,7 @@ export const courses = [
     title: "Module 3: Toegankelijkheid van jouw werkplek",
     description:
       "In deze module ga je leren hoe je jouw werplek concreet inclusief kunt maken.",
-    image: "/images/Mensenkennerskadersd.png",
+    image: "/images/Mensenkennerskadersd.webp",
     progress: 0,
     href: "/module-3/1",
     color: "var(--color-red)",
@@ -46,7 +46,7 @@ export const courses = [
     id: "module_4",
     title: "Module 4: Praktijksituaties en toepassing",
     description: "In deze module oefen je met herkenbare situaties.",
-    image: "/images/Mensenkennerskadervisueel.png",
+    image: "/images/Mensenkennerskadervisueel.webp",
     progress: 0,
     href: "/module-4/1",
     color: "var(--color-blue)",
