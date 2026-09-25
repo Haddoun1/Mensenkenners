@@ -1,12 +1,7 @@
 ---
-const currentYear = new Date().getFullYear();
+import { courses } from "../data/courses.js";
 
-const courses = [
-  { title: 'Onboarding', href: '/onboarding/step-1' },
-  { title: 'Bewustwording van jouw rol', href: '/deel-1/1' },
-  { title: 'Leren door te ervaren', href: '/deel-2/1' },
-  { title: 'Vertaling naar jouw werk', href: '/deel-3/1' },
-]
+const currentYear = new Date().getFullYear();
 ---
 
 <footer>
@@ -25,7 +20,7 @@ const courses = [
       <p class="footer-nav-title">Cursussen</p>
       <ul>
         {courses.map((c) => (
-          <li><a href={c.href}>{c.title}</a></li>
+          <li><a href={c.href}>{c.title.split(":")[0]}</a></li>
         ))}
       </ul>
     </nav>
@@ -34,9 +29,7 @@ const courses = [
       <p class="footer-nav-title">Account</p>
       <ul>
         <li><a href="/profile">Mijn Profiel</a></li>
-        <li><a href="/voortgang">Voortgang</a></li>
         <li><a href="/admin/login">Adminpanel</a></li>
-        <li><a href="/instellingen">Instellingen</a></li>
       </ul>
     </div>
 
@@ -49,7 +42,7 @@ const courses = [
     <span class="divider" aria-hidden="true">·</span>
     <a href="https://www.stichtingmensenkenners.nl/contact">Contact</a>
     <span class="divider" aria-hidden="true">·</span>
-    <p>Made by Alex, Arvid, Choice, Kelly & Naoufal</p>
+    <p>Made by (ink).</p>
   </div>
 </footer>
 

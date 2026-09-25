@@ -436,6 +436,18 @@ const accentColor = categoryColorMap[categorySlug] ?? "#B1F2D9";
   const category = main?.dataset.category;
   const startedAt = new Date();
 
+  // Alleen de intro/onboarding-categorie is toegankelijk zonder in te loggen.
+  // Voor alle modules moet de gebruiker eerst inloggen.
+  if (category && category !== "intro") {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) {
+      window.location.href = "/onboarding/login";
+    }
+  }
+
   let alreadySaved = false;
 
   // Slaat de huidige stap op in Supabase, zodat de gebruiker later kan hervatten.

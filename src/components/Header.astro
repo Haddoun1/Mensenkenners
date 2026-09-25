@@ -40,7 +40,7 @@ import ThemeToggle from "../components/ThemeToggle.astro";
       target="_blank"
       rel="noopener noreferrer">Contact</a
     >
-    <a href="/profile" class="profile-link">Mijn Profiel</a>
+    <a href="/profile" class="profile-link" id="profile-nav-link">Mijn Profiel</a>
     <ThemeToggle />
   </nav>
 </header>
@@ -173,6 +173,8 @@ import ThemeToggle from "../components/ThemeToggle.astro";
 </style>
 
 <script>
+  import { supabase } from "../lib/supabase";
+
   const hamburger = document.querySelector(".hamburger");
   const nav = document.querySelector("nav");
 
@@ -181,4 +183,18 @@ import ThemeToggle from "../components/ThemeToggle.astro";
     hamburger.classList.toggle("open");
     hamburger.setAttribute("aria-expanded", String(isOpen));
   });
+
+  // Toont "Inloggen" i.p.v. "Mijn Profiel" zolang niemand is ingelogd.
+  const profileLink = document.getElementById("profile-nav-link");
+
+  if (profileLink) {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) {
+      profileLink.textContent = "Inloggen";
+      profileLink.setAttribute("href", "/onboarding/login");
+    }
+  }
 </script>
