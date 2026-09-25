@@ -101,6 +101,32 @@ export const prerender = false;
   // @ts-nocheck
   import { supabase } from "../../lib/supabase";
 
+  // Stuurt de "Ga terug"-knop naar de pagina waar de gebruiker vandaan kwam,
+  // met de welkomstpagina als terugvaloptie.
+  // Kwam de gebruiker van een pagina die alleen voor ingelogde gebruikers is
+  // (een module of het profiel), dan zou teruggaan meteen weer naar de
+  // login-pagina sturen. Stuur die gevallen daarom naar het dashboard.
+  const backBtn = document.getElementById("back-btn");
+  if (backBtn && document.referrer) {
+    try {
+      const referrerUrl = new URL(document.referrer);
+      const cameFromProtectedPage =
+        /^\/module-\d+\//.test(referrerUrl.pathname) ||
+        referrerUrl.pathname === "/profile";
+
+      if (cameFromProtectedPage) {
+        backBtn.setAttribute("href", "/");
+      } else if (
+        referrerUrl.origin === window.location.origin &&
+        referrerUrl.pathname !== window.location.pathname
+      ) {
+        backBtn.setAttribute("href", referrerUrl.pathname + referrerUrl.search);
+      }
+    } catch {
+      // Ongeldige of ontbrekende referrer: val terug op de standaard-href.
+    }
+  }
+
   const form = document.querySelector(".login-form");
   const emailInput = document.getElementById("email");
   const passwordInput = document.getElementById("password");
@@ -124,6 +150,6 @@ export const prerender = false;
 
     console.log("Ingelogd als:", data.user.id);
 
-    window.location.replace("/onboarding/step-1");
+    window.location.replace("/");
   });
 </script>
