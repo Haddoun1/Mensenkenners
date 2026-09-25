@@ -24,9 +24,10 @@ if (!data) return Astro.redirect("/onboarding/step-1");
   category={data.category}
   variant={data.variant}
   showProgress={data.showProgress ?? true}
+  hasQuestion={Boolean(data.question)}
 >
   {data.question?.type === "single" && (
-    <QuestionSingle slot="question" name={data.question.name} options={data.question.options} />
+    <QuestionSingle slot="question" name={data.question.name} options={data.question.options} confirmation={data.question.confirmation} />
   )}
   {data.question?.type === "multi" && (
     <QuestionMulti slot="question" name={data.question.name} options={data.question.options} />

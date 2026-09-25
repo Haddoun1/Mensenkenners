@@ -16,7 +16,7 @@ const { question, options, name } = Astro.props;
 </div>
 
 <style>
-  :global(.panel-right) {
+  :global(.panel-right:has(.question-wrapper)) {
     display: flex;
     flex-direction: column;
     flex: 1;
@@ -24,7 +24,7 @@ const { question, options, name } = Astro.props;
     min-width: 0;
   }
 
-  :global(.text-section) {
+  :global(.text-section:has(.question-wrapper)) {
     display: flex;
     flex-direction: column;
     flex: 1;

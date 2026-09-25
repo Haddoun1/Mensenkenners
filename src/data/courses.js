@@ -11,6 +11,7 @@ export const courses = [
     progress: 0,
     href: "/onboarding/step-1",
     color: "var(--color-green)",
+    duration: 2,
   },
   {
     id: "module_1",
@@ -21,6 +22,7 @@ export const courses = [
     progress: 0,
     href: "/module-1/1",
     color: "var(--color-pink)",
+    duration: 10,
   },
   {
     id: "module_2",
@@ -31,6 +33,7 @@ export const courses = [
     progress: 0,
     href: "/module-2/1",
     color: "var(--color-yellow)",
+    duration: 15,
   },
   {
     id: "module_3",
@@ -41,6 +44,7 @@ export const courses = [
     progress: 0,
     href: "/module-3/1",
     color: "var(--color-red)",
+    duration: 10,
   },
   {
     id: "module_4",
@@ -50,12 +54,13 @@ export const courses = [
     progress: 0,
     href: "/module-4/1",
     color: "var(--color-blue)",
+    duration: 10,
   },
 ];
 
 // Totale aantal vragen per cursus, gebruikt om het voortgangspercentage te berekenen.
 export const totals = {
-  onboarding: 9,
+  onboarding: 10,
   module_1: 6,
   module_2: 10,
   module_3: 7,

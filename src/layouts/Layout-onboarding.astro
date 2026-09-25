@@ -53,6 +53,8 @@ const {
   mockupSrc = "",
   variant = "",
   showDashboardButton = true,
+  hasQuestion = null,
+  nextLabel = "Ga verder",
 } = Astro.props;
 
 // https://claude.ai/chat/8789b362-5b69-4d5c-9b16-a4b157d09820 button back niet op welkompagina, wel op rest van stappen
@@ -135,7 +137,7 @@ const {
           <div
             class="text-section"
             transition:animate="none"
-            transition:name="content"
+            transition:name={(hasQuestion ?? Astro.slots.has("question")) ? "content-quiz" : "content"}
           >
             {
               showProgress && (
@@ -150,7 +152,7 @@ const {
             }
 
             {
-              Astro.slots.has("question") && (
+              (hasQuestion ?? Astro.slots.has("question")) && (
                 <div class="question-wrapper">
                   <slot name="question" />
                 </div>
@@ -166,7 +168,7 @@ const {
             {
               showNext && (
                 <a class="button-next" href={nextHref} data-direction="forward">
-                  <button>Ga verder</button>
+                  <button>{nextLabel}</button>
                 </a>
               )
             }

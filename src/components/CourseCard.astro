@@ -5,7 +5,8 @@ const {
   image = '',
   progress = 0,
   href = '#',
-  color = '#2AB789'
+  color = '#2AB789',
+  duration = null
 } = Astro.props;
 ---
 
@@ -14,6 +15,16 @@ const {
   class="course-card"
   style={`--bg-image: url(${image}); --bg-color: ${color};`}
 >
+
+  {duration && (
+    <span class="duration-badge">
+      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="9"/>
+        <polyline points="12 7 12 12 15.5 14"/>
+      </svg>
+      {duration} min
+    </span>
+  )}
 
   <div class="image-wrapper">
     <img src={image} alt={title}/>
@@ -87,6 +98,24 @@ const {
       background-color: color-mix(in srgb, var(--bg-color) 85%, black);
       scale: 1.02;
     }
+  }
+
+  .duration-badge {
+    position: absolute;
+    top: var(--size-base);
+    right: var(--size-base);
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0.3rem 0.65rem;
+    border-radius: 999px;
+    background-color: rgba(0, 0, 0, 0.45);
+    backdrop-filter: blur(4px);
+    color: #fff;
+    font-size: 0.75rem;
+    font-family: var(--font-semi-bold);
+    white-space: nowrap;
   }
 
   .progress-row {
