@@ -227,11 +227,6 @@ const {
     document.documentElement.classList.toggle("is-going-back", goingBack);
   });
 
-  document.addEventListener("astro:after-swap", () => {
-    document.documentElement.classList.toggle("is-going-back", goingBack);
-    goingBack = false;
-  });
-
   async function setupTracking() {
     const main = document.querySelector("main");
     const stepId = main?.dataset.stepId;
