@@ -1,0 +1,392 @@
+---
+export const prerender = false;
+
+import MainLayout from "../layouts/Layout.astro";
+---
+
+<MainLayout title="Mijn profiel">
+  <section class="profile">
+    <div class="profile-header">
+      <h1>Mijn profiel</h1>
+      <p class="profile-email" id="profile-email"></p>
+    </div>
+
+    <div class="profile-grid">
+      <div class="profile-card">
+        <h2>Persoonlijke gegevens</h2>
+        <form id="details-form">
+          <label>
+            Voornaam
+            <input type="text" id="name" name="name" required />
+          </label>
+          <label>
+            Achternaam
+            <input type="text" id="surname" name="surname" required />
+          </label>
+          <label>
+            Geboortedatum
+            <input type="date" id="birthdate" name="birthdate" />
+          </label>
+          <button type="submit" class="btn-primary">Opslaan</button>
+          <p class="form-message" id="details-message"></p>
+        </form>
+      </div>
+
+      <div class="profile-card">
+        <h2>Wachtwoord wijzigen</h2>
+        <form id="password-form">
+          <label>
+            Nieuw wachtwoord
+            <input
+              type="password"
+              id="new-password"
+              required
+              minlength="6"
+            />
+          </label>
+          <label>
+            Bevestig wachtwoord
+            <input
+              type="password"
+              id="confirm-password"
+              required
+              minlength="6"
+            />
+          </label>
+          <button type="submit" class="btn-primary">Wachtwoord bijwerken</button>
+          <p class="form-message" id="password-message"></p>
+        </form>
+      </div>
+
+      <div class="profile-card">
+        <h2>Afgeronde cursussen</h2>
+        <p class="empty-state" id="completed-empty">
+          Je hebt nog geen cursus afgerond. Rond een cursus af en hij verschijnt hier.
+        </p>
+        <ul class="completed-list" id="completed-list" hidden></ul>
+      </div>
+    </div>
+
+    <button id="logout-btn" class="btn-logout">Uitloggen</button>
+  </section>
+</MainLayout>
+
+<script>
+  // @ts-nocheck
+  import { supabase } from "../lib/supabase";
+  import { courses, totals, categoryToCourseId } from "../data/courses.js";
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    window.location.href = "/onboarding/login";
+  } else {
+    document.getElementById("profile-email").textContent = user.email || "";
+    document.getElementById("name").value = user.user_metadata?.name || "";
+    document.getElementById("surname").value =
+      user.user_metadata?.surname || "";
+    document.getElementById("birthdate").value =
+      user.user_metadata?.birthdate || "";
+
+    // Haalt de voortgang van de gebruiker op om te bepalen
+    // welke cursussen al volledig afgerond zijn.
+    const response = await fetch("/api/get-progress", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ userId: user.id }),
+    });
+    const result = await response.json();
+    const rows = result.data || [];
+
+    const completedStepsByCourse = {};
+    rows.forEach((row) => {
+      const courseId = categoryToCourseId[row.category];
+      if (!courseId) return;
+
+      if (!completedStepsByCourse[courseId]) {
+        completedStepsByCourse[courseId] = new Set();
+      }
+      completedStepsByCourse[courseId].add(String(row.step_id));
+    });
+
+    const completedCourses = courses.filter((course) => {
+      const done = completedStepsByCourse[course.id]?.size || 0;
+      const total = totals[course.id];
+      return total && done >= total;
+    });
+
+    if (completedCourses.length > 0) {
+      const list = document.getElementById("completed-list");
+      const emptyState = document.getElementById("completed-empty");
+
+      completedCourses.forEach((course) => {
+        const li = document.createElement("li");
+
+        const badge = document.createElement("a");
+        badge.className = "completed-badge";
+        badge.href = course.href;
+        badge.style.setProperty("--badge-color", course.color);
+        badge.title = `Ga terug naar ${course.title}`;
+
+        const icon = document.createElement("span");
+        icon.className = "completed-icon";
+        icon.innerHTML =
+          '<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
+
+        const title = document.createElement("span");
+        title.className = "completed-title";
+        title.textContent = course.title;
+
+        badge.append(icon, title);
+        li.append(badge);
+        list.append(li);
+      });
+
+      list.hidden = false;
+      emptyState.hidden = true;
+    }
+  }
+
+  const detailsForm = document.getElementById("details-form");
+  const detailsMessage = document.getElementById("details-message");
+
+  detailsForm?.addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const name = document.getElementById("name").value.trim();
+    const surname = document.getElementById("surname").value.trim();
+    const birthdate = document.getElementById("birthdate").value;
+
+    const { error } = await supabase.auth.updateUser({
+      data: { name, surname, birthdate },
+    });
+
+    detailsMessage.textContent = error
+      ? error.message
+      : "Gegevens opgeslagen.";
+  });
+
+  const passwordForm = document.getElementById("password-form");
+  const passwordMessage = document.getElementById("password-message");
+
+  passwordForm?.addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const newPassword = document.getElementById("new-password").value;
+    const confirmPassword = document.getElementById("confirm-password").value;
+
+    if (newPassword !== confirmPassword || newPassword.length < 6) {
+      passwordMessage.textContent =
+        "Wachtwoorden moeten overeenkomen en minstens 6 tekens bevatten.";
+      return;
+    }
+
+    const { error } = await supabase.auth.updateUser({
+      password: newPassword,
+    });
+
+    passwordMessage.textContent = error
+      ? error.message
+      : "Wachtwoord bijgewerkt.";
+
+    if (!error) passwordForm.reset();
+  });
+
+  document.getElementById("logout-btn")?.addEventListener("click", async () => {
+    const { error } = await supabase.auth.signOut();
+
+    if (error) {
+      console.error("Logout error:", error.message);
+      return;
+    }
+
+    window.location.href = "/onboarding/login";
+  });
+</script>
+
+<style>
+  .profile {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem 4rem;
+  }
+
+  @media (min-width: 768px) {
+    .profile {
+      padding: 2rem 2.5rem 4rem;
+    }
+  }
+
+  .profile-header {
+    display: flex;
+    flex-direction: column;
+    gap: var(--size-xxs);
+  }
+
+  .profile-header h1 {
+    font-size: var(--size-2xl);
+    font-family: var(--font-bold);
+    color: var(--color-text);
+  }
+
+  .profile-email {
+    font-family: var(--font-light);
+    color: var(--color-text-muted);
+  }
+
+  .profile-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
+  }
+
+  @media (min-width: 900px) {
+    .profile-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    .profile-card:last-child {
+      grid-column: 1 / -1;
+    }
+  }
+
+  .profile-card {
+    background: color-mix(in srgb, var(--color-surface) 72%, transparent);
+    border: 1px solid color-mix(in srgb, var(--color-text) 10%, transparent);
+    border-radius: 20px;
+    padding: 1.75rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .profile-card h2 {
+    font-size: var(--size-lg);
+    font-family: var(--font-semi-bold);
+    color: var(--color-text);
+  }
+
+  .profile-card form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .profile-card label {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    font-family: var(--font-medium);
+    font-size: var(--size-sm);
+    color: var(--color-text-muted);
+  }
+
+  .profile-card input {
+    padding: 0.65rem 0.9rem;
+    border: 1.5px solid color-mix(in srgb, var(--color-text) 15%, transparent);
+    border-radius: 10px;
+    background: color-mix(in srgb, var(--color-surface) 85%, transparent);
+    color: var(--color-text);
+    font-family: var(--font-regular);
+    font-size: var(--size-base);
+  }
+
+  .btn-primary {
+    align-self: flex-start;
+    padding: 0.6rem 1.5rem;
+    border: none;
+    border-radius: 9999px;
+    background: var(--color-green);
+    color: var(--color-background);
+    font-family: var(--font-bold);
+    font-size: var(--size-sm);
+    cursor: pointer;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+  }
+
+  .btn-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 14px color-mix(in srgb, var(--color-green) 50%, transparent);
+  }
+
+  .form-message {
+    font-size: var(--size-sm);
+    color: var(--color-text-muted);
+    min-height: 1.2em;
+  }
+
+  .completed-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.65rem;
+  }
+
+  /* .completed-badge / .completed-icon / .completed-title zijn :global(),
+     omdat deze elementen client-side met document.createElement worden
+     aangemaakt en dus nooit Astro's scoped-style attribuut krijgen. */
+  :global(.completed-badge) {
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    padding: 0.45rem 1rem 0.45rem 0.5rem;
+    border-radius: 9999px;
+    background: color-mix(in srgb, var(--badge-color) 16%, var(--color-surface));
+    border: 1.5px solid color-mix(in srgb, var(--badge-color) 55%, transparent);
+    font-family: var(--font-semi-bold);
+    font-size: var(--size-sm);
+    color: var(--color-text);
+    text-decoration: none;
+    cursor: pointer;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+  }
+
+  :global(.completed-badge:hover) {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 14px color-mix(in srgb, var(--badge-color) 30%, transparent);
+  }
+
+  :global(.completed-icon) {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    background: var(--badge-color);
+    color: white;
+  }
+
+  .empty-state {
+    color: var(--color-text-muted);
+    font-family: var(--font-light);
+    line-height: 1.5;
+  }
+
+  .btn-logout {
+    align-self: flex-start;
+    padding: 0.65rem 1.75rem;
+    border: 1.5px solid color-mix(in srgb, var(--color-text) 20%, transparent);
+    border-radius: 9999px;
+    background: transparent;
+    color: var(--color-text);
+    font-family: var(--font-bold);
+    font-size: var(--size-sm);
+    cursor: pointer;
+    transition: background 0.15s ease, border-color 0.15s ease;
+  }
+
+  .btn-logout:hover {
+    background: color-mix(in srgb, var(--color-red) 15%, transparent);
+    border-color: var(--color-red);
+    color: var(--color-red);
+  }
+</style>

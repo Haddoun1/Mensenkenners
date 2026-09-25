@@ -4,59 +4,7 @@ export const prerender = false;
 import MainLayout from "../layouts/Layout.astro";
 import CourseCard from "../components/CourseCard.astro";
 import ThemeToggle from "../components/ThemeToggle.astro";
-
-// Course informatie voor genereren van cardss
-const courses = [
-  {
-    id: "onboarding",
-    title: "Onboarding",
-    image: "/images/mockupmensenkenners.png",
-    description:
-      "Welkom bij de onboarding! In deze cursus maken we je wegwijs in het platform en leggen we uit wat je kunt verwachten in de verschillende delen van de cursus.",
-    progress: 0,
-    href: "/onboarding/step-1",
-    color: "var(--color-green)",
-  },
-  {
-    id: "module_1",
-    title: "Module 1: Inclusief contact",
-    description:
-      "In deze module oefen je met basisprincipes die in veel situaties toepasbaar zijn.",
-    image: "/images/Mensenkennerskaderdoof.png",
-    progress: 0,
-    href: "/module-1/1",
-    color: "var(--color-pink)",
-  },
-  {
-    id: "module_2",
-    title: "Module 2: Perspectief en inlevingsvermogen",
-    description:
-      "In deze module sta je stil bij situaties waarin bezoekers de wereld anders ervaren.",
-    image: "images/Mensenkennerskaderroller.png",
-    progress: 0,
-    href: "/module-2/1",
-    color: "var(--color-yellow)",
-  },
-  {
-    id: "module_3",
-    title: "Module 3: Toegankelijkheid van jouw werkplek",
-    description:
-      "In deze module ga je leren hoe je jouw werplek concreet inclusief kunt maken.",
-    image: "/images/Mensenkennerskadersd.png",
-    progress: 0,
-    href: "/module-3/1",
-    color: "var(--color-red)",
-  },
-  {
-    id: "module_4",
-    title: "Module 4: Praktijksituaties en toepassing",
-    description: "In deze module oefen je met herkenbare situaties.",
-    image: "/images/Mensenkennerskadervisueel.png",
-    progress: 0,
-    href: "/module-4/1",
-    color: "var(--color-blue)",
-  },
-];
+import { courses } from "../data/courses.js";
 ---
 
 <!-- DASHBOARD -->
@@ -123,37 +71,13 @@ const courses = [
 <script>
   // @ts-nocheck
   import { supabase } from "../lib/supabase";
+  import { totals, courseStartHref, categoryToCourseId } from "../data/courses.js";
 
   // Get user data for progress
 
   const {
     data: { user },
   } = await supabase.auth.getUser();
-
-  // Totale aantal vragen van de course
-  const totals = {
-    module_1: 6,
-    module_2: 10,
-    module_3: 7,
-    module_4: 9,
-    onboarding: 9,
-  };
-
-  const courseStartHref = {
-    onboarding: "/onboarding/step-1",
-    module_1: "/module-1/1",
-    module_2: "/module-2/1",
-    module_3: "/module-3/1",
-    module_4: "/module-4/1",
-  };
-
-  const categoryToCourseId = {
-    onboarding: "onboarding",
-    "module-1": "module_1",
-    "module-2": "module_2",
-    "module-3": "module_3",
-    "module-4": "module_4",
-  };
 
   function getResumeHref(courseId, latestRow, percentage) {
     // Als de cursus al afgerond is, mag de gebruiker opnieuw starten bij stap 1.
@@ -289,7 +213,7 @@ const courses = [
       href: "/onboarding/step-1",
       description:
         "Welkom bij de onboarding! In deze cursus maken we je wegwijs in het platform en leggen we uit wat je kunt verwachten in de verschillende delen van de cursus.",
-      image: "/images/mockupmensenkenners.png",
+      image: "/images/mockupmensenkenners.webp",
       color: "var(--color-green)",
     },
     module_1: {
@@ -297,7 +221,7 @@ const courses = [
       href: "/module-1/1",
       description:
         "In deze module oefen je met basisprincipes die in veel situaties toepasbaar zijn.",
-      image: "/images/Mensenkennerskaderdoof.png",
+      image: "/images/Mensenkennerskaderdoof.webp",
       color: "var(--color-pink)",
     },
     module_2: {
@@ -305,7 +229,7 @@ const courses = [
       href: "/module-2/1",
       description:
         "In deze module sta je stil bij situaties waarin bezoekers de wereld anders ervaren.",
-      image: "/images/Mensenkennerskaderroller.png",
+      image: "/images/Mensenkennerskaderroller.webp",
       color: "var(--color-yellow)",
     },
     module_3: {
@@ -313,14 +237,14 @@ const courses = [
       href: "/module-3/1",
       description:
         "In deze module ga je leren hoe je jouw werplek concreet inclusief kunt maken.",
-      image: "/images/Mensenkennerskaderspraak.png",
+      image: "/images/Mensenkennerskaderspraak.webp",
       color: "var(--color-red)",
     },
     module_4: {
       title: "Module 4: Praktijksituaties en toepassing",
       href: "/module-4/1",
       description: "In deze module oefen je met herkenbare situaties.",
-      image: "/images/Mensenkennerskaderspraak.png",
+      image: "/images/Mensenkennerskaderspraak.webp",
       color: "var(--color-blue)",
     },
   };

@@ -40,7 +40,7 @@ import ThemeToggle from "../components/ThemeToggle.astro";
       target="_blank"
       rel="noopener noreferrer">Contact</a
     >
-    <button class="logout"></button>
+    <a href="/profile" class="profile-link">Mijn Profiel</a>
     <ThemeToggle />
   </nav>
 </header>
@@ -79,58 +79,6 @@ import ThemeToggle from "../components/ThemeToggle.astro";
 
   nav a:hover {
     border-bottom: 2px solid;
-  }
-
-  .profile-link {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    &::before {
-      content: "";
-      display: inline-block;
-      width: 24px;
-      height: 24px;
-      background-color: currentColor;
-
-      -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='black' stroke-width='1.5'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M17.982 18.725A7.488 7.488 0 0 0 12 15.75a7.488 7.488 0 0 0-5.982 2.975m11.963 0a9 9 0 1 0-11.963 0m11.963 0A8.966 8.966 0 0 1 12 21a8.966 8.966 0 0 1-5.982-2.275M15 9.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z'/%3E%3C/svg%3E");
-      mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='black' stroke-width='1.5'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M17.982 18.725A7.488 7.488 0 0 0 12 15.75a7.488 7.488 0 0 0-5.982 2.975m11.963 0a9 9 0 1 0-11.963 0m11.963 0A8.966 8.966 0 0 1 12 21a8.966 8.966 0 0 1-5.982-2.275M15 9.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z'/%3E%3C/svg%3E");
-
-      -webkit-mask-repeat: no-repeat;
-      mask-repeat: no-repeat;
-      -webkit-mask-size: contain;
-      mask-size: contain;
-    }
-  }
-
-  .logout {
-    background: none;
-    border: none;
-    cursor: pointer;
-    color: var(--color-text);
-    transition: color 0.25s ease;
-    /* margin-bottom:1em; */
-
-    &::after {
-      content: "";
-      display: block;
-      width: 40px;
-      height: 40px;
-
-      background-color: var(--color-text);
-
-      -webkit-mask: url("/images/logout.svg") center/contain no-repeat;
-      mask: url("/images/logout.svg") center/contain no-repeat;
-
-      transition: background-color 0.3s ease;
-    }
-
-    &:hover {
-      border-bottom: 2px solid var( --color-background);
-
-      &::after {
-        background-color: var( --color-background);
-      }
-    }
   }
 
   /* Hamburger button Dicht */
@@ -225,8 +173,6 @@ import ThemeToggle from "../components/ThemeToggle.astro";
 </style>
 
 <script>
-  import { supabase } from "../lib/supabase";
-
   const hamburger = document.querySelector(".hamburger");
   const nav = document.querySelector("nav");
 
@@ -234,20 +180,5 @@ import ThemeToggle from "../components/ThemeToggle.astro";
     const isOpen = nav?.classList.toggle("open");
     hamburger.classList.toggle("open");
     hamburger.setAttribute("aria-expanded", String(isOpen));
-  });
-
-  document.addEventListener("DOMContentLoaded", () => {
-    const logBtn = document.querySelector(".logout");
-
-    logBtn?.addEventListener("click", async () => {
-      const { error } = await supabase.auth.signOut();
-
-      if (error) {
-        console.error("Logout error:", error.message);
-        return;
-      }
-
-      window.location.href = "/onboarding/login";
-    });
   });
 </script>
