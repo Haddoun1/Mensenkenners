@@ -3,7 +3,14 @@ export const prerender = false;
 import MainLayout from "../../layouts/Layout-onboarding.astro";
 import QuestionSingle from "../../components/QuestionSingle.astro";
 import QuestionMulti from "../../components/QuestionMulti.astro";
-import steps from "../../data/onboarding-steps.json";
+import stepsJson from "../../data/onboarding-steps.json";
+
+// Optionele velden die (nog) niet in de JSON voorkomen
+type Step = (typeof stepsJson)[number] & {
+  showProgress?: boolean;
+  question?: { confirmation?: string };
+};
+const steps: Step[] = stepsJson;
 
 const { step } = Astro.params;
 const stepNumber = parseInt(step?.replace("step-", "") ?? "1");
