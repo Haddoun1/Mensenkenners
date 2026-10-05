@@ -1,14 +1,13 @@
 ---
 import MainLayout from "../../layouts/Layout-onboarding.astro";
-import { supabase } from "../../lib/supabase";
 
 export const prerender = false;
 ---
 
 <MainLayout
   title="login"
-  nextHref="/onboarding/step-1"
-  backHref="/onboarding/welkom-no-loader"
+  nextHref="/"
+  backHref="/onboarding/step-11"
   headingText=""
   bodyText=""
   step={1}
@@ -68,7 +67,7 @@ export const prerender = false;
     </fieldset>
 
     <div class="buttons-onboarding">
-      <a class="button-back" href="/onboarding/welkom-no-loader" id="back-btn">
+      <a class="button-back" href="/onboarding/step-11" id="back-btn">
         <button type="button">Ga terug</button>
       </a>
       <button type="submit">Login</button>
@@ -127,6 +126,35 @@ export const prerender = false;
     }
   }
 
+  // Slaat onboardingstappen op die zijn doorlopen voordat de gebruiker inlogde
+  // (zie saveProgress in Layout-onboarding.astro).
+  async function savePendingOnboardingProgress(user) {
+    let pending = [];
+    try {
+      pending = JSON.parse(localStorage.getItem("pendingOnboardingProgress") || "[]");
+    } catch {
+      return;
+    }
+    if (!user?.id || pending.length === 0) return;
+
+    await Promise.all(
+      pending.map((step) =>
+        fetch("/api/track-step", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            userId: user.id,
+            email: user.email || null,
+            name: user.user_metadata?.name || null,
+            ...step,
+          }),
+        }),
+      ),
+    );
+
+    localStorage.removeItem("pendingOnboardingProgress");
+  }
+
   const form = document.querySelector(".login-form");
   const emailInput = document.getElementById("email");
   const passwordInput = document.getElementById("password");
@@ -148,7 +176,7 @@ export const prerender = false;
       return;
     }
 
-    console.log("Ingelogd als:", data.user.id);
+    await savePendingOnboardingProgress(data.user);
 
     window.location.replace("/");
   });

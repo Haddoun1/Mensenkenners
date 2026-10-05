@@ -1,0 +1,31 @@
+---
+import ThemeToggle from "./ThemeToggle.astro";
+---
+
+<!-- Light/dark mode toggle voor pagina's zonder Header, op dezelfde plek als in de navbar (rechtsboven) -->
+<div class="theme-toggle-fixed" transition:persist="theme-toggle">
+  <ThemeToggle />
+</div>
+
+<style>
+  .theme-toggle-fixed {
+    position: fixed;
+    top: 1rem;
+    right: 2rem;
+    z-index: 200;
+  }
+
+  .theme-toggle-fixed :global(.theme-toggle-label) {
+    background-color: var(--color-surface);
+  }
+
+  .theme-toggle-fixed :global(.theme-toggle-label:hover) {
+    background-color: var(--color-cyan);
+  }
+
+  @media (max-width: 600px) {
+    .theme-toggle-fixed {
+      display: none;
+    }
+  }
+</style>
