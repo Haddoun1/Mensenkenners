@@ -2,9 +2,10 @@
 interface Props {
   previousPage: string | null;
   nextPage: string | null;
+  category?: string;
 }
 
-const { previousPage, nextPage } = Astro.props;
+const { previousPage, nextPage, category } = Astro.props;
 ---
 
 <nav class="bottom-nav" aria-label="Navigatie">
@@ -13,6 +14,8 @@ const { previousPage, nextPage } = Astro.props;
   ) : (
     <span class="nav-btn nav-btn--disabled" aria-disabled="true"> Vorige</span>
   )}
+
+  {category && <p class="nav-category">{category}</p>}
 
   {nextPage ? (
     <a class="nav-btn nav-btn--next" href={nextPage} id="nav-next">Volgende </a>
@@ -38,6 +41,22 @@ const { previousPage, nextPage } = Astro.props;
     border: 1px solid rgba(0, 0, 0, 0.07);
     border-radius: 99px;
     padding: 0.5rem 0.75rem;
+  }
+
+  .nav-category {
+    flex: 1;
+    min-width: 0;
+    margin: 0;
+    text-align: center;
+    font-family: var(--font-semi-bold);
+    font-size: var(--size-base);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    line-height: 1.4;
+    color: var(--color-text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   .nav-btn {
@@ -83,6 +102,10 @@ const { previousPage, nextPage } = Astro.props;
       width: calc(100% - 2rem);
       bottom: 1rem;
       border-radius: 16px;
+    }
+
+    .nav-category {
+      display: none;
     }
   }
 </style>
