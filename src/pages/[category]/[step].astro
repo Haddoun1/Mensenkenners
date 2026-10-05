@@ -260,6 +260,7 @@ const accentColor = categoryColorMap[categorySlug] ?? "#B1F2D9";
                 <ul class="options-list" role="radiogroup">
                   {options.map((option, index) => {
                     const text = typeof option === "string" ? option : option.text;
+                    const feedback = typeof option === "object" ? option.feedback || option.explanation || "" : "";
                     return (
                       <li>
                         <label class="option-label">
@@ -269,6 +270,7 @@ const accentColor = categoryColorMap[categorySlug] ?? "#B1F2D9";
                             value={text}
                             class="option-input"
                             data-correct={typeof option === "object" && option.is_correct === true ? "true" : "false"}
+                            data-feedback={feedback}
                           />
                           <span class="option-key">{String.fromCharCode(65 + index)}</span>
                           <span class="option-text">{text}</span>
@@ -285,17 +287,19 @@ const accentColor = categoryColorMap[categorySlug] ?? "#B1F2D9";
                 <div data-multiple-choice data-max-selections={maxSelections}>
                   <p class="mc-hint">Selecteer maximaal {maxSelections} opties</p>
                   <ul class="options-list" role="group">
-                    {options.map((option, index) => {
-                      const text = typeof option === "string" ? option : option.text;
-                      return (
+                  {options.map((option, index) => {
+                    const text = typeof option === "string" ? option : option.text;
+                    const feedback = typeof option === "object" ? option.feedback || option.explanation || "" : "";
+                    return (
                         <li>
                           <label class="option-label">
                             <input
                               type="checkbox"
                               name={item.id}
                               value={text}
-                              class="option-input"
-                              data-correct={typeof option === "object" && option.is_correct === true ? "true" : "false"}
+                            class="option-input"
+                            data-correct={typeof option === "object" && option.is_correct === true ? "true" : "false"}
+                            data-feedback={feedback}
                             />
                             <span class="option-key">{String.fromCharCode(65 + index)}</span>
                             <span class="option-text">{text}</span>
@@ -704,7 +708,12 @@ const accentColor = categoryColorMap[categorySlug] ?? "#B1F2D9";
     if (radioOptions.length > 0) {
       const selectedRadio = document.querySelector(".question-block input[type='radio']:checked");
       if (!selectedRadio) return { valid: false, message: "Kies eerst een antwoord." };
-      return { valid: true, correct: selectedRadio.dataset.correct === "true", correctOptions: getCorrectOptionLabels() };
+      return {
+        valid: true,
+        correct: selectedRadio.dataset.correct === "true",
+        correctOptions: getCorrectOptionLabels(),
+        optionFeedback: selectedRadio.dataset.feedback || "",
+      };
     }
 
     const checkboxOptions = document.querySelectorAll(".question-block input[type='checkbox'][data-correct]");
@@ -759,7 +768,7 @@ const accentColor = categoryColorMap[categorySlug] ?? "#B1F2D9";
       return;
     }
 
-    const explanation = answerFeedback.dataset.explanation;
+    const explanation = result.optionFeedback || answerFeedback.dataset.explanation;
     const exampleAnswer = answerFeedback.dataset.exampleAnswer;
 
     if (result.isOpenQuestion && answerFeedback.dataset.submitOnly === "true") {
@@ -1533,9 +1542,9 @@ const accentColor = categoryColorMap[categorySlug] ?? "#B1F2D9";
   }
 
   .answer-feedback--incorrect {
-    background: var(--color-error-bg);
-    border-color: var(--color-error-border);
-    color: var(--color-error-text);
+    background: #e7edf2;
+    border-color: #8092a4;
+    color: #2f4051;
     padding-left: 2vw;
   }
 
@@ -1576,9 +1585,9 @@ const accentColor = categoryColorMap[categorySlug] ?? "#B1F2D9";
   }
 
   .option-label.option-label--incorrect {
-    border-color: #ff6631 !important;
-    background: var(--module-wrong-error) !important;
-    box-shadow: 0 0 0 2px rgba(255, 102, 49, 0.25) !important;
+    border-color: #8092a4 !important;
+    background: #e7edf2 !important;
+    box-shadow: 0 0 0 2px rgba(128, 146, 164, 0.25) !important;
   }
 
   .option-label.option-label--correct .option-key {
@@ -1588,9 +1597,9 @@ const accentColor = categoryColorMap[categorySlug] ?? "#B1F2D9";
   }
 
   .option-label.option-label--incorrect .option-key {
-    background: var(--color-error-border) !important;
+    background: #687d91 !important;
     color: white !important;
-    border-color: var(--color-error-border) !important;
+    border-color: #687d91 !important;
   }
 
   .matching-prompt.matching-prompt--correct,
@@ -1602,9 +1611,9 @@ const accentColor = categoryColorMap[categorySlug] ?? "#B1F2D9";
 
   .matching-prompt.matching-prompt--incorrect,
   .matching-select.matching-select--incorrect {
-    border-color: #ff6631 !important;
-    background: var(--module-wrong-error) !important;
-    box-shadow: 0 0 0 2px rgba(255, 102, 49, 0.25) !important;
+    border-color: #8092a4 !important;
+    background: #e7edf2 !important;
+    box-shadow: 0 0 0 2px rgba(128, 146, 164, 0.25) !important;
   }
 
   .matching-select option {
@@ -1618,9 +1627,9 @@ const accentColor = categoryColorMap[categorySlug] ?? "#B1F2D9";
   }
 
   .matching-prompt.matching-prompt--incorrect .option-key {
-    background: #ff6631 !important;
+    background: #687d91 !important;
     color: white !important;
-    border-color: #ff6631 !important;
+    border-color: #687d91 !important;
   }
 
   .action-row {
