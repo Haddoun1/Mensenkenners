@@ -148,12 +148,19 @@ html {
 
   .back-button {
     font-family: var(--font-semi-bold);
-    font-size: var(--size-sm);
+    font-size: var(--size-base);
     letter-spacing: 0.06em;
     background: var(--color-green);
     border: 1px solid rgba(0, 0, 0, 0.08);
     border-radius: 99px;
-    padding: 0.25rem 0.85rem;
+    /* Zelfde formaat als de Dashboard-knop op de modulepagina's */
+    height: 2.65rem;
+    padding: 0 1.4rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    line-height: 1;
+    white-space: nowrap;
     color: var(--color-text);
     margin: 0;
     text-decoration: none;
@@ -162,8 +169,16 @@ html {
     &&::before {
       content: "←";
       display: inline-block;
-      margin-left: 0.2rem;
+      font-size: var(--size-lg);
+      margin-top: -2px;
       transition: transform 0.2s;
+    }
+
+    @media (max-width: 600px) {
+      font-size: var(--size-sm);
+      height: 2.4rem;
+      padding: 0 0.85rem;
+      gap: 0.3rem;
     }
 
     &&:hover {

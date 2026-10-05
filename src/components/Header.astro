@@ -18,7 +18,7 @@ import ThemeToggle from "../components/ThemeToggle.astro";
   </a>
   </div>
 
-  <button class="hamburger">
+  <button class="hamburger" aria-label="Open menu" aria-expanded="false">
     <span></span>
     <span></span>
     <span></span>
@@ -39,6 +39,9 @@ import ThemeToggle from "../components/ThemeToggle.astro";
     <ThemeToggle />
   </nav>
 </header>
+
+<!-- Wazige achtergrond achter het open mobiele menu; klikken sluit het menu -->
+<div class="menu-overlay" aria-hidden="true"></div>
 
 <style>
   body {
@@ -112,6 +115,24 @@ import ThemeToggle from "../components/ThemeToggle.astro";
     transform: translateY(-9.5px) rotate(-45deg);
   }
 
+  /* Wazige overlay achter het mobiele menu */
+  .menu-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 998;
+    background: rgba(0, 0, 0, 0.2);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+  }
+
+  .menu-overlay.open {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
   /* Mobile styles */
   @media (max-width: 768px) {
     .hamburger {
@@ -135,6 +156,11 @@ import ThemeToggle from "../components/ThemeToggle.astro";
 
     nav.open {
       display: flex;
+    }
+
+    /* Header krijgt dezelfde kleur als het open menu */
+    header:has(nav.open) {
+      background: var(--color-cyan);
     }
 
     nav a {
@@ -172,11 +198,31 @@ import ThemeToggle from "../components/ThemeToggle.astro";
 
   const hamburger = document.querySelector(".hamburger");
   const nav = document.querySelector("nav");
+  const menuOverlay = document.querySelector(".menu-overlay");
+
+  function setMenuOpen(isOpen) {
+    nav?.classList.toggle("open", isOpen);
+    hamburger?.classList.toggle("open", isOpen);
+    menuOverlay?.classList.toggle("open", isOpen);
+    hamburger?.setAttribute("aria-expanded", String(isOpen));
+  }
 
   hamburger?.addEventListener("click", () => {
-    const isOpen = nav?.classList.toggle("open");
-    hamburger.classList.toggle("open");
-    hamburger.setAttribute("aria-expanded", String(isOpen));
+    setMenuOpen(!nav?.classList.contains("open"));
+  });
+
+  // Sluit het menu bij een klik buiten het menu of met Escape.
+  menuOverlay?.addEventListener("click", () => setMenuOpen(false));
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && nav?.classList.contains("open")) {
+      setMenuOpen(false);
+      hamburger?.focus();
+    }
+  });
+
+  // Sluit het menu als het scherm breder wordt dan mobiel.
+  window.matchMedia("(min-width: 769px)").addEventListener("change", (e) => {
+    if (e.matches) setMenuOpen(false);
   });
 
   // Toont "Inloggen" i.p.v. "Mijn Profiel" zolang niemand is ingelogd.

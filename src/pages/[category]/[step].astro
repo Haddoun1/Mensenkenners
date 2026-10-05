@@ -7,6 +7,7 @@ import AccessibilitySimulator from "../../components/Accessibilitysimulator.astr
 import QuestionNav from "../../components/Questionnav.astro";
 import BottomNav from "../../components/BottomNav.astro";
 import BaseHead from '../../components/BaseHead.astro';
+import FixedThemeToggle from '../../components/FixedThemeToggle.astro';
 
 export async function getStaticPaths() {
 
@@ -112,12 +113,6 @@ if (item.id?.endsWith("_submit")) {
   if (item.id === "m3_submit") nextSectionUrl = "/module-4/1";
 }
 
-// Berekent de voortgang binnen de huidige module.
-
-const progressPct = Math.round(
-  (currentStep / totalSteps) * 100,
-);
-
 // Koppelt elke module aan een accentkleur.
 
 const categoryColorMap = {
@@ -136,35 +131,7 @@ const accentColor = categoryColorMap[categorySlug] ?? "#B1F2D9";
     <link rel="stylesheet" href="/styles/global.css" />
   </head>
   <body>
-
-    <!-- Zijmenu met alle stappen binnen de huidige module. -->
-    <div class="nav-overlay" id="navOverlay"></div>
-
-    <nav class="nav-panel" id="navPanel" aria-label="Vragennavigatie">
-      <div class="nav-panel-header">
-        <span class="nav-panel-title">{category}</span>
-        <button class="nav-close-btn" id="navCloseBtn" aria-label="Sluit menu"
-          >&#10005</button
-        >
-      </div>
-      <ul class="nav-list">
-        {
-          categoryItems.map((navItem, idx) => (
-            <li>
-              <a
-                href={`/${categorySlug}/${idx + 1}`}
-                class={idx + 1 === currentStep ? "active" : ""}
-              >
-                <span class="nav-step-num">{idx + 1}</span>
-                <span class="nav-step-title">
-                  {navItem.title || navItem.question || `Stap ${idx + 1}`}
-                </span>
-              </a>
-            </li>
-          ))
-        }
-      </ul>
-    </nav>
+    <FixedThemeToggle />
 
     <!-- Toegankelijkheidssimulator voor ervaringsopdrachten. -->
     <AccessibilitySimulator />
@@ -181,7 +148,7 @@ const accentColor = categoryColorMap[categorySlug] ?? "#B1F2D9";
         data-input-type={item.input_type || ""}
       >
 
-      <!-- Bovenste navigatie met dashboardlink, modulelabel, stappenmenu en instellingen. -->
+      <!-- Bovenste navigatie met dashboardlink, stappenmenu en simulator. -->
         <header class="page-header">
           <a href="/" class="back-button header-btn">Dashboard</a>
 
@@ -245,12 +212,6 @@ const accentColor = categoryColorMap[categorySlug] ?? "#B1F2D9";
               {item.input_type === "text" && (
                 <input class="text-input" type="text" placeholder={item.placeholder || "Typ hier je antwoord"} />
               )}
-
-              {/* Input type email is ongebruikt
-
-              {item.input_type === "email" && ( 
-                <input class="text-input" type="email" placeholder="Typ hier je e-mailadres" />
-              )} */}
 
               {item.input_type === "long_text" && (
                 <textarea class="text-area" rows="5" placeholder={item.placeholder || "Typ hier je antwoord"} />
@@ -679,7 +640,6 @@ const accentColor = categoryColorMap[categorySlug] ?? "#B1F2D9";
   checkAnswerBtn?.addEventListener("click", () => {
     const result = getQuestionResult();
     answerFeedback.hidden = false;
-    console.log("de button werkt");
 
     if (!result.valid) {
       answerFeedback.className = "answer-feedback answer-feedback--warning";
@@ -768,32 +728,6 @@ const accentColor = categoryColorMap[categorySlug] ?? "#B1F2D9";
     });
   }
 
-  // Zijmenu openen en sluiten.
-  const hamburgerBtn = document.getElementById("hamburgerBtn");
-  const navPanel = document.getElementById("navPanel");
-  const navOverlay = document.getElementById("navOverlay");
-  const navCloseBtn = document.getElementById("navCloseBtn");
-
-  function openNav() {
-    navPanel?.classList.add("open");
-    navOverlay?.classList.add("open");
-    hamburgerBtn?.classList.add("open");
-    hamburgerBtn?.setAttribute("aria-expanded", "true");
-  }
-
-  function closeNav() {
-    navPanel?.classList.remove("open");
-    navOverlay?.classList.remove("open");
-    hamburgerBtn?.classList.remove("open");
-    hamburgerBtn?.setAttribute("aria-expanded", "false");
-  }
-
-  hamburgerBtn?.addEventListener("click", () =>
-    navPanel?.classList.contains("open") ? closeNav() : openNav(),
-  );
-  navCloseBtn?.addEventListener("click", closeNav);
-  navOverlay?.addEventListener("click", closeNav);
-
   // Instellingenpaneel openen en sluiten.
   const settingBtn = document.getElementById("settingBtn");
   const settingPanel = document.getElementById("settingPanel");
@@ -826,159 +760,6 @@ const accentColor = categoryColorMap[categorySlug] ?? "#B1F2D9";
   body {
     background: var(--gradient-bg-cyan);
     min-height: 100vh;
-  }
-
-  /* Achtergrondlaag voor het zijmenu. */
-
-  .nav-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.25);
-    z-index: 250;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.3s;
-  }
-
-  .nav-overlay.open {
-    opacity: 1;
-    pointer-events: all;
-  }
-
-  /* Zijmenu met alle stappen binnen de module. */
-
-  .nav-panel {
-    position: fixed;
-    top: 0;
-    left: 0;
-    height: 100%;
-    width: 300px;
-    background: var(--color-accent);
-    z-index: 300;
-    display: flex;
-    flex-direction: column;
-    transform: translateX(-100%);
-    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    overflow: hidden;
-  }
-
-  .nav-panel.open {
-    transform: translateX(0);
-    box-shadow: 4px 0 32px rgba(0, 0, 0, 0.15);
-  }
-
-  .nav-panel-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 1.25rem 1.25rem 1rem;
-    border-bottom: 1.5px solid color-mix(in srgb, var(--color-text) 12%, transparent);
-    flex-shrink: 0;
-    background: var(--color-surface);
-  }
-
-  .nav-panel-title {
-    font-family: var(--font-semi-bold);
-    font-size: var(--size-sm);
-    letter-spacing: 0.07em;
-    text-transform: uppercase;
-    opacity: 0.6;
-  }
-
-  .nav-close-btn {
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    background: color-mix(in srgb, var(--color-text) 10%, transparent);
-    border: none;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 16px;
-    color: var(--color-text);
-    transition: 0.15s;
-    flex-shrink: 0;
-  }
-
-  .nav-close-btn:hover {
-    background: color-mix(in srgb, var(--color-text) 22%, transparent);
-  }
-
-  .nav-list {
-    list-style: none;
-    padding: 0.75rem 0;
-    margin: 0;
-    overflow-y: auto;
-    flex: 1;
-    background: var(--color-surface);
-  }
-
-  .nav-list li a {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    padding: 0.6rem 1.25rem;
-    text-decoration: none;
-    color: var(--color-text);
-    transition: 0.15s;
-  }
-
-  .nav-list li a:hover {
-    background: color-mix(in srgb, var(--color-text) 10%, transparent);
-  }
-
-  .nav-list li a.active {
-    background: color-mix(in srgb, var(--color-text) 15%, transparent);
-    font-family: var(--font-bold);
-  }
-
-  .nav-step-num {
-    flex-shrink: 0;
-    width: 26px;
-    height: 26px;
-    border-radius: 7px;
-    background: color-mix(in srgb, var(--color-text) 12%, transparent);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-family: var(--font-bold);
-    font-size: var(--size-sm);
-    color: var(--color-text);
-  }
-
-  .nav-step-title {
-    font-family: var(--font-semi-bold);
-    font-size: var(--size-sm);
-    line-height: 1.35;
-    flex: 1;
-    color: var(--color-text);
-  }
-
-  /* Knop om het zijmenu te openen. */
-
-  .hamburger-btn {
-    font-family: var(--font-semi-bold);
-    font-size: var(--size-lg);
-    letter-spacing: 0.06em;
-    background: color-mix(in srgb, var(--color-accent) 35%, transparent);
-    border: 1px solid color-mix(in srgb, var(--color-accent) 60%, transparent);
-    border-radius: 99px;
-    padding: 0.15rem 0.85rem;
-    color: var(--color-text);
-    margin: 0;
-    line-height: 1.4;
-    text-decoration: none;
-    transition: 0.18s, color 0.18s, transform 0.12s, box-shadow 0.18s;
-    display: inline-flex;
-    align-items: center;
-    gap: 0.2rem;
-  }
-
-  .hamburger-btn:hover {
-    background: var(--color-accent);
-    box-shadow: 0 4px 14px color-mix(in srgb, var(--color-accent) 50%, transparent);
-    transform: scale(1.07);
   }
 
   /* ── Header buttons (back + setting) — gelijke hoogte en stijl ── */
@@ -1343,12 +1124,6 @@ const accentColor = categoryColorMap[categorySlug] ?? "#B1F2D9";
     cursor: pointer;
   }
 
-  .rating-option .option-input {
-    position: absolute;
-    opacity: 0;
-    pointer-events: none;
-  }
-
   .rating-option:hover .rating-pip {
     background: color-mix(in srgb, var(--color-surface) 90%, transparent);
     border-color: color-mix(in srgb, var(--color-text) 25%, transparent);
@@ -1471,12 +1246,6 @@ const accentColor = categoryColorMap[categorySlug] ?? "#B1F2D9";
     margin: 0.35rem 0 0;
   }
 
-  .answer-feedback ul {
-    list-style: none;
-    margin: 0.35rem 0 0;
-    padding-left: 0;
-  }
-
   .correct-answer-list {
     display: flex;
     flex-direction: column;
@@ -1545,13 +1314,6 @@ const accentColor = categoryColorMap[categorySlug] ?? "#B1F2D9";
     border-color: #ff6631 !important;
   }
 
-  .btn:disabled {
-    opacity: 0.55;
-    cursor: default;
-    transform: none;
-    box-shadow: none;
-  }
-
   .action-row {
     display: flex;
     flex-wrap: wrap;
@@ -1601,63 +1363,10 @@ const accentColor = categoryColorMap[categorySlug] ?? "#B1F2D9";
 
   .btn--ghost:active { transform: scale(0.97); }
 
-  /* BOTTOM NAV */
-
-  .bottom-nav {
-    position: fixed;
-    bottom: 2rem;
-    left: 50%;
-    transform: translateX(-50%);
-    width: min(66.67%, 800px);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 1rem;
-    z-index: 100;
-    background: var(--module-card-background);
-    backdrop-filter: blur(10px);
-    border: 1px solid color-mix(in srgb, var(--color-text) 7%, transparent);
-    border-radius: 99px;
-    padding: 0.5rem 0.75rem;
-  }
-
-  .nav-btn {
-    font-family: var(--font-bold);
-    font-size: var(--size-base);
-    padding: 0.6rem 1.4rem;
-    border-radius: 25px;
-    text-decoration: none;
-    display: inline-flex;
-    align-items: center;
-    gap: 0.35rem;
-    transition: background 0.18s, color 0.18s, transform 0.12s, box-shadow 0.18s;
-    background: var(--color-accent);
-    color: var(--color-text);
-    border: 1.5px solid color-mix(in srgb, var(--color-text) 12%, transparent);
-  }
-
-  .nav-btn:hover {
-    background: color-mix(in srgb, var(--color-accent) 70%, black);
-    color: white;
-    transform: translateY(-1px);
-    box-shadow: 0 4px 14px color-mix(in srgb, var(--color-accent) 50%, transparent);
-  }
-
-  .nav-btn:active { transform: scale(0.97); }
-
-  .nav-btn--disabled {
-    background: color-mix(in srgb, var(--color-text) 5%, transparent);
-    color: color-mix(in srgb, var(--color-text) 28%, transparent);
-    border-color: transparent;
-    pointer-events: none;
-    cursor: default;
-  }
-
   /* Responsieve layout voor middelgrote schermen. */
 
   @media (max-width: 900px) {
     .page-shell {
-      grid-template-columns: 1fr 4fr 1fr;
       gap: 0 1rem;
       padding: 0 0.75rem;
     }
@@ -1694,7 +1403,6 @@ const accentColor = categoryColorMap[categorySlug] ?? "#B1F2D9";
       height: 18px;
     }
   }
-
 
   /* Animatie voor foutmeldingen. */
 

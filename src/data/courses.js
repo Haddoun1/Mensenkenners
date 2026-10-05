@@ -9,7 +9,7 @@ export const courses = [
     description:
       "Welkom bij de onboarding! In deze cursus maken we je wegwijs in het platform en leggen we uit wat je kunt verwachten in de verschillende delen van de cursus.",
     progress: 0,
-    href: "/onboarding/step-1",
+    href: "/onboarding/welkom-no-loader",
     color: "var(--color-green)",
     duration: 2,
   },
@@ -69,7 +69,7 @@ export const totals = {
 
 // Startpagina van elke cursus.
 export const courseStartHref = {
-  onboarding: "/onboarding/step-1",
+  onboarding: "/onboarding/welkom-no-loader",
   module_1: "/module-1/1",
   module_2: "/module-2/1",
   module_3: "/module-3/1",
