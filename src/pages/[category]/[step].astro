@@ -88,8 +88,10 @@ const isOpenReflectionQuestion =
   item.type === "question" &&
   ["long_text", "sentence_completion"].includes(item.input_type);
 
+// Een eindscherm met een open vraag heeft geen check-knop: het is alleen ter afsluiting.
 const isCheckableQuestion =
   item.type === "question" &&
+  !item.id?.endsWith("_submit") &&
   (hasCorrectOptions || item.input_type === "matching" || isOpenReflectionQuestion);
 
 // Stelt feedback en voorbeeldantwoorden in.
@@ -100,7 +102,33 @@ const exampleAnswer =
   item.model_answer ||
   item.sample_answer ||
   item.explanation ||
-  "Er is nog geen voorbeeldantwoord ingesteld voor deze vraag. Voeg bijvoorbeeld `example_answer` toe aan deze vraag in de JSON.";
+  "";
+
+// Minigame met korte momenten: de gebruiker kan pas verder als alle momenten zijn doorlopen.
+const isScenarioGame = item.type === "question" && item.input_type === "scenarios";
+const scenarios = item.scenarios || [];
+
+// Een open vraag zonder voorbeeldantwoord wordt alleen ingestuurd, zonder voorbeeld te tonen.
+const isSubmitOnlyQuestion = isOpenReflectionQuestion && !exampleAnswer;
+
+// Husselt de antwoorden van een matchingvraag, zodat ze niet in dezelfde volgorde staan als de stellingen.
+// De volgorde is gebaseerd op het vraag-ID, zodat die bij elke build gelijk blijft en per vraag verschilt.
+
+const matchingAnswers = (item.pairs || []).map((pair) => pair.answer);
+let shuffledMatchingAnswers = [...matchingAnswers];
+let seed = [...(item.id || "")].reduce((hash, char) => (hash * 31 + char.charCodeAt(0)) >>> 0, 7);
+const seededRandom = () => {
+  seed = (seed * 1664525 + 1013904223) >>> 0;
+  return seed / 2 ** 32;
+};
+if (matchingAnswers.length > 1) {
+  do {
+    for (let i = shuffledMatchingAnswers.length - 1; i > 0; i--) {
+      const j = Math.floor(seededRandom() * (i + 1));
+      [shuffledMatchingAnswers[i], shuffledMatchingAnswers[j]] = [shuffledMatchingAnswers[j], shuffledMatchingAnswers[i]];
+    }
+  } while (shuffledMatchingAnswers.some((answer, i) => answer === matchingAnswers[i]));
+}
 
 // Bepaalt naar welke module de gebruiker gaat na een eindscherm.
 
@@ -144,7 +172,7 @@ const accentColor = categoryColorMap[categorySlug] ?? "#B1F2D9";
         class="content-col"
         data-step-id={String(currentStep)}
         data-category={categorySlug}
-        data-requires-check={isCheckableQuestion ? "true" : "false"}
+        data-requires-check={isCheckableQuestion || isScenarioGame ? "true" : "false"}
         data-input-type={item.input_type || ""}
       >
 
@@ -182,6 +210,11 @@ const accentColor = categoryColorMap[categorySlug] ?? "#B1F2D9";
             </ul>
           )}
 
+        <!-- Reflectievraag op een contentpagina: alleen om over na te denken, zonder invoer. -->
+          {item.type === "content" && item.question && (
+            <h2 class="question-text reflection-question">{item.question}</h2>
+          )}
+
           {item.source && (
             <p class="card-source">
               <span class="source-label">Bron</span>
@@ -205,7 +238,9 @@ const accentColor = categoryColorMap[categorySlug] ?? "#B1F2D9";
         <!-- Vraagblok. De inhoud wordt bepaald door input_type uit de JSON. -->
           {item.type === "question" && (
             <div class="question-block">
-              {item.question && <h2 class="question-text">{item.question}</h2>}
+              {item.question && (
+                <h2 class:list={["question-text", { "question-text--plain": item.text }]}>{item.question}</h2>
+              )}
               {item.description && <p class="card-body">{item.description}</p>}
               {item.label && <label class="field-label">{item.label}</label>}
 
@@ -308,6 +343,50 @@ const accentColor = categoryColorMap[categorySlug] ?? "#B1F2D9";
                 </div>
               )}
 
+              {/* Minigame: per moment kiezen tussen een aanname doen of eerst vragen. Geen goed/fout, wel een quote. */}
+
+              {isScenarioGame && (
+                <div class="scenario-game" data-scenario-game>
+                  {scenarios.map((scenario, scenarioIndex) => (
+                    <div class="scenario" data-scenario hidden={scenarioIndex > 0}>
+                      <p class="scenario-progress">Moment {scenarioIndex + 1} van {scenarios.length}</p>
+                      <p class="scenario-situation">{scenario.situation}</p>
+                      <ul class="options-list">
+                        {(scenario.options || []).map((option, index) => (
+                          <li>
+                            <button
+                              type="button"
+                              class="option-label scenario-option"
+                              data-quote={option.quote || item.quotes?.[option.kind] || ""}
+                            >
+                              <span class="option-key">{String.fromCharCode(65 + index)}</span>
+                              <span class="option-text">{option.text}</span>
+                            </button>
+                          </li>
+                        ))}
+                      </ul>
+                      <figure class="scenario-quote" data-scenario-quote role="status" aria-live="polite" hidden>
+                        <blockquote></blockquote>
+                        <figcaption>Ervaringsdeskundige</figcaption>
+                      </figure>
+                      {scenarioIndex < scenarios.length - 1 && (
+                        <button type="button" class="btn btn--primary scenario-next" data-scenario-next hidden>
+                          Volgend moment
+                        </button>
+                      )}
+                    </div>
+                  ))}
+                  <div
+                    class="answer-feedback answer-feedback--example"
+                    id="answer-feedback"
+                    data-closing={item.closing || ""}
+                    role="status"
+                    aria-live="polite"
+                    hidden
+                  />
+                </div>
+              )}
+
               {/* Matchingvraag. */}
 
               {item.input_type === "matching" && (
@@ -326,8 +405,8 @@ const accentColor = categoryColorMap[categorySlug] ?? "#B1F2D9";
                           data-correct-answer={pair.answer}
                         >
                           <option value="">Kies een antwoord</option>
-                          {(item.pairs || []).map((answerPair) => (
-                            <option value={answerPair.answer}>{answerPair.answer}</option>
+                          {shuffledMatchingAnswers.map((answer) => (
+                            <option value={answer}>{answer}</option>
                           ))}
                         </select>
                       </div>
@@ -339,7 +418,7 @@ const accentColor = categoryColorMap[categorySlug] ?? "#B1F2D9";
               {isCheckableQuestion && (
                 <div class="question-check-row">
                   <button type="button" class="btn btn--primary" id="check-answer-btn">
-                    Check antwoord
+                    {isSubmitOnlyQuestion ? "Antwoord insturen" : "Check antwoord"}
                   </button>
                   <div
                     class="answer-feedback"
@@ -349,6 +428,7 @@ const accentColor = categoryColorMap[categorySlug] ?? "#B1F2D9";
                     hidden
                     data-explanation={item.explanation || ""}
                     data-example-answer={exampleAnswer}
+                    data-submit-only={isSubmitOnlyQuestion ? "true" : "false"}
                   />
                 </div>
               )}
@@ -389,6 +469,7 @@ const accentColor = categoryColorMap[categorySlug] ?? "#B1F2D9";
   const navNext = document.getElementById("nav-next");
   const checkAnswerBtn = document.getElementById("check-answer-btn");
   const answerFeedback = document.getElementById("answer-feedback");
+  const scenarioGame = document.querySelector("[data-scenario-game]");
   const requiresCheck = main?.dataset.requiresCheck === "true";
 
   const stepId = main?.dataset.stepId;
@@ -457,7 +538,13 @@ const accentColor = categoryColorMap[categorySlug] ?? "#B1F2D9";
       if (requiresCheck && navNext.dataset.checked !== "true") {
         answerFeedback.hidden = false;
         answerFeedback.className = "answer-feedback answer-feedback--warning";
-        answerFeedback.textContent = "Check eerst je antwoord voordat je verdergaat.";
+        if (scenarioGame) {
+          answerFeedback.textContent = "Doorloop eerst alle momenten voordat je verdergaat.";
+        } else {
+          answerFeedback.textContent = answerFeedback.dataset.submitOnly === "true"
+            ? "Stuur eerst je antwoord in voordat je verdergaat."
+            : "Check eerst je antwoord voordat je verdergaat.";
+        }
         return;
       }
 
@@ -650,7 +737,10 @@ const accentColor = categoryColorMap[categorySlug] ?? "#B1F2D9";
     const explanation = answerFeedback.dataset.explanation;
     const exampleAnswer = answerFeedback.dataset.exampleAnswer;
 
-    if (result.isOpenQuestion) {
+    if (result.isOpenQuestion && answerFeedback.dataset.submitOnly === "true") {
+      answerFeedback.className = "answer-feedback answer-feedback--correct";
+      answerFeedback.textContent = "Je antwoord is ingestuurd.";
+    } else if (result.isOpenQuestion) {
       answerFeedback.className = "answer-feedback answer-feedback--example";
       answerFeedback.innerHTML = `<p>${escapeHtml(exampleAnswer)}</p>`;
     } else if (result.correct) {
@@ -702,6 +792,47 @@ const accentColor = categoryColorMap[categorySlug] ?? "#B1F2D9";
     
     setNextEnabled(true);
   });
+
+  // Minigame: toont na elke keuze de quote, daarna het volgende moment en na het laatste moment de afsluitzin.
+  if (scenarioGame) {
+    const scenarioEls = [...scenarioGame.querySelectorAll("[data-scenario]")];
+
+    scenarioEls.forEach((scenarioEl, index) => {
+      const optionButtons = scenarioEl.querySelectorAll(".scenario-option");
+      const quoteEl = scenarioEl.querySelector("[data-scenario-quote]");
+      const nextBtn = scenarioEl.querySelector("[data-scenario-next]");
+
+      optionButtons.forEach((button) => {
+        button.addEventListener("click", () => {
+          optionButtons.forEach((other) => {
+            other.disabled = true;
+            other.classList.toggle("scenario-option--chosen", other === button);
+          });
+          button.setAttribute("aria-pressed", "true");
+
+          quoteEl.querySelector("blockquote").textContent = button.dataset.quote;
+          quoteEl.hidden = false;
+
+          if (nextBtn) {
+            nextBtn.hidden = false;
+            nextBtn.focus();
+          } else {
+            answerFeedback.className = "answer-feedback answer-feedback--example";
+            answerFeedback.textContent = answerFeedback.dataset.closing;
+            answerFeedback.hidden = false;
+            setNextEnabled(true);
+          }
+        });
+      });
+
+      nextBtn?.addEventListener("click", () => {
+        scenarioEl.hidden = true;
+        const nextScenario = scenarioEls[index + 1];
+        nextScenario.hidden = false;
+        nextScenario.querySelector(".scenario-option")?.focus();
+      });
+    });
+  }
 
   // Beperkt het aantal keuzes bij multiple-choicevragen.
   const mcBlock = document.querySelector("[data-multiple-choice]");
@@ -966,6 +1097,17 @@ const accentColor = categoryColorMap[categorySlug] ?? "#B1F2D9";
     line-height: 1.3;
   }
 
+  .reflection-question {
+    font-size: var(--size-xl);
+  }
+
+  /* Vraag onder een inleidende tekst: zelfde stijl als die tekst, zodat het één geheel vormt. */
+  .question-text--plain {
+    font-family: var(--font-light);
+    font-size: var(--size-lg);
+    line-height: 1.65;
+  }
+
   .field-label {
     font-family: var(--font-semi-bold);
     font-size: var(--size-sm);
@@ -1197,6 +1339,94 @@ const accentColor = categoryColorMap[categorySlug] ?? "#B1F2D9";
 
   /* FEEDBACK */
 
+  /* ── Minigame (momenten) ─────────────────────────────────────── */
+
+  .scenario-game,
+  .scenario {
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+  }
+
+  .scenario[hidden] {
+    display: none;
+  }
+
+  .scenario-progress {
+    margin: 0;
+    font-family: var(--font-semi-bold);
+    font-size: var(--size-sm);
+    opacity: 0.7;
+  }
+
+  .scenario-situation {
+    margin: 0;
+    font-family: var(--font-light);
+    font-size: var(--size-lg);
+    line-height: 1.65;
+  }
+
+  .scenario-option {
+    width: 100%;
+    text-align: left;
+    font: inherit;
+    color: inherit;
+  }
+
+  .scenario-option:disabled {
+    cursor: default;
+    transform: none;
+    box-shadow: none;
+  }
+
+  .scenario-option:disabled:not(.scenario-option--chosen) {
+    opacity: 0.5;
+  }
+
+  .scenario-option.scenario-option--chosen {
+    background: color-mix(in srgb, var(--color-accent) 50%, var(--color-surface));
+    border-color: color-mix(in srgb, var(--color-text) 30%, transparent);
+  }
+
+  html.dark-mode .scenario-option.scenario-option--chosen {
+    background: color-mix(in srgb, var(--color-accent) 50%, #1a1a1a56);
+  }
+
+  .scenario-quote {
+    margin: 0;
+    padding: 0.85rem 1rem;
+    border-left: 4px solid var(--color-accent);
+    border-radius: 0 12px 12px 0;
+    background: color-mix(in srgb, var(--color-accent) 15%, transparent);
+  }
+
+  .scenario-quote[hidden] {
+    display: none;
+  }
+
+  .scenario-quote blockquote {
+    margin: 0;
+    font-family: var(--font-light);
+    font-size: var(--size-lg);
+    font-style: italic;
+    line-height: 1.6;
+  }
+
+  .scenario-quote figcaption {
+    margin-top: 0.4rem;
+    font-family: var(--font-semi-bold);
+    font-size: var(--size-sm);
+    opacity: 0.7;
+  }
+
+  .scenario-next {
+    align-self: flex-start;
+  }
+
+  .scenario-next[hidden] {
+    display: none;
+  }
+
   .question-check-row {
     display: flex;
     flex-direction: column;
@@ -1317,6 +1547,7 @@ const accentColor = categoryColorMap[categorySlug] ?? "#B1F2D9";
   .action-row {
     display: flex;
     flex-wrap: wrap;
+    justify-content: space-between;
     gap: 0.75rem;
     padding-top: 0.5rem;
   }
