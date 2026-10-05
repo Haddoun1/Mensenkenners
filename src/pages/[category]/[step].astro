@@ -203,7 +203,11 @@ const accentColor = categoryColorMap[categorySlug] ?? "#B1F2D9";
         <section class="card">
           {item.title && <h1 class="card-title">{item.title}</h1>}
           {item.subtitle && <p class="card-subtitle">{item.subtitle}</p>}
-          {item.text && <p class="card-body">{item.text}</p>}
+          {item.paragraphs && Array.isArray(item.paragraphs) ? (
+            item.paragraphs.map((paragraph) => <p class="card-body">{paragraph}</p>)
+          ) : (
+            item.text && <p class="card-body">{item.text}</p>
+          )}
           {item.list && Array.isArray(item.list) && (
             <ul class="card-list">
               {item.list.map((point) => <li>{point}</li>)}
@@ -309,8 +313,8 @@ const accentColor = categoryColorMap[categorySlug] ?? "#B1F2D9";
               {/* Ratingvraag. */}
 
               {item.input_type === "rating" && (
-                <div class="rating-block">
-                  {scale.min_label && <span class="rating-label">{scale.min_label}</span>}
+                <fieldset class="rating-block">
+                  <legend class="sr-only">Kies een score van {minRating} tot {maxRating}</legend>
                   <div class="rating-row">
                     {ratings.map((ratingValue) => (
                       <label class="rating-option">
@@ -319,14 +323,18 @@ const accentColor = categoryColorMap[categorySlug] ?? "#B1F2D9";
                           id={`rating-${item.id}-${ratingValue}`}
                           name={`rating-${item.id}`}
                           value={ratingValue}
-                          class="option-input"
+                          class="rating-input"
+                          required={item.required}
                         />
                         <span class="rating-pip">{ratingValue}</span>
                       </label>
                     ))}
                   </div>
-                  {scale.max_label && <span class="rating-label">{scale.max_label}</span>}
-                </div>
+                  <div class="rating-scale-labels">
+                    {scale.min_label && <span>{scale.min_label}</span>}
+                    {scale.max_label && <span>{scale.max_label}</span>}
+                  </div>
+                </fieldset>
               )}
 
               {/* Zin-afmaken-vraag. */}
@@ -471,6 +479,7 @@ const accentColor = categoryColorMap[categorySlug] ?? "#B1F2D9";
   const answerFeedback = document.getElementById("answer-feedback");
   const scenarioGame = document.querySelector("[data-scenario-game]");
   const requiresCheck = main?.dataset.requiresCheck === "true";
+  const ratingInputs = [...document.querySelectorAll(".rating-input")];
 
   const stepId = main?.dataset.stepId;
   const category = main?.dataset.category;
@@ -530,6 +539,22 @@ const accentColor = categoryColorMap[categorySlug] ?? "#B1F2D9";
   }
 
   setNextEnabled(false);
+
+  // Laat Tab en Shift+Tab binnen een beoordelingsschaal langs elke score lopen.
+  // Spatie blijft de standaardactie van een radioknop gebruiken om de score te selecteren.
+  ratingInputs.forEach((input, index) => {
+    input.addEventListener("keydown", (event) => {
+      if (event.key !== "Tab") return;
+
+      const nextIndex = index + (event.shiftKey ? -1 : 1);
+      const nextInput = ratingInputs[nextIndex];
+
+      if (!nextInput) return;
+
+      event.preventDefault();
+      nextInput.focus();
+    });
+  });
 
   if (navNext) {
     navNext.addEventListener("click", async (e) => {
@@ -1245,38 +1270,92 @@ const accentColor = categoryColorMap[categorySlug] ?? "#B1F2D9";
   /* RATING */
 
   .rating-block {
-    display: flex;
-    flex-direction: column;
+    border: 0;
+    min-inline-size: 0;
+    padding: 0;
+    margin: 0;
+    display: grid;
     gap: 0.75rem;
   }
 
-  .rating-label {
-    font-family: var(--font-light);
-    font-size: var(--size-sm);
-    opacity: 0.6;
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
   }
 
   .rating-row {
-    display: flex;
-    justify-content: space-between;
-    flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: repeat(10, minmax(0, 1fr));
+    gap: clamp(0.2rem, 1vw, 0.6rem);
   }
 
   .rating-option {
+    position: relative;
     cursor: pointer;
+    min-width: 0;
+  }
+
+  .rating-input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+    width: 1px;
+    height: 1px;
+  }
+
+  .rating-pip {
+    width: 100%;
+    aspect-ratio: 1;
+    min-height: 2.25rem;
+    border: 1.5px solid color-mix(in srgb, var(--color-text) 16%, transparent);
+    border-radius: 10px;
+    background: color-mix(in srgb, var(--color-text) 4%, transparent);
+    color: var(--color-text);
+    display: grid;
+    place-items: center;
+    font-family: var(--font-bold);
+    font-size: clamp(0.7rem, 1.8vw, 1rem);
+    line-height: 1;
+    transition: background 0.18s, border-color 0.18s, color 0.18s, transform 0.12s, box-shadow 0.18s;
   }
 
   .rating-option:hover .rating-pip {
-    background: color-mix(in srgb, var(--color-surface) 90%, transparent);
-    border-color: color-mix(in srgb, var(--color-text) 25%, transparent);
+    background: color-mix(in srgb, var(--color-accent) 32%, var(--color-surface));
+    border-color: color-mix(in srgb, var(--color-accent) 70%, var(--color-text));
     transform: translateY(-2px);
   }
 
-  .rating-option:has(.option-input:checked) .rating-pip {
+  .rating-option:has(.rating-input:focus-visible) .rating-pip {
+    outline: 3px solid color-mix(in srgb, var(--color-accent) 55%, transparent);
+    outline-offset: 3px;
+  }
+
+  .rating-option:has(.rating-input:checked) .rating-pip {
     background: var(--color-accent);
     border-color: color-mix(in srgb, var(--color-text) 30%, transparent);
-    padding: 0.5rem 0.75rem;
     box-shadow: 0 4px 10px color-mix(in srgb, var(--color-accent) 40%, transparent);
+  }
+
+  .rating-scale-labels {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    color: var(--color-text);
+    font-family: var(--font-light);
+    font-size: var(--size-sm);
+    line-height: 1.3;
+    opacity: 0.72;
+  }
+
+  .rating-scale-labels span:last-child {
+    text-align: right;
   }
 
   /* ── Matching ────────────────────────────────────────────────── */
@@ -1615,7 +1694,7 @@ const accentColor = categoryColorMap[categorySlug] ?? "#B1F2D9";
     .content-col { padding: 3.5rem 0 7rem; }
     .card { padding: 1.5rem 1.25rem; border-radius: 14px; }
     .card-title { font-size: clamp(1.35rem, 6vw, 1.8rem); }
-    .rating-pip { width: 2.4rem; height: 2.4rem; font-size: var(--size-sm); }
+    .rating-pip { min-height: 2rem; font-size: var(--size-sm); }
 
     /* Iets kleinere header-knoppen op mobile */
     .header-btn {

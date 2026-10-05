@@ -253,7 +253,27 @@
       "type": "content",
       "section": "module_3_toegankelijkheid_werkplek",
       "title": "Module 3 - Toegankelijkheid van jouw werkplek",
-      "text": "Toegankelijkheid gaat niet alleen over het gebouw, maar ook over duidelijke informatie. Een bezoeker moet vooraf en ter plekke kunnen begrijpen wat wel en niet mogelijk is.",
+      "text": "Toegankelijkheid is helaas niet op elke locatie vanzelfsprekend. Door te weten wat obstakels kunnen zijn en te kunnen informeren, kan je mensen met een beperking helpen inschatten of ze extra ondersteuning nodig hebben op locatie. Deze module duurt ongeveer 15 minuten.",
+      "Category": "Module 3"
+    },
+    {
+      "id": "m3_video_toegankelijk_toilet_bakfiets",
+      "type": "video",
+      "section": "module_3_toegankelijkheid_werkplek",
+      "title": "toegankelijk toilet/ bakfiets",
+      "url": "",
+      "optional": true,
+      "Category": "Module 3"
+    },
+    {
+      "id": "m3_content_werkplek_toegankelijk",
+      "type": "content",
+      "section": "module_3_toegankelijkheid_werkplek",
+      "title": "Wat maakt een werkplek toegankelijk?",
+      "paragraphs": [
+        "Een toegankelijke plek of locatie gaat niet alleen over de vraag of er een lift, een drempelvrije ingang of een aangepast toilet aanwezig is. Het gaat er net zo goed om dat die voorzieningen ook echt bruikbaar blijven.",
+        "Een toegankelijk toilet dat is volgezet met dozen of schoonmaakspullen is in de praktijk niet toegankelijk. We gaan kijken naar de fysieke toegankelijkheid van jouw eigen werkplek: wat er al is, wat er nog ontbreekt, en hoe je ervoor zorgt dat wat er is ook echt te gebruiken blijft."
+      ],
       "Category": "Module 3"
     },
     {
@@ -273,6 +293,14 @@
       "Category": "Module 3"
     },
     {
+      "id": "m3_content_vindbare_informatie",
+      "type": "content",
+      "section": "module_3_toegankelijkheid_werkplek",
+      "title": "Vindbare informatie",
+      "text": "Het kunnen informeren over toegankelijkheid is essentieel om een bezoek voor iedereen goed te laten verlopen. Een toegankelijke ingang of een rustige ruimte helpt een bezoeker namelijk pas echt als die ook weet dat hij er is, en jij die informatie duidelijk en zonder aarzelen kan geven.",
+      "Category": "Module 3"
+    },
+    {
       "id": "m3_q02_website_informatie",
       "type": "question",
       "section": "module_3_toegankelijkheid_werkplek",
@@ -280,15 +308,11 @@
       "question": "Welke informatie over toegankelijkheid is eenvoudig te vinden op jullie website of communicatiekanalen?",
       "input_type": "multiple_choice",
       "required": true,
-      "max_selections": 6,
+      "max_selections": 3,
       "options": [
         "Informatie over de ingang",
-        "Informatie over drempels of hoogteverschillen",
-        "Informatie over een toegankelijk toilet",
-        "Informatie over bereikbaarheid met openbaar vervoer",
-        "Informatie over parkeren",
-        "Contactmogelijkheid voor toegankelijkheidsvragen",
-        "Ik kan weinig of geen toegankelijkheidsinformatie vinden"
+        "Informatie over toegankelijke toiletten",
+        "Informatie over hulpmiddelen"
       ],
       "Category": "Module 3"
     },
@@ -300,17 +324,32 @@
       "question": "Welke informatie ontbreekt volgens jou of kan duidelijker?",
       "input_type": "multiple_choice",
       "required": true,
-      "max_selections": 6,
+      "max_selections": 3,
       "options": [
-        "Breedte van de ingang",
-        "Aanwezigheid van drempels",
-        "Toegankelijk toilet",
-        "Ruimte tussen tafels, rekken of stoelen",
-        "Lift of alternatief voor trappen",
-        "Route vanaf OV of parkeerplaats",
-        "Mogelijkheid om vooraf contact op te nemen",
-        "Geen van deze"
+        "Informatie over de ingang",
+        "Informatie over toegankelijke toiletten",
+        "Informatie over hulpmiddelen"
       ],
+      "Category": "Module 3"
+    },
+    {
+      "id": "m3_q05_verbeterpunt",
+      "type": "question",
+      "section": "module_3_toegankelijkheid_werkplek",
+      "title": "Verbeterpunt",
+      "question": "Een verbetering die direct verschil zou maken voor bezoekers is...",
+      "input_type": "sentence_completion",
+      "required": true,
+      "Category": "Module 3",
+      "example_answer": "Bijvoorbeeld: Een verbetering die direct verschil zou maken voor bezoekers is duidelijke informatie op de website over toegankelijkheid en beschikbare voorzieningen."
+    },
+    {
+      "id": "m3_video_toegankelijkheid_wijzer",
+      "type": "video",
+      "section": "module_3_toegankelijkheid_werkplek",
+      "title": "Je hoeft niet iedereen te wijzen op toegankelijkheid",
+      "url": "",
+      "optional": true,
       "Category": "Module 3"
     },
     {
@@ -340,17 +379,6 @@
         }
       ],
       "Category": "Module 3"
-    },
-    {
-      "id": "m3_q05_verbeterpunt",
-      "type": "question",
-      "section": "module_3_toegankelijkheid_werkplek",
-      "title": "Verbeterpunt",
-      "question": "Een verbetering die direct verschil zou maken voor bezoekers is...",
-      "input_type": "sentence_completion",
-      "required": true,
-      "Category": "Module 3",
-      "example_answer": "Bijvoorbeeld: Een verbetering die direct verschil zou maken voor bezoekers is duidelijke informatie op de website over toegankelijkheid en beschikbare voorzieningen."
     },
     {
       "id": "m4_intro",
