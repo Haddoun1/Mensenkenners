@@ -11,7 +11,7 @@ export const courses = [
     progress: 0,
     href: "/onboarding/welkom-no-loader",
     color: "var(--color-green)",
-    duration: 2,
+    duration: 3,
   },
   {
     id: "module_1",
@@ -22,7 +22,7 @@ export const courses = [
     progress: 0,
     href: "/module-1/1",
     color: "var(--color-pink)",
-    duration: 10,
+    duration: 15,
   },
   {
     id: "module_2",
@@ -44,7 +44,7 @@ export const courses = [
     progress: 0,
     href: "/module-3/1",
     color: "var(--color-red)",
-    duration: 10,
+    duration: 15,
   },
   {
     id: "module_4",
@@ -54,7 +54,7 @@ export const courses = [
     progress: 0,
     href: "/module-4/1",
     color: "var(--color-blue)",
-    duration: 10,
+    duration: 15,
   },
 ];
 

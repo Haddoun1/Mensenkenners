@@ -45,7 +45,7 @@
       "type": "content",
       "section": "module_1_inclusief_contact",
       "title": "Module 1 - Inclusief contact",
-      "text": "Inclusief contact begint niet met precies weten wat iemand nodig heeft, maar met open, rustig en respectvol reageren. In deze module oefen je met basisprincipes die in veel situaties toepasbaar zijn. Deze module duurt ongeveer 10 minuten.",
+      "text": "Inclusief contact begint niet met precies weten wat iemand nodig heeft, maar met open, rustig en respectvol reageren. In deze module oefen je met basisprincipes die in veel situaties toepasbaar zijn. Deze module duurt ongeveer 15 minuten.",
       "Category": "Module 1"
     },
     {
@@ -581,10 +581,12 @@
     },
     {
       "id": "m3_submit",
-      "type": "content",
+      "type": "question",
       "section": "module_3_toegankelijkheid_werkplek",
       "title": "Module 3 afgerond",
-      "text": "Je hebt Module 3 afgerond. Je hebt gekeken naar de toegankelijkheid van jouw locatie en de informatie die bezoekers nodig hebben.",
+      "question": "Wat neem je uit deze module mee naar je eigen dag, bijeenkomst of activiteit?",
+      "input_type": "long_text",
+      "required": false,
       "Category": "Module 3"
     }
   ]
