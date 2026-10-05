@@ -71,41 +71,12 @@
       "Category": "Module 1"
     },
     {
-      "id": "m1_step_4",
+      "id": "m1_reflectie_buitengesloten",
       "type": "content",
       "section": "module_1_inclusief_contact",
-      "Category": "Module 1"
-    },
-    {
-      "id": "m1_q01_matching_situatie_reactie",
-      "type": "question",
-      "section": "module_1_inclusief_contact",
-      "title": "Situatie en reactie",
-      "question": "Koppel iedere situatie aan de meest passende eerste reactie.",
-      "input_type": "matching",
-      "required": true,
-      "pairs": [
-        {
-          "prompt": "Een bezoeker lijkt je niet goed te horen.",
-          "answer": "Zoek een andere manier van communiceren, bijvoorbeeld schrijven of typen."
-        },
-        {
-          "prompt": "Een bezoeker met een blindengeleidehond blijft bij de ingang staan.",
-          "answer": "Zorg dat de blindengeleidehond welkom is en geen toegang wordt geweigerd."
-        },
-        {
-          "prompt": "Een bezoeker in een rolstoel komt binnen.",
-          "answer": "Spreek de persoon zelf aan en vraag of hulp gewenst is."
-        },
-        {
-          "prompt": "Een bezoeker stottert tijdens het stellen van een vraag.",
-          "answer": "Luister rustig en geef de persoon tijd om uit te spreken."
-        },
-        {
-          "prompt": "Een bezoeker heeft een opvallend uiterlijk.",
-          "answer": "Behandel de persoon zoals iedere andere bezoeker."
-        }
-      ],
+      "title": "Sta er even bij stil",
+      "text": "Ook in een bijeenkomst, in een wachtruimte of aan de telefoon kan iemand die doof is buitengesloten raken van een gesprek zonder dat je het doorhebt.",
+      "question": "Herken je deze situatie?",
       "Category": "Module 1"
     },
     {
@@ -113,29 +84,45 @@
       "type": "question",
       "section": "module_1_inclusief_contact",
       "title": "Gedrag en effect",
-      "question": "Koppel het gedrag aan het mogelijke effect op de bezoeker.",
+      "question": "Matching oefening: koppel gedrag aan het effect dat je denkt dat het gedrag heeft.",
       "input_type": "matching",
       "required": true,
       "pairs": [
         {
-          "prompt": "Iemands zin afmaken.",
-          "answer": "Kan frustrerend of betuttelend overkomen."
+          "prompt": "Je herhaalt je vraag rustig op een andere manier.",
+          "answer": "De bezoeker aan de balie voelt zich serieus genomen."
         },
         {
-          "prompt": "Geduldig wachten tot iemand is uitgesproken.",
-          "answer": "Geeft ruimte en laat respect zien."
+          "prompt": "Je praat harder in plaats van duidelijker.",
+          "answer": "De bezoeker voelt zich niet gehoord, ook al hoort die je wel."
         },
         {
-          "prompt": "Tegen het gezelschap praten in plaats van tegen de bezoeker zelf.",
-          "answer": "Kan buitensluitend overkomen."
+          "prompt": "Je vraagt of opschrijven ook werkt.",
+          "answer": "De bezoeker krijgt zelf de regie over hoe het gesprek verloopt."
+        }
+      ],
+      "Category": "Module 1"
+    },
+    {
+      "id": "m1_q01_matching_situatie_reactie",
+      "type": "question",
+      "section": "module_1_inclusief_contact",
+      "title": "Situatie en reactie",
+      "question": "Matching oefening nu met voorbeelden uit de praktijk: bijeenkomst, activiteit, harder praten vs. rustig herhalen.",
+      "input_type": "matching",
+      "required": true,
+      "pairs": [
+        {
+          "prompt": "Een bezoeker aan de balie kijkt je bij binnenkomst aan en reageert traag op je vraag.",
+          "answer": "Je geeft rustig de tijd en herhaalt de vraag zo nodig op een andere manier."
         },
         {
-          "prompt": "Eerst vragen of hulp gewenst is.",
-          "answer": "Geeft de bezoeker regie."
+          "prompt": "Een bezoeker wijst alleen naar een formulier in plaats van te spreken.",
+          "answer": "Je vraagt op een neutrale toon waarmee je kunt helpen, zonder aannames."
         },
         {
-          "prompt": "Lang blijven kijken naar iemands uiterlijk.",
-          "answer": "Kan ongemak of afstand creeren."
+          "prompt": "Een bezoeker communiceert via een gebarentolk of een tolkapp.",
+          "answer": "Je richt je tot de bezoeker zelf, niet tot de tolk."
         }
       ],
       "Category": "Module 1"
@@ -145,79 +132,83 @@
       "type": "content",
       "section": "module_2_perspectief_inlevingsvermogen",
       "title": "Module 2 - Perspectief en inlevingsvermogen",
-      "text": "In deze module sta je stil bij situaties waarin bezoekers de wereld anders ervaren. Het doel is niet om een beperking te simuleren, maar om beter te begrijpen welke invloed communicatie, tijd en ondersteuning kunnen hebben op iemands ervaring.",
+      "text": "Perspectief en inlevingsvermogen gaat niet over medelijden of kinderachtige taal gebruiken, maar om iemand als gelijke behandelen. In deze module oefen je met perspectief nemen aan de hand van herkenbare momenten. Deze module duurt ongeveer 15 minuten.",
+      "Category": "Module 2"
+    },
+    {
+      "id": "m2_video_hand_geven",
+      "type": "video",
+      "section": "module_2_perspectief_inlevingsvermogen",
+      "title": "Een hand geven",
+      "text": "Het is voor veel mensen vanzelfsprekend dat ze een hand willen ontvangen, maar mensen weten soms niet hoe.",
+      "url": "https://assets.frame.io/encode/66ce40b5-b390-4f3c-b408-dd25b797371a/h264_1080_best.mp4?x-amz-meta-resource_type=asset&x-amz-meta-resource_id=66ce40b5-b390-4f3c-b408-dd25b797371a&x-amz-meta-project_id=37a5d23b-b9d5-4edf-9e7f-9551df75376a&Expires=1790424000&Signature=bfosY1RvPgx-gNd4Uba5jfgJGeewPVxnfDLRHZVlF-fW~M8erdG3s6nsTtbxLCOloDuNTanBw0mJHAY2DI1lZhcMCtaTK90F1WMAGtbbSaesnqIy8Q~iL-h7NSe8DIe01tnFfpNbk3JzmgljgreAqVNSMDJKb1U63fKySfMAQEMZ2URae4vCbkLStQXB0y7ym53eAl6~gkZ9Y4fnvXwTuU-KYgQKXuK0hp8ca~2f79fRbN4bl-sz3dL0hI2CT8RRxTsM7Ddr89qknL6wL06Sv8dEg7uKLJSCJo3kZh-GYH89JBI4168etnAucos8gjVn81YdWsB2rnyCT1UO6NpSBw__&Key-Pair-Id=K1XW5DOJMY1ET9",
       "Category": "Module 2"
     },
     {
       "id": "m2_content_01",
-      "type": "content",
+      "type": "question",
       "section": "module_2_perspectief_inlevingsvermogen",
       "title": "Wanneer iets vanzelfsprekend lijkt",
-      "text": "Veel dingen die voor de een vanzelfsprekend zijn, kunnen voor een ander extra inspanning vragen. Denk aan informatie begrijpen, een gesprek voeren, de weg vinden of hulp vragen.",
+      "text": "Sommige dingen doe je zonder na te denken. Voor een ander kan precies dat een drempel zijn, denk bijvoorbeeld aan informatie begrijpen, een gesprek voeren, de weg vinden of hulp vragen.",
+      "question": "Wat is iets dat jij vanzelfsprekend vindt in contact met mensen, waar iemand anders over kan struikelen?",
+      "input_type": "long_text",
+      "required": true,
       "Category": "Module 2"
     },
     {
-      "id": "m2_q01",
-      "type": "question",
-      "section": "module_2_perspectief_inlevingsvermogen",
-      "title": "Vanzelfsprekendheden",
-      "question": "Wat is voor jou iets dat in contact met bezoekers vanzelfsprekend voelt?",
-      "input_type": "sentence_completion",
-      "required": true,
-      "Category": "Module 2",
-      "example_answer": "Bijvoorbeeld: Voor mij voelt het vanzelfsprekend om snel informatie te geven aan bezoekers. Deze module laat mij beseffen dat niet iedereen informatie op dezelfde manier verwerkt."
-    },
-    {
       "id": "m2_content_02",
-      "type": "content",
+      "type": "video",
       "section": "module_2_perspectief_inlevingsvermogen",
       "title": "Onzekerheid bij het vragen om hulp",
       "text": "Niet iedereen vraagt gemakkelijk om hulp. Daarom is het belangrijk om ondersteuning aan te bieden zonder deze op te dringen.",
+      "url": "https://assets.frame.io/encode/66ce40b5-b390-4f3c-b408-dd25b797371a/h264_1080_best.mp4?x-amz-meta-resource_type=asset&x-amz-meta-resource_id=66ce40b5-b390-4f3c-b408-dd25b797371a&x-amz-meta-project_id=37a5d23b-b9d5-4edf-9e7f-9551df75376a&Expires=1790424000&Signature=bfosY1RvPgx-gNd4Uba5jfgJGeewPVxnfDLRHZVlF-fW~M8erdG3s6nsTtbxLCOloDuNTanBw0mJHAY2DI1lZhcMCtaTK90F1WMAGtbbSaesnqIy8Q~iL-h7NSe8DIe01tnFfpNbk3JzmgljgreAqVNSMDJKb1U63fKySfMAQEMZ2URae4vCbkLStQXB0y7ym53eAl6~gkZ9Y4fnvXwTuU-KYgQKXuK0hp8ca~2f79fRbN4bl-sz3dL0hI2CT8RRxTsM7Ddr89qknL6wL06Sv8dEg7uKLJSCJo3kZh-GYH89JBI4168etnAucos8gjVn81YdWsB2rnyCT1UO6NpSBw__&Key-Pair-Id=K1XW5DOJMY1ET9",
       "Category": "Module 2"
     },
     {
       "id": "m2_q02",
       "type": "question",
       "section": "module_2_perspectief_inlevingsvermogen",
-      "title": "Hulp aanbieden",
-      "question": "Welke aanpak sluit hier het beste bij aan?",
-      "input_type": "single_choice",
+      "title": "Aanname of vraag?",
+      "question": "Je krijgt drie korte momenten te zien. Kies bij elk moment wat jij zou doen.",
+      "input_type": "scenarios",
       "required": true,
-      "options": [
+      "quotes": {
+        "aanname": "Als iemand me steeds ongevraagd helpt, voel ik me niet geholpen maar continu herinnerd aan wat ik niet kan.",
+        "vraag": "\"Kan ik iets voor je doen?\" is een vraag waar ik makkelijk nee op kan zeggen. Dat maakt het prettig."
+      },
+      "scenarios": [
         {
-          "id": "A",
-          "text": "Direct hulp overnemen."
+          "situation": "Een bezoeker met een rollator probeert de zware toegangsdeur open te duwen.",
+          "options": [
+            { "kind": "aanname", "text": "Je loopt erheen en houdt de deur meteen voor de bezoeker open." },
+            { "kind": "vraag", "text": "Je vraagt: \"Kan ik iets voor je doen?\"" }
+          ]
         },
         {
-          "id": "B",
-          "text": "Vragen of hulp gewenst is.",
-          "is_correct": true
+          "situation": "Een bezoeker die blind is, tast aan de balie naar het formulier dat je net hebt neergelegd.",
+          "options": [
+            { "kind": "vraag", "text": "Je vraagt: \"Kan ik iets voor je doen?\"" },
+            { "kind": "aanname", "text": "Je pakt de hand van de bezoeker en legt die op het formulier." }
+          ]
         },
         {
-          "id": "C",
-          "text": "Afwachten tot iemand hulp vraagt."
+          "situation": "Een bezoeker in een rolstoel probeert een kop koffie van de hoge bar te pakken.",
+          "options": [
+            { "kind": "aanname", "text": "Je pakt de koffie en zet die alvast op een tafel neer." },
+            { "kind": "vraag", "text": "Je vraagt: \"Kan ik iets voor je doen?\"" }
+          ]
         }
       ],
+      "closing": "Wat telt is dat je de vraag stelt, en dat nee ook een antwoord is.",
       "Category": "Module 2"
     },
     {
       "id": "m2_content_03",
       "type": "content",
       "section": "module_2_perspectief_inlevingsvermogen",
-      "title": "Geduld en ruimte geven",
-      "text": "Niet ieder gesprek verloopt in hetzelfde tempo. Mensen kunnen tijd nodig hebben om informatie te verwerken of zich uit te drukken.",
+      "title": "\"Nee?\"",
+      "text": "Veel mensen met een zichtbare beperking worden in de openbare ruimte geconfronteerd met hun beperking, door mensen die geschrokken reageren of ongevraagd ingrijpen. Soms is iemand dus al vaak aangesproken op hun beperking. Het kan ook zo zijn dat iemand zelfredzamer is dan je denkt. Als je hulp wordt afgeslagen, is het niet persoonlijk.",
       "Category": "Module 2"
-    },
-    {
-      "id": "m2_q03",
-      "type": "question",
-      "section": "module_2_perspectief_inlevingsvermogen",
-      "title": "Geduld",
-      "question": "Waarom kan extra tijd geven volgens jou belangrijk zijn voor een positieve ervaring?",
-      "input_type": "sentence_completion",
-      "required": true,
-      "Category": "Module 2",
-      "example_answer": "Bijvoorbeeld: Extra tijd geven zorgt ervoor dat iemand zich gehoord voelt en de ruimte krijgt om op een eigen manier te communiceren."
     },
     {
       "id": "m2_q04",
@@ -230,40 +221,31 @@
       "pairs": [
         {
           "prompt": "Iemand rechtstreeks aanspreken",
-          "answer": "Je richt je niet automatisch tot een begeleider."
+          "answer": "Bij een bezoeker met een beperking spreek je altijd de persoon zelf aan in plaats van het gezelschap."
         },
         {
-          "prompt": "Duidelijke informatie geven",
-          "answer": "Je voorkomt onduidelijkheid en onzekerheid."
+          "prompt": "Rustig tempo aanhouden",
+          "answer": "Je wacht net iets langer op een antwoord voordat je je vraag herhaalt."
         },
         {
-          "prompt": "Niet invullen wat iemand nodig heeft",
-          "answer": "Je vraagt eerst wat gewenst is."
+          "prompt": "Neutraal taalgebruik",
+          "answer": "Je zegt \"bezoeker met een beperking\" in plaats van een etiket te gebruiken."
         },
         {
-          "prompt": "Ruimte geven voor vragen",
-          "answer": "Je stimuleert gelijkwaardig contact."
+          "prompt": "Zelf niet invullen",
+          "answer": "Je vraagt door in plaats van te veronderstellen wat iemand bedoelt."
         }
       ],
       "Category": "Module 2"
     },
     {
-      "id": "m2_q05",
+      "id": "m2_submit",
       "type": "question",
       "section": "module_2_perspectief_inlevingsvermogen",
-      "title": "Reflectie",
-      "question": "Welk inzicht uit deze module is voor jou het meest relevant voor je dagelijkse werk?",
-      "input_type": "sentence_completion",
-      "required": true,
-      "Category": "Module 2",
-      "example_answer": "Bijvoorbeeld: Het belangrijkste inzicht voor mij is dat ik eerst moet vragen wat iemand nodig heeft voordat ik hulp aanbied."
-    },
-    {
-      "id": "m2_submit",
-      "type": "content",
-      "section": "module_2_perspectief_inlevingsvermogen",
       "title": "Module 2 afgerond",
-      "text": "Je hebt Module 2 afgerond. Je hebt stilgestaan bij perspectief, communicatie en inlevingsvermogen.",
+      "question": "Wat neem je uit deze module mee naar je eigen dag, bijeenkomst of activiteit?",
+      "input_type": "long_text",
+      "required": false,
       "Category": "Module 2"
     },
     {
@@ -589,10 +571,12 @@
     },
     {
       "id": "m1_submit",
-      "type": "content",
+      "type": "question",
       "section": "module_1_inclusief_contact",
       "title": "Module 1 afgerond",
-      "text": "Je hebt Module 1 afgerond. Je hebt geoefend met de basisprincipes van inclusief contact.",
+      "question": "Wat neem je uit deze module mee naar je eigen dag, bijeenkomst of activiteit?",
+      "input_type": "long_text",
+      "required": false,
       "Category": "Module 1"
     },
     {
