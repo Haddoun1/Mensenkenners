@@ -64,7 +64,7 @@ export const totals = {
   module_1: 7,
   module_2: 8,
   module_3: 7,
-  module_4: 9,
+  module_4: 8,
 };
 
 // Startpagina van elke cursus.

@@ -106,7 +106,29 @@ const exampleAnswer =
 
 // Minigame met korte momenten: de gebruiker kan pas verder als alle momenten zijn doorlopen.
 const isScenarioGame = item.type === "question" && item.input_type === "scenarios";
-const scenarios = item.scenarios || [];
+// Twee varianten: een moment met eigen opties en een quote per keuze (module 2),
+// of een fragment waarbij je uit vaste kernprincipes kiest en een toelichting krijgt (module 4).
+const scenarios = (item.scenarios || []).map((scenario) => {
+  if (scenario.options) {
+    return {
+      ...scenario,
+      isQuote: true,
+      choices: scenario.options.map((option) => ({
+        text: option.text,
+        response: option.quote || item.quotes?.[option.kind] || "",
+      })),
+    };
+  }
+  return {
+    ...scenario,
+    isQuote: false,
+    choices: (item.principles || []).map((principle) => ({
+      text: principle,
+      response: principle === scenario.best ? scenario.fit : scenario.other,
+    })),
+  };
+});
+const scenarioLabel = item.scenario_label || "Moment";
 
 // Een open vraag zonder voorbeeldantwoord wordt alleen ingestuurd, zonder voorbeeld te tonen.
 const isSubmitOnlyQuestion = isOpenReflectionQuestion && !exampleAnswer;
@@ -355,35 +377,41 @@ const accentColor = categoryColorMap[categorySlug] ?? "#B1F2D9";
                 </div>
               )}
 
-              {/* Minigame: per moment kiezen tussen een aanname doen of eerst vragen. Geen goed/fout, wel een quote. */}
+              {/* Minigame: per moment een keuze maken. Geen goed/fout, wel een quote of toelichting. */}
 
               {isScenarioGame && (
                 <div class="scenario-game" data-scenario-game>
                   {scenarios.map((scenario, scenarioIndex) => (
                     <div class="scenario" data-scenario hidden={scenarioIndex > 0}>
-                      <p class="scenario-progress">Moment {scenarioIndex + 1} van {scenarios.length}</p>
+                      <p class="scenario-progress">{scenarioLabel} {scenarioIndex + 1} van {scenarios.length}</p>
                       <p class="scenario-situation">{scenario.situation}</p>
                       <ul class="options-list">
-                        {(scenario.options || []).map((option, index) => (
+                        {scenario.choices.map((choice, index) => (
                           <li>
                             <button
                               type="button"
                               class="option-label scenario-option"
-                              data-quote={option.quote || item.quotes?.[option.kind] || ""}
+                              data-response={choice.response}
                             >
                               <span class="option-key">{String.fromCharCode(65 + index)}</span>
-                              <span class="option-text">{option.text}</span>
+                              <span class="option-text">{choice.text}</span>
                             </button>
                           </li>
                         ))}
                       </ul>
-                      <figure class="scenario-quote" data-scenario-quote role="status" aria-live="polite" hidden>
-                        <blockquote></blockquote>
-                        <figcaption>Ervaringsdeskundige</figcaption>
-                      </figure>
+                      {scenario.isQuote ? (
+                        <figure class="scenario-quote" data-scenario-response role="status" aria-live="polite" hidden>
+                          <blockquote data-response-text></blockquote>
+                          <figcaption>Ervaringsdeskundige</figcaption>
+                        </figure>
+                      ) : (
+                        <div class="scenario-quote scenario-quote--info" data-scenario-response role="status" aria-live="polite" hidden>
+                          <p data-response-text></p>
+                        </div>
+                      )}
                       {scenarioIndex < scenarios.length - 1 && (
                         <button type="button" class="btn btn--primary scenario-next" data-scenario-next hidden>
-                          Volgend moment
+                          Volgend {scenarioLabel.toLowerCase()}
                         </button>
                       )}
                     </div>
@@ -827,13 +855,13 @@ const accentColor = categoryColorMap[categorySlug] ?? "#B1F2D9";
     setNextEnabled(true);
   });
 
-  // Minigame: toont na elke keuze de quote, daarna het volgende moment en na het laatste moment de afsluitzin.
+  // Minigame: toont na elke keuze de quote of toelichting, daarna het volgende moment en na het laatste moment de afsluitzin.
   if (scenarioGame) {
     const scenarioEls = [...scenarioGame.querySelectorAll("[data-scenario]")];
 
     scenarioEls.forEach((scenarioEl, index) => {
       const optionButtons = scenarioEl.querySelectorAll(".scenario-option");
-      const quoteEl = scenarioEl.querySelector("[data-scenario-quote]");
+      const responseEl = scenarioEl.querySelector("[data-scenario-response]");
       const nextBtn = scenarioEl.querySelector("[data-scenario-next]");
 
       optionButtons.forEach((button) => {
@@ -844,8 +872,8 @@ const accentColor = categoryColorMap[categorySlug] ?? "#B1F2D9";
           });
           button.setAttribute("aria-pressed", "true");
 
-          quoteEl.querySelector("blockquote").textContent = button.dataset.quote;
-          quoteEl.hidden = false;
+          responseEl.querySelector("[data-response-text]").textContent = button.dataset.response;
+          responseEl.hidden = false;
 
           if (nextBtn) {
             nextBtn.hidden = false;
@@ -853,7 +881,7 @@ const accentColor = categoryColorMap[categorySlug] ?? "#B1F2D9";
           } else {
             answerFeedback.className = "answer-feedback answer-feedback--example";
             answerFeedback.textContent = answerFeedback.dataset.closing;
-            answerFeedback.hidden = false;
+            answerFeedback.hidden = !answerFeedback.dataset.closing;
             setNextEnabled(true);
           }
         });
@@ -1497,6 +1525,14 @@ const accentColor = categoryColorMap[categorySlug] ?? "#B1F2D9";
     font-family: var(--font-light);
     font-size: var(--size-lg);
     font-style: italic;
+    line-height: 1.6;
+  }
+
+  /* Toelichting in plaats van een quote: zelfde kader, gewone tekst. */
+  .scenario-quote--info p {
+    margin: 0;
+    font-family: var(--font-light);
+    font-size: var(--size-lg);
     line-height: 1.6;
   }
 
