@@ -686,9 +686,7 @@ De dark mode-varianten staan eronder als `--accent-module-X-dark`. Wil je de kle
 | Variabele | Omschrijving |
 |-----------|--------------|
 | `--module-card-background` | Achtergrond van de contentkaart |
-| `--module-option-label` | Achtergrond van een antwoordoptie |
 | `--module-option-label-hover` | Achtergrond bij hover |
-| `--module-option-checked` | Achtergrond van een geselecteerde optie |
 | `--module-option-checked-letter` | Kleur van de letterbox (A/B/C) bij selectie |
 | `--module-text-input` | Achtergrond van tekstvelden en textareas |
 | `--module-right-correct` | Feedbackblok bij goed antwoord |
@@ -699,7 +697,6 @@ De dark mode-varianten staan eronder als `--accent-module-X-dark`. Wil je de kle
 | Variabele | Gebruik |
 |-----------|---------|
 | `--gradient-bg-cyan` | Standaard pagina-achtergrond |
-| `--gradient-bg-pink/yellow/red/blue` | Per module-variant |
 | `--gradient-bg-cyan-card` | Kaarten op het dashboard |
 | `--gradient-bg-header` | Header-achtergrond |
 
@@ -711,7 +708,6 @@ De dark mode-varianten staan eronder als `--accent-module-X-dark`. Wil je de kle
 | `--onboarding-label` | Kleur van labels in formulieren |
 | `--onboarding-back-button` | Kleur van de terugknop |
 | `--error-login` | Rood voor foutmeldingen bij inloggen |
-| `--simulator-background` | Achtergrond van de toegankelijkheidssimulator |
 | `--simulator-background-panel` | Achtergrond van het simulatorpaneel |
 | `--select-dropdown` | Achtergrond van `<option>`-elementen in dropdowns |
 

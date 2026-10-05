@@ -18,11 +18,30 @@
   </div>
   <div class="setting-content">
 
+    <div class="setting-section sim-intro">
+      <p class="sim-intro-title">Kijk eens door andere ogen</p>
+      <p class="sim-intro-text">
+        Met deze simulator kun je een aantal beperkingen nabootsen, zoals slechtziendheid,
+        dyslexie of een trillende hand. Zo ervaar je zelf hoe het is om deze website te gebruiken
+        wanneer het niet allemaal vanzelf gaat. Het doel hiervan is om meer inzicht en begrip te krijgen in hoe mensen met een beperking het web ervaren.
+      </p>
+      <details class="sim-intro-more">
+        <summary>Goed om te weten</summary>
+        <ul>
+          <li>Een simulatie is altijd een benadering. Iedere beperking is anders en iedereen ervaart die op zijn eigen manier.</li>
+          <li>Je kunt instellingen combineren om te zien hoe beperkingen elkaar versterken.</li>
+          <li>Merk je dat iets lastig wordt? Dan is dat precies waar toegankelijk ontwerpen het verschil maakt.</li>
+          <li>Met <em>Reset alle instellingen</em> onderaan zet je alles weer terug.</li>
+          <li>Lukt het resetten niet meer, bijvoorbeeld omdat de pagina te wazig is of te veel trilt? Ververs dan de pagina (Druk F5 of ververs bovenaan in je scherm), dan staat alles weer op de standaardinstellingen.</li>
+        </ul>
+      </details>
+    </div>
+
     <div class="setting-section">
-      <div class="nav-panel-title sim-section-title">Kleuren &amp; contrast</div>
+      <div class="sim-section-title">Kleuren &amp; contrast</div>
 
       <div class="setting-row">
-        <div class="nav-step-title setting-label">Contrast<small>Lager = slechter zicht</small></div>
+        <div class="setting-label">Contrast<small>Verminderde contrastgevoeligheid, bijv. bij staar (cataract)</small></div>
         <div class="setting-slider-wrap">
           <input type="range" id="contrastRange" min="0" max="100" value="100" step="1" />
           <span class="setting-val" id="contrastVal">100%</span>
@@ -30,7 +49,7 @@
       </div>
 
       <div class="setting-row">
-        <div class="nav-step-title setting-label">Helderheid</div>
+        <div class="setting-label">Helderheid<small>Lichtgevoeligheid of nachtblindheid</small></div>
         <div class="setting-slider-wrap">
           <input type="range" id="brightnessRange" min="10" max="200" value="100" step="1" />
           <span class="setting-val" id="brightnessVal">100%</span>
@@ -39,10 +58,10 @@
     </div>
 
     <div class="setting-section">
-      <div class="nav-panel-title sim-section-title">Zicht &amp; focus</div>
+      <div class="sim-section-title">Zicht &amp; focus</div>
 
       <div class="setting-row">
-        <div class="nav-step-title setting-label">Wazig zicht<small>Simuleer slechtziendheid</small></div>
+        <div class="setting-label">Wazig zicht<small>Slechtziendheid, bijv. bijziendheid of staar</small></div>
         <div class="setting-slider-wrap">
           <input type="range" id="blurRange" min="0" max="10" value="0" step="0.1" />
           <span class="setting-val" id="blurVal">0</span>
@@ -51,10 +70,10 @@
     </div>
 
     <div class="setting-section">
-      <div class="nav-panel-title sim-section-title">Lezen &amp; tekst</div>
+      <div class="sim-section-title">Lezen &amp; tekst</div>
 
       <div class="setting-row">
-        <div class="nav-step-title setting-label">Dyslexie<small>Letterverwisseling</small></div>
+        <div class="setting-label">Dyslexie<small>Leesstoornis: letters lijken door elkaar te lopen</small></div>
         <div class="setting-radios" id="dyslexiaGroup">
           <button class="setting-chip active" data-val="0">Uit</button>
           <button class="setting-chip" data-val="1">Licht</button>
@@ -65,10 +84,10 @@
     </div>
 
     <div class="setting-section">
-      <div class="nav-panel-title sim-section-title">Beweging &amp; interactie</div>
+      <div class="sim-section-title">Beweging &amp; interactie</div>
 
       <div class="setting-row">
-        <div class="nav-step-title setting-label">Trilling<small>Simuleer tremor</small></div>
+        <div class="setting-label">Trilling<small>Tremor, bijv. bij de ziekte van Parkinson</small></div>
         <div class="setting-slider-wrap">
           <input type="range" id="tremorRange" min="0" max="5" value="0" step="0.5" />
           <span class="setting-val" id="tremorVal">0</span>
@@ -76,7 +95,7 @@
       </div>
 
       <div class="setting-row">
-        <div class="nav-step-title setting-label">Cursor vertraging<small>Motorieke beperking</small></div>
+        <div class="setting-label">Cursor vertraging<small>Motorische beperking, bijv. bij MS of RSI</small></div>
         <div class="setting-radios" id="cursorDelayGroup">
           <button class="setting-chip active" data-val="0">Uit</button>
           <button class="setting-chip" data-val="0.8">Aan</button>
@@ -356,6 +375,15 @@
     transform: translateX(100%);
     transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     overflow: hidden;
+
+    /* Light mode: donkerdere tinten voor beter leesbare kleine tekst en randen */
+    --sim-muted: #4b4e53;
+    --sim-chip-border: color-mix(in srgb, var(--color-text) 45%, transparent);
+  }
+
+  :global(html.dark-mode) .setting-panel {
+    --sim-muted: var(--color-text-muted);
+    --sim-chip-border: color-mix(in srgb, var(--color-text) 15%, transparent);
   }
 
   .setting-panel.open {
@@ -368,7 +396,7 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 1.25rem 1.25rem 1rem;
+    padding: 1.25rem 1.5rem 1rem;
     border-bottom: 1.5px solid color-mix(in srgb, var(--color-text) 12%, transparent);
     flex-shrink: 0;
     background-color: var(--simulator-background-panel);
@@ -380,8 +408,7 @@
     font-size: var(--size-sm);
     letter-spacing: 0.07em;
     text-transform: uppercase;
-    opacity: 0.6;
-    color: var(--color-text);
+    color: var(--sim-muted);
   }
 
   .setting-close-btn {
@@ -413,7 +440,7 @@
   /* ── Simulator inhoud ────────────────────────────────────────── */
 
   .setting-section {
-    padding: 14px 16px;
+    padding: 20px 24px;
     border-bottom: 1px solid color-mix(in srgb, var(--color-text) 7%, transparent);
     background-color: var(--simulator-background-panel);
 
@@ -423,37 +450,88 @@
     border-bottom: none;
   }
 
+  .sim-intro {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    color: var(--color-text);
+  }
+
+  .sim-intro p {
+    margin: 0;
+  }
+
+  .sim-intro-title {
+    font-family: var(--font-semi-bold);
+    font-size: var(--size-base);
+  }
+
+  .sim-intro-text {
+    font-family: var(--font-regular);
+    font-size: 12px;
+    line-height: 1.5;
+  }
+
+  .sim-intro-note {
+    font-size: 12px;
+    line-height: 1.5;
+    padding: 8px 10px;
+    border-left: 3px solid var(--color-text);
+    border-radius: 4px;
+    background: color-mix(in srgb, var(--color-text) 6%, transparent);
+  }
+
+  .sim-intro-note strong {
+    font-family: var(--font-semi-bold);
+  }
+
+  .sim-intro-more {
+    font-size: 12px;
+    line-height: 1.5;
+  }
+
+  .sim-intro-more summary {
+    font-family: var(--font-semi-bold);
+    cursor: pointer;
+    color: var(--sim-muted);
+  }
+
+  .sim-intro-more summary:hover {
+    color: var(--color-text);
+  }
+
+  .sim-intro-more ul {
+    margin: 6px 0 0;
+    padding-left: 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
   .sim-section-title {
-    font-size: 10px;
+    font-size: 11px;
     letter-spacing: 0.08em;
-    color: var(--color-text-muted);
+    color: var(--sim-muted);
     margin-bottom: 10px;
-    opacity: 1;
   }
 
   .setting-row {
     display: flex;
-    align-items: flex-start;
-    gap: 10px;
-    margin-bottom: 8px;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 6px;
+    margin-bottom: 14px;
   }
 
   .setting-row:last-child {
     margin-bottom: 0;
   }
 
-  .setting-label {
-    min-width: 100px;
-    padding-top: 2px;
-    flex-shrink: 0;
-    flex: unset;
-  }
-
   .setting-label small {
     display: block;
-    font-family: var(--font-light);
+    font-family: var(--font-regular);
     font-size: 11px;
-    color: var(--color-text-muted);
+    color: var(--sim-muted);
     margin-top: 1px;
   }
 
@@ -474,7 +552,7 @@
   .setting-val {
     font-family: var(--font-semi-bold);
     font-size: 11px;
-    color: var(--color-text-muted);
+    color: var(--sim-muted);
     min-width: 30px;
     text-align: right;
   }
@@ -490,7 +568,7 @@
     font-family: var(--font-semi-bold);
     font-size: 11px;
     padding: 3px 9px;
-    border: 1px solid color-mix(in srgb, var(--color-text) 15%, transparent);
+    border: 1px solid var(--sim-chip-border);
     border-radius: 99px;
     background: transparent;
     color: var(--color-text);
@@ -509,7 +587,7 @@
   }
 
   .setting-footer {
-    padding: 10px 16px 14px;
+    padding: 16px 24px 24px;
     border-top: 1px solid color-mix(in srgb, var(--color-text) 7%, transparent);
     background-color: var(--simulator-background-panel);
 
@@ -518,7 +596,7 @@
   .setting-reset {
     font-family: var(--font-semi-bold);
     font-size: var(--size-base);
-    color: var(--color-text-muted);
+    color: var(--sim-muted);
     background: none;
     border: none;
     cursor: pointer;

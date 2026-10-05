@@ -2,6 +2,7 @@
 // @ts-nocheck
 import { ClientRouter } from "astro:transitions";
 import BaseHead from '../components/BaseHead.astro';
+import FixedThemeToggle from '../components/FixedThemeToggle.astro';
 
 
 const bounceTransition = {
@@ -75,6 +76,7 @@ const {
   </head>
 
   <body>
+    <FixedThemeToggle />
     <main
       class={`container ${variant}`}
       data-step-id={stepId}
@@ -240,20 +242,37 @@ const {
     } = await supabase.auth.getUser();
 
     async function saveProgress() {
-      if (!user?.id) {
-        console.warn("Geen ingelogde gebruiker, progress niet opgeslagen.");
-        return;
-      }
-
       if (!stepId || !category) {
         console.warn("stepId of category ontbreekt", { stepId, category });
         return;
       }
 
       const endedAt = Date.now();
-      const durationSeconds = Math.round((endedAt - startedAt) / 1000);
+      const step = {
+        stepId,
+        category,
+        currentUrl: window.location.pathname,
+        startedAt: new Date(startedAt).toISOString(),
+        endedAt: new Date(endedAt).toISOString(),
+        durationSeconds: Math.round((endedAt - startedAt) / 1000),
+      };
 
-      const response = await fetch("/api/track-step", {
+      // Nog niet ingelogd: de onboarding komt vóór de login. Bewaar de stap
+      // lokaal; login.astro slaat hem op zodra de gebruiker is ingelogd.
+      if (!user?.id) {
+        try {
+          const pending = JSON.parse(
+            localStorage.getItem("pendingOnboardingProgress") || "[]",
+          ).filter((s) => s.stepId !== stepId);
+          pending.push(step);
+          localStorage.setItem("pendingOnboardingProgress", JSON.stringify(pending));
+        } catch {
+          // localStorage niet beschikbaar: voortgang wordt niet bewaard.
+        }
+        return;
+      }
+
+      await fetch("/api/track-step", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -263,20 +282,12 @@ const {
           email: user.email || localStorage.getItem("email") || null,
           name:
             user.user_metadata?.name || localStorage.getItem("name") || null,
-          stepId,
-          category,
-          currentUrl: window.location.pathname,
-          startedAt: new Date(startedAt).toISOString(),
-          endedAt: new Date(endedAt).toISOString(),
-          durationSeconds,
+          ...step,
         }),
       });
-
-      const result = await response.json();
-      console.log("Onboarding progress saved:", result);
     }
 
-    return saveProgress;
+    return { saveProgress, user };
   }
 
   async function setupNavigation() {
@@ -284,10 +295,17 @@ const {
     controller = new AbortController();
     const signal = controller.signal;
 
-    const saveProgress = await setupTracking();
+    const { saveProgress, user } = await setupTracking();
 
     const backBtn = document.getElementById("back-btn");
     const nextBtn = document.querySelector(".button-next");
+
+    // Laatste onboardingstap: wie nog niet is ingelogd, gaat eerst naar de login.
+    if (nextBtn && !user && nextBtn.getAttribute("href") === "/") {
+      nextBtn.setAttribute("href", "/onboarding/login");
+      const label = nextBtn.querySelector("button");
+      if (label) label.textContent = "Log in om verder te gaan";
+    }
 
     if (backBtn) {
       backBtn.addEventListener(

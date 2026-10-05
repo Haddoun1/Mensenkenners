@@ -3,7 +3,6 @@
 export const prerender = false;
 import MainLayout from "../layouts/Layout.astro";
 import CourseCard from "../components/CourseCard.astro";
-import ThemeToggle from "../components/ThemeToggle.astro";
 import { courses } from "../data/courses.js";
 ---
 
@@ -81,14 +80,17 @@ import { courses } from "../data/courses.js";
   } = await supabase.auth.getUser();
 
   function getResumeHref(courseId, latestRow, percentage) {
+    // De onboarding begint altijd bij de welkomstpagina.
+    if (courseId === "onboarding") {
+      return courseStartHref.onboarding;
+    }
+
     // Als de cursus al afgerond is, mag de gebruiker opnieuw starten bij stap 1.
     if (percentage >= 100) {
       return courseStartHref[courseId] || "/";
     }
 
-    // Gebruik altijd de opgeslagen URL. Dit werkt voor modules én onboarding.
-    // Voorbeeld module: /module-2/4
-    // Voorbeeld onboarding: /onboarding/step-4
+    // Gebruik de opgeslagen URL, bijvoorbeeld /module-2/4.
     if (latestRow?.current_url) {
       return latestRow.current_url;
     }
@@ -211,7 +213,7 @@ import { courses } from "../data/courses.js";
   const courseData = {
     onboarding: {
       title: "Onboarding",
-      href: "/onboarding/step-1",
+      href: "/onboarding/welkom-no-loader",
       description:
         "Welkom bij de onboarding! In deze cursus maken we je wegwijs in het platform en leggen we uit wat je kunt verwachten in de verschillende delen van de cursus.",
       image: "/images/mockupmensenkenners.webp",
@@ -255,7 +257,8 @@ import { courses } from "../data/courses.js";
   document.querySelectorAll(".carousel-item").forEach((item) => {
     item.addEventListener("click", (e) => {
       e.preventDefault();
-      if (window.innerWidth < 426) {
+      // Op telefoon en tablet direct naar de cursus, zonder detailpaneel.
+      if (window.matchMedia("(max-width: 1023px)").matches) {
         const href =
           item.dataset.resumeHref || courseData[item.dataset.courseId]?.href;
         if (href) window.location.href = href;
@@ -577,7 +580,8 @@ detail.focus();
     }
   }
 
-  @media (max-width: 426px) {
+  /* Detailpaneel verbergen op telefoon en tablet */
+  @media (max-width: 1023px) {
     .course-detail,
     .course-detail.active {
       display: none !important;
