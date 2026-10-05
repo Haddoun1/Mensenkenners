@@ -385,7 +385,10 @@
       "type": "content",
       "section": "module_4_praktijksituaties_toepassing",
       "title": "Module 4 - Praktijksituaties en toepassing",
-      "text": "In deze module oefen je met herkenbare situaties. Kies steeds de reactie die het meest respectvol, duidelijk en behulpzaam is.",
+      "paragraphs": [
+        "Het leren toepassen van de kennis uit deze online training maakt het verschil voor mensen met een beperking in de praktijk.",
+        "Test je reacties in deze module"
+      ],
       "Category": "Module 4"
     },
     {
@@ -393,25 +396,27 @@
       "type": "question",
       "section": "module_4_praktijksituaties_toepassing",
       "title": "Scenario: auditieve beperking",
-      "question": "Een bezoeker lijkt je niet goed te verstaan tijdens een bestelling. Wat doe je?",
+      "question": "Een bezoeker aan de balie lijkt je niet goed te verstaan en vraagt je iets te herhalen. Wat doe je?",
       "input_type": "single_choice",
       "required": true,
       "options": [
         {
           "id": "A",
-          "text": "Je praat harder, zodat de bezoeker je beter hoort."
+          "text": "Ik praat harder, zodat de bezoeker mij beter hoort.",
+          "feedback": "Dat kan helpen als er gewoon veel omgevingsgeluid is, maar bij een gehoorbeperking maakt harder praten het geluid vaak vervormder in plaats van duidelijker, en het kan overkomen als ongeduld. Tip: probeer eerst rustiger en duidelijker te articuleren voordat je het volume verhoogt."
         },
         {
           "id": "B",
-          "text": "Je blijft rustig en gebruikt eventueel schrijven of typen om duidelijk te communiceren.",
-          "is_correct": true
+          "text": "Ik herhaal het rustig, kijk de bezoeker aan en bied aan om het ook op te schrijven.",
+          "is_correct": true,
+          "feedback": "Dat werkt hier goed, want je houdt het contact in stand en geeft de bezoeker een alternatief als spreken niet aanslaat. Tip: door de bezoeker aan te kijken terwijl je praat, houd je ook liplezen mogelijk."
         },
         {
           "id": "C",
-          "text": "Je vraagt aan het gezelschap van de bezoeker wat die bedoelt."
+          "text": "Ik vraag een collega het over te nemen.",
+          "feedback": "Dat kan een goede aanvulling zijn als een collega bijvoorbeeld gebarentaal beheerst, maar als eerste reactie kan het overkomen alsof je de bezoeker doorschuift voordat je zelf iets hebt geprobeerd. Tip: probeer eerst zelf te schakelen, en schakel een collega in als dat niet genoeg blijkt."
         }
       ],
-      "explanation": "Blijf rustig, spreek de bezoeker zelf aan en kies zo nodig een andere manier van communiceren.",
       "Category": "Module 4"
     },
     {
@@ -419,25 +424,32 @@
       "type": "question",
       "section": "module_4_praktijksituaties_toepassing",
       "title": "Scenario: visuele beperking",
-      "question": "Een bezoeker met een blindengeleidehond komt binnen en blijft even bij de ingang staan. Wat doe je?",
+      "question": "Een bezoeker met een blindengeleidehond komt binnen en aarzelt om door te lopen. Wat doe je?",
       "input_type": "single_choice",
       "required": true,
       "options": [
         {
           "id": "A",
-          "text": "Je pakt de persoon voorzichtig bij de arm en begeleidt die direct."
+          "text": "Ik loop naar de bezoeker toe en vraag: kan ik iets voor je doen?",
+          "is_correct": true,
+          "feedback": "Dat werkt hier goed, dit is dezelfde aanpak die ook al in de rest van de training terugkomt: eerst vragen in plaats van aannemen. Tip: wacht het antwoord af voordat je iets doet, ook als je denkt te weten wat nodig is."
         },
         {
           "id": "B",
-          "text": "Je vraagt rustig of ondersteuning gewenst is.",
-          "is_correct": true
+          "text": "Ik weiger de hond, want honden zijn verboden op deze locatie",
+          "feedback": "Een geleidehond is wettelijk altijd toegestaan, ook op plekken waar honden in het algemeen niet mogen. Tip: behandel een geleidehond nooit als een gewoon huisdier en aai de hond niet."
         },
         {
           "id": "C",
-          "text": "Je wacht altijd af, want hulp aanbieden is betuttelend."
+          "text": "Ik roep van een afstand dat de balie links is.",
+          "feedback": "De intentie om snel te helpen is goed, maar roepen van een afstand geeft geen houvast en kan verwarrend zijn. Tip: loop naar de bezoeker toe in plaats van vanaf een afstand te communiceren."
+        },
+        {
+          "id": "D",
+          "text": "Ik wacht tot de bezoeker zelf iets vraagt.",
+          "feedback": "Dat kan passend zijn als je weet dat iemand liever zelfstandig blijft, maar bij zichtbare aarzeling kan wachten ook aanvoelen als onopgemerkt blijven. Tip: een korte \"kan ik iets voor je doen?\" kost weinig en laat de bezoeker zelf bepalen of hij hulp wil."
         }
       ],
-      "explanation": "Vraag eerst of hulp gewenst is. Zo houd je de regie bij de bezoeker.",
       "Category": "Module 4"
     },
     {
@@ -445,7 +457,7 @@
       "type": "question",
       "section": "module_4_praktijksituaties_toepassing",
       "title": "Scenario: motorische beperking",
-      "question": "Een bezoeker in een rolstoel vraagt of het toilet bereikbaar is. Wat doe je?",
+      "question": "Een bezoeker in een rolstoel belt van tevoren om te vragen of de locatie rolstoeltoegankelijk is. Wat doe je?",
       "input_type": "single_choice",
       "required": true,
       "options": [
@@ -471,25 +483,33 @@
       "type": "question",
       "section": "module_4_praktijksituaties_toepassing",
       "title": "Scenario: spraakbeperking",
-      "question": "Een bezoeker stottert tijdens het stellen van een vraag. Wat doe je?",
+      "question": "Een bezoeker stottert tijdens het stellen van vragen. Wat doe je?",
       "input_type": "single_choice",
       "required": true,
       "options": [
         {
           "id": "A",
-          "text": "Je maakt de zin af om het gesprek sneller te laten verlopen."
+          "text": "Ik maak de zin af om het gesprek sneller te laten verlopen.",
+          "feedback": "Dit komt vaak voort uit een goede intentie, namelijk het gesprek soepel laten verlopen, maar het kan de bezoeker het gevoel geven niet de tijd te krijgen om zichzelf uit te drukken. Tip: laat de bezoeker de zin afmaken, ook als dat langer duurt dan je gewend bent."
         },
         {
           "id": "B",
-          "text": "Je luistert rustig en geeft de bezoeker tijd om uit te spreken.",
-          "is_correct": true
+          "text": "Ik geef de bezoeker rustig de tijd om uit te spreken.",
+          "is_correct": true,
+          "feedback": "Dat werkt hier goed, want je laat zien dat er geen haast bij is en dat de bezoeker de ruimte krijgt. Tip: vermijd het invullen van woorden, ook als je denkt te weten wat er komt."
         },
         {
           "id": "C",
-          "text": "Je vraagt meteen of iemand anders het woord kan doen."
+          "text": "Ik vraag of schrijven makkelijker is.",
+          "feedback": "Dat kan een prettig alternatief zijn voor sommige bezoekers, maar niet iedereen die stottert vindt schrijven per se makkelijker. Tip: bied het aan als optie, maar laat de bezoeker zelf kiezen in plaats van het als vanzelfsprekend voor te stellen."
+        },
+        {
+          "id": "D",
+          "text": "Ik vraag wat de bezoeker van mij nodig heeft.",
+          "is_correct": true,
+          "feedback": "Dat werkt minstens zo goed als rustig wachten, want je legt de regie direct bij de bezoeker zelf. Tip: een open vraag als deze werkt in bijna elke situatie waarin je niet zeker weet wat iemand nodig heeft."
         }
       ],
-      "explanation": "Geduldig luisteren is vaak de meest respectvolle reactie. Vul niet in wat iemand wil zeggen.",
       "Category": "Module 4"
     },
     {
@@ -503,19 +523,21 @@
       "options": [
         {
           "id": "A",
-          "text": "Je vraagt meteen wat er is gebeurd."
+          "text": "Ik voer een gesprek zoals bij elke bezoeker (niet over het uiterlijk).",
+          "is_correct": true,
+          "feedback": "Dat werkt hier goed, want de bezoeker komt voor een zaak, niet om over zijn uiterlijk te praten. Tip: nieuwsgierigheid mag er zijn, het gaat erom dat je er niet naar handelt tijdens het gesprek."
         },
         {
           "id": "B",
-          "text": "Je behandelt de persoon zoals iedere andere bezoeker.",
-          "is_correct": true
+          "text": "Ik vraag naar de reden van het uiterlijk.",
+          "feedback": "Dat komt vaak voort uit oprechte interesse, maar het kan voor de bezoeker voelen alsof die eerst wordt aangesproken op het uiterlijk voordat er over de eigenlijke vraag wordt gepraat. Tip: laat dit initiatief bij de bezoeker; als die er zelf over begint, mag je daar natuurlijk op ingaan."
         },
         {
           "id": "C",
-          "text": "Je kijkt weg om te laten merken dat je niet staart."
+          "text": "Ik kijk zo min mogelijk en doe extra formeel.",
+          "feedback": "Dat komt vaak voort uit de wens om niet onbeleefd te zijn, maar overdreven formeel gedrag kan juist opvallen en afstandelijk overkomen. Tip: je zo normaal mogelijk opstellen werkt meestal beter dan een bewust andere houding aannemen."
         }
       ],
-      "explanation": "Leg de focus niet op iemands uiterlijk. Respectvol contact begint bij normaal en gelijkwaardig behandelen.",
       "Category": "Module 4"
     },
     {
