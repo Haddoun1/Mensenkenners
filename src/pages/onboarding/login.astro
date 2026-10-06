@@ -155,6 +155,26 @@ export const prerender = false;
     localStorage.removeItem("pendingOnboardingProgress");
   }
 
+  // Waar de gebruiker na het inloggen heen gaat, bijvoorbeeld terug naar de onboarding.
+  // Alleen interne paden zijn toegestaan; anders naar het dashboard.
+  const nextParam = new URLSearchParams(window.location.search).get("next");
+  const afterLoginUrl =
+    nextParam && nextParam.startsWith("/") && !nextParam.startsWith("//") ? nextParam : "/";
+
+  // Geeft de bestemming door aan de registratiepagina, zodat je na registreren en inloggen ook terugkomt.
+  if (nextParam) {
+    document
+      .querySelectorAll('a[href="/onboarding/register"]')
+      .forEach((link) => link.setAttribute("href", `/onboarding/register?next=${encodeURIComponent(afterLoginUrl)}`));
+  }
+
+  // Al ingelogd en via de onboarding hier gekomen: direct door naar de volgende stap.
+  if (nextParam) {
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (user) window.location.replace(afterLoginUrl);
+    });
+  }
+
   const form = document.querySelector(".login-form");
   const emailInput = document.getElementById("email");
   const passwordInput = document.getElementById("password");
@@ -178,6 +198,6 @@ export const prerender = false;
 
     await savePendingOnboardingProgress(data.user);
 
-    window.location.replace("/");
+    window.location.replace(afterLoginUrl);
   });
 </script>

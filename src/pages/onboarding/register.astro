@@ -97,6 +97,14 @@ showDashboardButton={false}
 // @ts-nocheck
 import { supabase } from "../../lib/supabase";
 
+// Komt de gebruiker uit de onboarding, dan blijft de bestemming ook bewaard via de links terug naar de login.
+const nextQuery = new URLSearchParams(window.location.search).get("next");
+if (nextQuery) {
+    document
+        .querySelectorAll('a[href="/onboarding/login"]')
+        .forEach((link) => link.setAttribute("href", `/onboarding/login?next=${encodeURIComponent(nextQuery)}`));
+}
+
 const form = document.querySelector(".register-form");
 const emailInput = document.getElementById("email");
 const passwordInput = document.getElementById("password");
@@ -126,7 +134,10 @@ form.addEventListener("submit", async (e) => {
     return;
     }
 
-    window.location.href = "/onboarding/login";
+    // Geeft de bestemming uit de onboarding door aan de login, zodat je daarna terugkomt waar je was.
+    window.location.href = nextQuery
+      ? `/onboarding/login?next=${encodeURIComponent(nextQuery)}`
+      : "/onboarding/login";
 });
 </script>
 

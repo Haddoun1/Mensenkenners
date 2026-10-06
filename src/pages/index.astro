@@ -60,11 +60,28 @@ import { courses } from "../data/courses.js";
         <h3 id="detail-title"></h3>
         <p class="detail-progress" id="detail-progress"></p>
         <p class="detail-description" id="detail-description"></p>
-        <a href="#" class="detail-cta" id="detail-cta"
-          >Ga verder met deze cursus</a
-        >
+        <div class="detail-actions">
+          <a href="#" class="detail-cta" id="detail-cta"
+            >Ga verder met deze cursus</a
+          >
+          <!-- Alleen zichtbaar bij een afgeronde cursus: terugkijken zonder antwoorden te wissen. -->
+          <a href="#" class="detail-cta detail-cta--secondary" id="detail-review" hidden
+            >Bekijk je antwoorden</a
+          >
+        </div>
       </div>
     </aside>
+
+    <!-- Keuzevenster op telefoon en tablet bij een afgeronde cursus (daar is geen detailpaneel). -->
+    <dialog class="course-dialog" id="course-dialog" aria-labelledby="course-dialog-title">
+      <h2 id="course-dialog-title"></h2>
+      <p>Je hebt deze cursus afgerond. Wil je opnieuw beginnen of je antwoorden terugkijken?</p>
+      <div class="detail-actions">
+        <a href="#" class="detail-cta" id="dialog-restart">Start deze cursus opnieuw</a>
+        <a href="#" class="detail-cta detail-cta--secondary" id="dialog-review">Bekijk je antwoorden</a>
+        <button type="button" class="course-dialog-close" id="dialog-close">Annuleren</button>
+      </div>
+    </dialog>
   </section>
 </MainLayout>
 
@@ -254,13 +271,87 @@ import { courses } from "../data/courses.js";
 
   const detail = document.getElementById("course-detail");
 
+  // Wist de antwoorden van een module in Supabase (tabel course_answers, zie "Antwoorden bewaren"
+  // in [step].astro), zodat de vragen leeg zijn als iemand een afgeronde cursus opnieuw start.
+  async function clearCourseAnswers(courseId) {
+    const category = Object.keys(categoryToCourseId).find(
+      (slug) => categoryToCourseId[slug] === courseId,
+    );
+    if (!category || !user) return;
+
+    const { error } = await supabase
+      .from("course_answers")
+      .delete()
+      .eq("user_id", user.id)
+      .eq("category", category);
+
+    if (error) console.error("Antwoorden wissen mislukt:", error.message);
+
+    // Zet de voortgang terug naar 0%: een reset-rij zorgt ervoor dat get-progress
+    // alleen stappen ná dit moment meetelt.
+    const now = new Date().toISOString();
+    await fetch("/api/track-step", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        userId: user.id,
+        email: user.email || null,
+        name: user.user_metadata?.name || null,
+        stepId: "reset",
+        category,
+        currentUrl: null,
+        startedAt: now,
+        endedAt: now,
+        durationSeconds: 0,
+      }),
+    }).catch((err) => console.error("Voortgang resetten mislukt:", err));
+  }
+
+  // Wist eerst de antwoorden en gaat daarna pas naar de cursus,
+  // anders kan de eerste vraag nog de oude antwoorden laden.
+  async function restartCourse(e, courseId) {
+    e.preventDefault();
+    const href = e.currentTarget.getAttribute("href");
+    await clearCourseAnswers(courseId);
+    window.location.href = href;
+  }
+
+  // Opnieuw starten van een afgeronde cursus via de knop in het detailpaneel.
+  document.getElementById("detail-cta")?.addEventListener("click", (e) => {
+    const cta = e.currentTarget;
+    if (cta.dataset.status === "completed") restartCourse(e, cta.dataset.courseId);
+  });
+
+  // Een afgeronde module kun je opnieuw doen of terugkijken. De onboarding bewaart geen antwoorden,
+  // dus daar is terugkijken niet nodig.
+  const canReview = (courseId, status) => status === "completed" && courseId !== "onboarding";
+
+  // Keuzevenster voor telefoon en tablet.
+  const courseDialog = document.getElementById("course-dialog");
+  const dialogRestart = document.getElementById("dialog-restart");
+  const dialogReview = document.getElementById("dialog-review");
+
+  dialogRestart?.addEventListener("click", (e) => restartCourse(e, dialogRestart.dataset.courseId));
+  document.getElementById("dialog-close")?.addEventListener("click", () => courseDialog.close());
+
   document.querySelectorAll(".carousel-item").forEach((item) => {
     item.addEventListener("click", (e) => {
       e.preventDefault();
       // Op telefoon en tablet direct naar de cursus, zonder detailpaneel.
       if (window.matchMedia("(max-width: 1023px)").matches) {
-        const href =
-          item.dataset.resumeHref || courseData[item.dataset.courseId]?.href;
+        const courseId = item.dataset.courseId;
+        const href = item.dataset.resumeHref || courseData[courseId]?.href;
+
+        // Afgeronde module: laat kiezen tussen opnieuw starten en terugkijken.
+        if (canReview(courseId, item.dataset.status) && courseDialog) {
+          document.getElementById("course-dialog-title").textContent = courseData[courseId]?.title || "";
+          dialogRestart.href = href;
+          dialogRestart.dataset.courseId = courseId;
+          dialogReview.href = href;
+          courseDialog.showModal();
+          return;
+        }
+
         if (href) window.location.href = href;
         return;
       }
@@ -289,6 +380,8 @@ import { courses } from "../data/courses.js";
 
       const cta = document.getElementById("detail-cta");
       cta.href = resumeHref;
+      cta.dataset.status = status;
+      cta.dataset.courseId = courseId;
       cta.textContent =
         status === "completed"
           ? "Start deze cursus opnieuw"
@@ -297,6 +390,11 @@ import { courses } from "../data/courses.js";
             : "Start deze cursus";
 
       cta.style.setProperty("background-color", data.color);
+
+      const review = document.getElementById("detail-review");
+      review.hidden = !canReview(courseId, status);
+      review.href = resumeHref;
+      review.style.setProperty("border-color", data.color);
       document
         .getElementById("detail-progress")
         .style.setProperty("color", data.color);
@@ -482,8 +580,14 @@ detail.focus();
     font-family: var(--font-medium);
   }
 
-  .detail-cta {
+  .detail-actions {
     margin-top: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+  }
+
+  .detail-cta {
     display: block;
     text-align: center;
     padding: 0.75rem;
@@ -503,6 +607,65 @@ detail.focus();
 
   html.dark-mode .detail-cta:hover {
     background-color: color-mix(in srgb, var(--color-green) 85%, white);
+  }
+
+  .detail-cta[hidden] {
+    display: none;
+  }
+
+  /* Tweede knop: zelfde vorm, alleen een rand, zodat "opnieuw starten" de hoofdknop blijft. */
+  .detail-cta.detail-cta--secondary {
+    background: transparent;
+    border: 2px solid var(--color-green);
+    padding: calc(0.75rem - 2px);
+
+    &:hover {
+      background: color-mix(in srgb, var(--color-text) 6%, transparent);
+    }
+  }
+
+  html.dark-mode .detail-cta.detail-cta--secondary:hover {
+    background: color-mix(in srgb, var(--color-text) 10%, transparent);
+  }
+
+  /* Keuzevenster op telefoon en tablet. */
+  .course-dialog {
+    width: min(100% - 2rem, 26rem);
+    border: none;
+    border-radius: 12px;
+    padding: 1.5rem;
+    /* De kaartachtergrond is in dark mode een doorzichtig verloop, dus eronder een effen kleur.
+       In light mode is de variabele een kleur; dan wordt background-image genegeerd en blijft de effen kleur. */
+    background-color: var(--color-surface);
+    background-image: var(--gradient-bg-cyan-card);
+    color: var(--color-text);
+  }
+
+  .course-dialog::backdrop {
+    background: rgb(0 0 0 / 0.45);
+  }
+
+  .course-dialog h2 {
+    margin: 0 0 0.5rem;
+    font-size: 1.2rem;
+  }
+
+  .course-dialog p {
+    margin: 0 0 1.25rem;
+    font-family: var(--font-medium);
+    font-size: 0.95rem;
+    line-height: 1.5;
+  }
+
+  .course-dialog-close {
+    background: none;
+    border: none;
+    padding: 0.5rem;
+    color: var(--color-text);
+    font-family: var(--font-bold);
+    font-size: 0.95rem;
+    text-decoration: underline;
+    cursor: pointer;
   }
 
   /* MEDIA */
