@@ -97,6 +97,8 @@ const isCheckableQuestion =
 // Stelt feedback en voorbeeldantwoorden in.
 
 const maxSelections = item.max_selections || 2;
+// Minimaal aantal keuzes voordat "Check antwoord" klikbaar is.
+const minSelections = item.min_selections || 1;
 const exampleAnswer =
   item.example_answer ||
   item.model_answer ||
@@ -194,7 +196,7 @@ const accentColor = categoryColorMap[categorySlug] ?? "#B1F2D9";
         class="content-col"
         data-step-id={String(currentStep)}
         data-category={categorySlug}
-        data-requires-check={isCheckableQuestion || isScenarioGame ? "true" : "false"}
+        data-requires-check={(isCheckableQuestion && !(isSubmitOnlyQuestion && item.required === false)) || isScenarioGame ? "true" : "false"}
         data-input-type={item.input_type || ""}
         data-question-id={item.type === "question" ? item.id : undefined}
       >
@@ -307,7 +309,7 @@ const accentColor = categoryColorMap[categorySlug] ?? "#B1F2D9";
               {/* Multiple-choicevraag. */}
 
               {item.input_type === "multiple_choice" && (
-                <div data-multiple-choice data-max-selections={maxSelections}>
+                <div data-multiple-choice data-max-selections={maxSelections} data-min-selections={minSelections}>
                   <p class="mc-hint">Selecteer maximaal {maxSelections} opties</p>
                   <ul class="options-list" role="group">
                   {options.map((option, index) => {
@@ -819,8 +821,8 @@ const accentColor = categoryColorMap[categorySlug] ?? "#B1F2D9";
       const matchingCorrections = result.matchingCorrections || [];
 
       let feedbackHtml = explanation
-        ? `<strong>Niet helemaal.</strong><p>${escapeHtml(explanation)}</p>`
-        : "<strong>Niet helemaal.</strong>";
+        ? `<p>${escapeHtml(explanation)}</p>`
+        : "";
 
       if (correctOptions.length > 0) {
         feedbackHtml += `
@@ -897,13 +899,26 @@ const accentColor = categoryColorMap[categorySlug] ?? "#B1F2D9";
     });
   }
 
+  // Zet "Check antwoord" pas aan als er genoeg opties zijn aangevinkt (min_selections in de JSON).
+  // Wordt ook aangeroepen nadat bewaarde antwoorden zijn teruggezet.
+  let updateMcCheckButton = () => {};
+
   // Beperkt het aantal keuzes bij multiple-choicevragen.
   const mcBlock = document.querySelector("[data-multiple-choice]");
   if (mcBlock) {
     const checkboxes = mcBlock.querySelectorAll("input[type='checkbox']");
     const errorEl = document.getElementById("mc-error");
+    const minSelections = Number(mcBlock.dataset.minSelections || 1);
+
+    updateMcCheckButton = () => {
+      if (!checkAnswerBtn || minSelections <= 1) return;
+      const checkedCount = [...checkboxes].filter((cb) => cb.checked).length;
+      checkAnswerBtn.disabled = checkedCount < minSelections;
+    };
+    updateMcCheckButton();
 
     checkboxes.forEach((checkbox) => {
+      checkbox.addEventListener("change", updateMcCheckButton);
       checkbox.addEventListener("change", (e) => {
         const checked = [...checkboxes].filter((cb) => cb.checked);
         const maxSelections = Number(mcBlock.dataset.maxSelections || 2);
@@ -1016,6 +1031,8 @@ const accentColor = categoryColorMap[categorySlug] ?? "#B1F2D9";
         else field.value = value;
       });
     }
+
+    updateMcCheckButton();
 
     // Was het antwoord al nagekeken of ingestuurd? Toon dan opnieuw de feedback en zet "Volgende" vrij.
     if (saved?.checked && checkAnswerBtn) {
@@ -1741,6 +1758,10 @@ const accentColor = categoryColorMap[categorySlug] ?? "#B1F2D9";
     margin: 0.35rem 0 0;
   }
 
+  .answer-feedback p:first-child {
+    margin-top: 0;
+  }
+
   .correct-answer-list {
     display: flex;
     flex-direction: column;
@@ -1842,6 +1863,17 @@ const accentColor = categoryColorMap[categorySlug] ?? "#B1F2D9";
     color: white;
     box-shadow: 0 4px 14px color-mix(in srgb, var(--color-accent) 50%, transparent);
     transform: translateY(-1px);
+  }
+
+  /* Uitgeschakelde knop, bijvoorbeeld "Check antwoord" zolang er te weinig is aangevinkt. */
+  .btn--primary:disabled,
+  .btn--primary:disabled:hover {
+    background: var(--color-accent);
+    color: var(--color-text);
+    box-shadow: none;
+    transform: none;
+    opacity: 0.5;
+    cursor: not-allowed;
   }
 
   .btn--primary:active { transform: scale(0.97); }

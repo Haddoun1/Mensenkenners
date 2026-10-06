@@ -239,13 +239,21 @@
       "Category": "Module 2"
     },
     {
-      "id": "m2_submit",
+      "id": "m2_meenemen",
       "type": "question",
       "section": "module_2_perspectief_inlevingsvermogen",
-      "title": "Module 2 afgerond",
+      "title": "Wat neem je mee?",
       "question": "Wat neem je uit deze module mee naar je eigen dag, bijeenkomst of activiteit?",
       "input_type": "long_text",
-      "required": false,
+      "required": true,
+      "Category": "Module 2"
+    },
+    {
+      "id": "m2_submit",
+      "type": "content",
+      "section": "module_2_perspectief_inlevingsvermogen",
+      "title": "Module 2 afgerond",
+      "text": "Goed gedaan! Je kunt terug naar het dashboard, of meteen verder met de volgende module.",
       "Category": "Module 2"
     },
     {
@@ -484,7 +492,9 @@
       "section": "module_4_praktijksituaties_toepassing",
       "title": "Scenario: spraakbeperking",
       "question": "Een bezoeker stottert tijdens het stellen van vragen. Wat doe je?",
-      "input_type": "single_choice",
+      "input_type": "multiple_choice",
+      "min_selections": 2,
+      "max_selections": 2,
       "required": true,
       "options": [
         {
@@ -578,33 +588,57 @@
       "Category": "Module 4"
     },
     {
-      "id": "m4_submit",
+      "id": "m4_meenemen",
       "type": "question",
       "section": "module_4_praktijksituaties_toepassing",
-      "title": "Module 4 afgerond",
+      "title": "Wat neem je mee?",
       "question": "Wat neem je uit deze module mee naar je eigen dag, bijeenkomst of activiteit?",
       "input_type": "long_text",
-      "required": false,
+      "required": true,
       "Category": "Module 4"
     },
     {
-      "id": "m1_submit",
+      "id": "m4_submit",
+      "type": "content",
+      "section": "module_4_praktijksituaties_toepassing",
+      "title": "Module 4 afgerond",
+      "text": "Goed gedaan! Je hebt alle modules afgerond. Je kunt terug naar het dashboard.",
+      "Category": "Module 4"
+    },
+    {
+      "id": "m1_meenemen",
       "type": "question",
       "section": "module_1_inclusief_contact",
-      "title": "Module 1 afgerond",
+      "title": "Wat neem je mee?",
       "question": "Wat neem je uit deze module mee naar je eigen dag, bijeenkomst of activiteit?",
       "input_type": "long_text",
-      "required": false,
+      "required": true,
       "Category": "Module 1"
     },
     {
-      "id": "m3_submit",
+      "id": "m1_submit",
+      "type": "content",
+      "section": "module_1_inclusief_contact",
+      "title": "Module 1 afgerond",
+      "text": "Goed gedaan! Je kunt terug naar het dashboard, of meteen verder met de volgende module.",
+      "Category": "Module 1"
+    },
+    {
+      "id": "m3_meenemen",
       "type": "question",
       "section": "module_3_toegankelijkheid_werkplek",
-      "title": "Module 3 afgerond",
+      "title": "Wat neem je mee?",
       "question": "Wat neem je uit deze module mee naar je eigen dag, bijeenkomst of activiteit?",
       "input_type": "long_text",
-      "required": false,
+      "required": true,
+      "Category": "Module 3"
+    },
+    {
+      "id": "m3_submit",
+      "type": "content",
+      "section": "module_3_toegankelijkheid_werkplek",
+      "title": "Module 3 afgerond",
+      "text": "Goed gedaan! Je kunt terug naar het dashboard, of meteen verder met de volgende module.",
       "Category": "Module 3"
     }
   ]
