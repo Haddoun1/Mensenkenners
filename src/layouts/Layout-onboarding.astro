@@ -56,6 +56,7 @@ const {
   showDashboardButton = true,
   hasQuestion = null,
   nextLabel = "Ga verder",
+  requireLogin = false,
 } = Astro.props;
 
 // https://claude.ai/chat/8789b362-5b69-4d5c-9b16-a4b157d09820 button back niet op welkompagina, wel op rest van stappen
@@ -169,7 +170,7 @@ const {
           <div class="buttons-onboarding">
             {
               showNext && (
-                <a class="button-next" href={nextHref} data-direction="forward">
+                <a class="button-next" href={nextHref} data-direction="forward" data-require-login={requireLogin ? "true" : undefined}>
                   <button>{nextLabel}</button>
                 </a>
               )
@@ -299,6 +300,13 @@ const {
 
     const backBtn = document.getElementById("back-btn");
     const nextBtn = document.querySelector(".button-next");
+
+    // Stap met requireLogin: wie nog niet is ingelogd, gaat eerst naar de login
+    // en komt daarna terug bij de volgende stap. Ingelogde gebruikers gaan direct door.
+    if (nextBtn && !user && nextBtn.dataset.requireLogin === "true") {
+      const afterLogin = nextBtn.getAttribute("href") ?? "/";
+      nextBtn.setAttribute("href", `/onboarding/login?next=${encodeURIComponent(afterLogin)}`);
+    }
 
     // Laatste onboardingstap: wie nog niet is ingelogd, gaat eerst naar de login.
     if (nextBtn && !user && nextBtn.getAttribute("href") === "/") {

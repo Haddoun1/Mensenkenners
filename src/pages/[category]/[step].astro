@@ -196,6 +196,7 @@ const accentColor = categoryColorMap[categorySlug] ?? "#B1F2D9";
         data-category={categorySlug}
         data-requires-check={isCheckableQuestion || isScenarioGame ? "true" : "false"}
         data-input-type={item.input_type || ""}
+        data-question-id={item.type === "question" ? item.id : undefined}
       >
 
       <!-- Bovenste navigatie met dashboardlink, stappenmenu en simulator. -->
@@ -919,6 +920,146 @@ const accentColor = categoryColorMap[categorySlug] ?? "#B1F2D9";
         }
       });
     });
+  }
+
+  // MARK: Antwoorden bewaren
+
+  // Bewaart antwoorden in Supabase (tabel course_answers, zie supabase/course_answers.sql),
+  // per gebruiker, module en vraag. Zo staan ze er nog als je terugkomt, ook op een ander apparaat.
+  const questionId = main?.dataset.questionId;
+  const {
+    data: { session: answerSession },
+  } = await supabase.auth.getSession();
+  const answerUser = answerSession?.user;
+
+  if (questionId && answerUser) {
+    // Huidige stand van het antwoord; wordt bij elke wijziging als geheel opgeslagen.
+    let savedAnswer = {};
+
+    const { data: savedRow, error: loadError } = await supabase
+      .from("course_answers")
+      .select("answer")
+      .eq("user_id", answerUser.id)
+      .eq("category", category)
+      .eq("question_id", questionId)
+      .maybeSingle();
+
+    if (loadError) console.error("Antwoord ophalen mislukt:", loadError.message);
+    if (savedRow?.answer) savedAnswer = savedRow.answer;
+
+    // Schrijft rechtstreeks naar de Supabase REST-API met keepalive, zodat het opslaan ook
+    // afloopt als de gebruiker direct naar een andere pagina gaat.
+    const sendAnswer = () =>
+      fetch(
+        `${import.meta.env.PUBLIC_SUPABASE_URL}/rest/v1/course_answers?on_conflict=user_id,category,question_id`,
+        {
+          method: "POST",
+          keepalive: true,
+          headers: {
+            apikey: import.meta.env.PUBLIC_SUPABASE_ANON_KEY,
+            Authorization: `Bearer ${answerSession.access_token}`,
+            "Content-Type": "application/json",
+            Prefer: "resolution=merge-duplicates,return=minimal",
+          },
+          body: JSON.stringify({
+            user_id: answerUser.id,
+            category,
+            question_id: questionId,
+            answer: savedAnswer,
+            updated_at: new Date().toISOString(),
+          }),
+        },
+      ).catch((error) => console.error("Antwoord opslaan mislukt:", error));
+
+    // Typen wordt even verzameld voordat het wordt verstuurd; klikken en kiezen gaat direct.
+    let sendTimer = null;
+    const writeSavedAnswer = (changes, { debounce = false } = {}) => {
+      savedAnswer = { ...savedAnswer, ...changes };
+      clearTimeout(sendTimer);
+      sendTimer = null;
+      if (debounce) {
+        sendTimer = setTimeout(() => {
+          sendTimer = null;
+          sendAnswer();
+        }, 600);
+      } else {
+        sendAnswer();
+      }
+    };
+
+    // Verlaat de gebruiker de pagina terwijl er nog getypt antwoord wacht, verstuur het dan meteen.
+    window.addEventListener("pagehide", () => {
+      if (sendTimer) {
+        clearTimeout(sendTimer);
+        sendTimer = null;
+        sendAnswer();
+      }
+    });
+
+    // Alle invoervelden van de vraag, in vaste volgorde.
+    const answerFields = [
+      ...document.querySelectorAll(".question-block input, .question-block textarea, .question-block select"),
+    ];
+    const collectValues = () =>
+      answerFields.map((field) =>
+        field.type === "radio" || field.type === "checkbox" ? field.checked : field.value,
+      );
+
+    // Zet eerder ingevulde antwoorden terug.
+    const saved = savedAnswer;
+
+    if (saved?.values) {
+      answerFields.forEach((field, index) => {
+        const value = saved.values[index];
+        if (value === undefined) return;
+        if (field.type === "radio" || field.type === "checkbox") field.checked = value === true;
+        else field.value = value;
+      });
+    }
+
+    // Was het antwoord al nagekeken of ingestuurd? Toon dan opnieuw de feedback en zet "Volgende" vrij.
+    if (saved?.checked && checkAnswerBtn) {
+      checkAnswerBtn.click();
+    }
+
+    // Minigame: speel de eerder gemaakte keuzes opnieuw af.
+    if (scenarioGame && Array.isArray(saved?.scenarios)) {
+      const scenarioEls = [...scenarioGame.querySelectorAll("[data-scenario]")];
+      saved.scenarios.forEach((choiceIndex, scenarioIndex) => {
+        const scenarioEl = scenarioEls[scenarioIndex];
+        scenarioEl?.querySelectorAll(".scenario-option")[choiceIndex]?.click();
+        if (scenarioIndex < saved.scenarios.length - 1) {
+          scenarioEl?.querySelector("[data-scenario-next]")?.click();
+        }
+      });
+    }
+
+    // Slaat elke wijziging direct op.
+    answerFields.forEach((field) => {
+      field.addEventListener("input", () => writeSavedAnswer({ values: collectValues() }, { debounce: true }));
+      field.addEventListener("change", () => writeSavedAnswer({ values: collectValues() }));
+    });
+
+    // Onthoudt of het antwoord is nagekeken. Deze listener draait na de check zelf;
+    // de knop is alleen verborgen als het antwoord geldig was.
+    checkAnswerBtn?.addEventListener("click", () => {
+      if (checkAnswerBtn.style.display === "none") {
+        writeSavedAnswer({ values: collectValues(), checked: true });
+      }
+    });
+
+    // Onthoudt de keuzes in de minigame.
+    if (scenarioGame) {
+      scenarioGame.querySelectorAll("[data-scenario]").forEach((scenarioEl, scenarioIndex) => {
+        scenarioEl.querySelectorAll(".scenario-option").forEach((button, choiceIndex) => {
+          button.addEventListener("click", () => {
+            const scenarioChoices = [...(savedAnswer.scenarios || [])];
+            scenarioChoices[scenarioIndex] = choiceIndex;
+            writeSavedAnswer({ scenarios: scenarioChoices });
+          });
+        });
+      });
+    }
   }
 
   // Instellingenpaneel openen en sluiten.

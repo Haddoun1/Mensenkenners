@@ -43,7 +43,8 @@ const { data: progress, error } = await supabase
   .order("created_at", { ascending: false });
 
 // Als er geen data is, gebruiken we een lege array zodat de pagina niet crasht.
-const records = progress || [];
+// Rijen met step_id "reset" (cursus opnieuw gestart) zijn geen echte stap en tellen niet mee.
+const records = (progress || []).filter((row) => row.step_id !== "reset");
 
 // Telt hoeveel voortgangsrecords er totaal zijn opgeslagen.
 const totalRecords = records.length;

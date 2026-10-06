@@ -41,9 +41,26 @@ export async function POST({ request }) {
     .eq("user_id", body.userId)
     .order("ended_at", { ascending: false });
 
+  // Bij "Start deze cursus opnieuw" wordt een rij met step_id "reset" opgeslagen.
+  // Alleen stappen ná de laatste reset van een cursus tellen mee voor de voortgang.
+  // De oude rijen blijven bestaan, zodat het adminpaneel de historie houdt.
+  const rowTime = (row) => new Date(row.ended_at || row.created_at || 0).getTime();
+
+  const lastResetByCategory = {};
+  (data || []).forEach((row) => {
+    if (row.step_id !== "reset") return;
+    lastResetByCategory[row.category] = Math.max(lastResetByCategory[row.category] || 0, rowTime(row));
+  });
+
+  const activeRows = (data || []).filter(
+    (row) =>
+      row.step_id !== "reset" &&
+      rowTime(row) > (lastResetByCategory[row.category] || 0),
+  );
+
   return new Response(
     JSON.stringify({
-      data,
+      data: activeRows,
       error
     }),
     {
