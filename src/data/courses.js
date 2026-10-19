@@ -61,9 +61,9 @@ export const courses = [
 // Totale aantal vragen per cursus, gebruikt om het voortgangspercentage te berekenen.
 export const totals = {
   onboarding: 10,
-  module_1: 7,
-  module_2: 8,
-  module_3: 7,
+  module_1: 8,
+  module_2: 9,
+  module_3: 12,
   module_4: 9,
 };
 

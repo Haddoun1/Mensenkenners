@@ -97,6 +97,8 @@ const isCheckableQuestion =
 // Stelt feedback en voorbeeldantwoorden in.
 
 const maxSelections = item.max_selections || 2;
+// Minimaal aantal keuzes voordat "Check antwoord" klikbaar is.
+const minSelections = item.min_selections || 1;
 const exampleAnswer =
   item.example_answer ||
   item.model_answer ||
@@ -106,7 +108,29 @@ const exampleAnswer =
 
 // Minigame met korte momenten: de gebruiker kan pas verder als alle momenten zijn doorlopen.
 const isScenarioGame = item.type === "question" && item.input_type === "scenarios";
-const scenarios = item.scenarios || [];
+// Twee varianten: een moment met eigen opties en een quote per keuze (module 2),
+// of een fragment waarbij je uit vaste kernprincipes kiest en een toelichting krijgt (module 4).
+const scenarios = (item.scenarios || []).map((scenario) => {
+  if (scenario.options) {
+    return {
+      ...scenario,
+      isQuote: true,
+      choices: scenario.options.map((option) => ({
+        text: option.text,
+        response: option.quote || item.quotes?.[option.kind] || "",
+      })),
+    };
+  }
+  return {
+    ...scenario,
+    isQuote: false,
+    choices: (item.principles || []).map((principle) => ({
+      text: principle,
+      response: principle === scenario.best ? scenario.fit : scenario.other,
+    })),
+  };
+});
+const scenarioLabel = item.scenario_label || "Moment";
 
 // Een open vraag zonder voorbeeldantwoord wordt alleen ingestuurd, zonder voorbeeld te tonen.
 const isSubmitOnlyQuestion = isOpenReflectionQuestion && !exampleAnswer;
@@ -172,8 +196,9 @@ const accentColor = categoryColorMap[categorySlug] ?? "#B1F2D9";
         class="content-col"
         data-step-id={String(currentStep)}
         data-category={categorySlug}
-        data-requires-check={isCheckableQuestion || isScenarioGame ? "true" : "false"}
+        data-requires-check={(isCheckableQuestion && !(isSubmitOnlyQuestion && item.required === false)) || isScenarioGame ? "true" : "false"}
         data-input-type={item.input_type || ""}
+        data-question-id={item.type === "question" ? item.id : undefined}
       >
 
       <!-- Bovenste navigatie met dashboardlink, stappenmenu en simulator. -->
@@ -284,7 +309,7 @@ const accentColor = categoryColorMap[categorySlug] ?? "#B1F2D9";
               {/* Multiple-choicevraag. */}
 
               {item.input_type === "multiple_choice" && (
-                <div data-multiple-choice data-max-selections={maxSelections}>
+                <div data-multiple-choice data-max-selections={maxSelections} data-min-selections={minSelections}>
                   <p class="mc-hint">Selecteer maximaal {maxSelections} opties</p>
                   <ul class="options-list" role="group">
                   {options.map((option, index) => {
@@ -355,35 +380,41 @@ const accentColor = categoryColorMap[categorySlug] ?? "#B1F2D9";
                 </div>
               )}
 
-              {/* Minigame: per moment kiezen tussen een aanname doen of eerst vragen. Geen goed/fout, wel een quote. */}
+              {/* Minigame: per moment een keuze maken. Geen goed/fout, wel een quote of toelichting. */}
 
               {isScenarioGame && (
                 <div class="scenario-game" data-scenario-game>
                   {scenarios.map((scenario, scenarioIndex) => (
                     <div class="scenario" data-scenario hidden={scenarioIndex > 0}>
-                      <p class="scenario-progress">Moment {scenarioIndex + 1} van {scenarios.length}</p>
+                      <p class="scenario-progress">{scenarioLabel} {scenarioIndex + 1} van {scenarios.length}</p>
                       <p class="scenario-situation">{scenario.situation}</p>
                       <ul class="options-list">
-                        {(scenario.options || []).map((option, index) => (
+                        {scenario.choices.map((choice, index) => (
                           <li>
                             <button
                               type="button"
                               class="option-label scenario-option"
-                              data-quote={option.quote || item.quotes?.[option.kind] || ""}
+                              data-response={choice.response}
                             >
                               <span class="option-key">{String.fromCharCode(65 + index)}</span>
-                              <span class="option-text">{option.text}</span>
+                              <span class="option-text">{choice.text}</span>
                             </button>
                           </li>
                         ))}
                       </ul>
-                      <figure class="scenario-quote" data-scenario-quote role="status" aria-live="polite" hidden>
-                        <blockquote></blockquote>
-                        <figcaption>Ervaringsdeskundige</figcaption>
-                      </figure>
+                      {scenario.isQuote ? (
+                        <figure class="scenario-quote" data-scenario-response role="status" aria-live="polite" hidden>
+                          <blockquote data-response-text></blockquote>
+                          <figcaption>Ervaringsdeskundige</figcaption>
+                        </figure>
+                      ) : (
+                        <div class="scenario-quote scenario-quote--info" data-scenario-response role="status" aria-live="polite" hidden>
+                          <p data-response-text></p>
+                        </div>
+                      )}
                       {scenarioIndex < scenarios.length - 1 && (
                         <button type="button" class="btn btn--primary scenario-next" data-scenario-next hidden>
-                          Volgend moment
+                          Volgend {scenarioLabel.toLowerCase()}
                         </button>
                       )}
                     </div>
@@ -790,8 +821,8 @@ const accentColor = categoryColorMap[categorySlug] ?? "#B1F2D9";
       const matchingCorrections = result.matchingCorrections || [];
 
       let feedbackHtml = explanation
-        ? `<strong>Niet helemaal.</strong><p>${escapeHtml(explanation)}</p>`
-        : "<strong>Niet helemaal.</strong>";
+        ? `<p>${escapeHtml(explanation)}</p>`
+        : "";
 
       if (correctOptions.length > 0) {
         feedbackHtml += `
@@ -827,13 +858,13 @@ const accentColor = categoryColorMap[categorySlug] ?? "#B1F2D9";
     setNextEnabled(true);
   });
 
-  // Minigame: toont na elke keuze de quote, daarna het volgende moment en na het laatste moment de afsluitzin.
+  // Minigame: toont na elke keuze de quote of toelichting, daarna het volgende moment en na het laatste moment de afsluitzin.
   if (scenarioGame) {
     const scenarioEls = [...scenarioGame.querySelectorAll("[data-scenario]")];
 
     scenarioEls.forEach((scenarioEl, index) => {
       const optionButtons = scenarioEl.querySelectorAll(".scenario-option");
-      const quoteEl = scenarioEl.querySelector("[data-scenario-quote]");
+      const responseEl = scenarioEl.querySelector("[data-scenario-response]");
       const nextBtn = scenarioEl.querySelector("[data-scenario-next]");
 
       optionButtons.forEach((button) => {
@@ -844,8 +875,8 @@ const accentColor = categoryColorMap[categorySlug] ?? "#B1F2D9";
           });
           button.setAttribute("aria-pressed", "true");
 
-          quoteEl.querySelector("blockquote").textContent = button.dataset.quote;
-          quoteEl.hidden = false;
+          responseEl.querySelector("[data-response-text]").textContent = button.dataset.response;
+          responseEl.hidden = false;
 
           if (nextBtn) {
             nextBtn.hidden = false;
@@ -853,7 +884,7 @@ const accentColor = categoryColorMap[categorySlug] ?? "#B1F2D9";
           } else {
             answerFeedback.className = "answer-feedback answer-feedback--example";
             answerFeedback.textContent = answerFeedback.dataset.closing;
-            answerFeedback.hidden = false;
+            answerFeedback.hidden = !answerFeedback.dataset.closing;
             setNextEnabled(true);
           }
         });
@@ -868,13 +899,26 @@ const accentColor = categoryColorMap[categorySlug] ?? "#B1F2D9";
     });
   }
 
+  // Zet "Check antwoord" pas aan als er genoeg opties zijn aangevinkt (min_selections in de JSON).
+  // Wordt ook aangeroepen nadat bewaarde antwoorden zijn teruggezet.
+  let updateMcCheckButton = () => {};
+
   // Beperkt het aantal keuzes bij multiple-choicevragen.
   const mcBlock = document.querySelector("[data-multiple-choice]");
   if (mcBlock) {
     const checkboxes = mcBlock.querySelectorAll("input[type='checkbox']");
     const errorEl = document.getElementById("mc-error");
+    const minSelections = Number(mcBlock.dataset.minSelections || 1);
+
+    updateMcCheckButton = () => {
+      if (!checkAnswerBtn || minSelections <= 1) return;
+      const checkedCount = [...checkboxes].filter((cb) => cb.checked).length;
+      checkAnswerBtn.disabled = checkedCount < minSelections;
+    };
+    updateMcCheckButton();
 
     checkboxes.forEach((checkbox) => {
+      checkbox.addEventListener("change", updateMcCheckButton);
       checkbox.addEventListener("change", (e) => {
         const checked = [...checkboxes].filter((cb) => cb.checked);
         const maxSelections = Number(mcBlock.dataset.maxSelections || 2);
@@ -891,6 +935,148 @@ const accentColor = categoryColorMap[categorySlug] ?? "#B1F2D9";
         }
       });
     });
+  }
+
+  // MARK: Antwoorden bewaren
+
+  // Bewaart antwoorden in Supabase (tabel course_answers, zie supabase/course_answers.sql),
+  // per gebruiker, module en vraag. Zo staan ze er nog als je terugkomt, ook op een ander apparaat.
+  const questionId = main?.dataset.questionId;
+  const {
+    data: { session: answerSession },
+  } = await supabase.auth.getSession();
+  const answerUser = answerSession?.user;
+
+  if (questionId && answerUser) {
+    // Huidige stand van het antwoord; wordt bij elke wijziging als geheel opgeslagen.
+    let savedAnswer = {};
+
+    const { data: savedRow, error: loadError } = await supabase
+      .from("course_answers")
+      .select("answer")
+      .eq("user_id", answerUser.id)
+      .eq("category", category)
+      .eq("question_id", questionId)
+      .maybeSingle();
+
+    if (loadError) console.error("Antwoord ophalen mislukt:", loadError.message);
+    if (savedRow?.answer) savedAnswer = savedRow.answer;
+
+    // Schrijft rechtstreeks naar de Supabase REST-API met keepalive, zodat het opslaan ook
+    // afloopt als de gebruiker direct naar een andere pagina gaat.
+    const sendAnswer = () =>
+      fetch(
+        `${import.meta.env.PUBLIC_SUPABASE_URL}/rest/v1/course_answers?on_conflict=user_id,category,question_id`,
+        {
+          method: "POST",
+          keepalive: true,
+          headers: {
+            apikey: import.meta.env.PUBLIC_SUPABASE_ANON_KEY,
+            Authorization: `Bearer ${answerSession.access_token}`,
+            "Content-Type": "application/json",
+            Prefer: "resolution=merge-duplicates,return=minimal",
+          },
+          body: JSON.stringify({
+            user_id: answerUser.id,
+            category,
+            question_id: questionId,
+            answer: savedAnswer,
+            updated_at: new Date().toISOString(),
+          }),
+        },
+      ).catch((error) => console.error("Antwoord opslaan mislukt:", error));
+
+    // Typen wordt even verzameld voordat het wordt verstuurd; klikken en kiezen gaat direct.
+    let sendTimer = null;
+    const writeSavedAnswer = (changes, { debounce = false } = {}) => {
+      savedAnswer = { ...savedAnswer, ...changes };
+      clearTimeout(sendTimer);
+      sendTimer = null;
+      if (debounce) {
+        sendTimer = setTimeout(() => {
+          sendTimer = null;
+          sendAnswer();
+        }, 600);
+      } else {
+        sendAnswer();
+      }
+    };
+
+    // Verlaat de gebruiker de pagina terwijl er nog getypt antwoord wacht, verstuur het dan meteen.
+    window.addEventListener("pagehide", () => {
+      if (sendTimer) {
+        clearTimeout(sendTimer);
+        sendTimer = null;
+        sendAnswer();
+      }
+    });
+
+    // Alle invoervelden van de vraag, in vaste volgorde.
+    const answerFields = [
+      ...document.querySelectorAll(".question-block input, .question-block textarea, .question-block select"),
+    ];
+    const collectValues = () =>
+      answerFields.map((field) =>
+        field.type === "radio" || field.type === "checkbox" ? field.checked : field.value,
+      );
+
+    // Zet eerder ingevulde antwoorden terug.
+    const saved = savedAnswer;
+
+    if (saved?.values) {
+      answerFields.forEach((field, index) => {
+        const value = saved.values[index];
+        if (value === undefined) return;
+        if (field.type === "radio" || field.type === "checkbox") field.checked = value === true;
+        else field.value = value;
+      });
+    }
+
+    updateMcCheckButton();
+
+    // Was het antwoord al nagekeken of ingestuurd? Toon dan opnieuw de feedback en zet "Volgende" vrij.
+    if (saved?.checked && checkAnswerBtn) {
+      checkAnswerBtn.click();
+    }
+
+    // Minigame: speel de eerder gemaakte keuzes opnieuw af.
+    if (scenarioGame && Array.isArray(saved?.scenarios)) {
+      const scenarioEls = [...scenarioGame.querySelectorAll("[data-scenario]")];
+      saved.scenarios.forEach((choiceIndex, scenarioIndex) => {
+        const scenarioEl = scenarioEls[scenarioIndex];
+        scenarioEl?.querySelectorAll(".scenario-option")[choiceIndex]?.click();
+        if (scenarioIndex < saved.scenarios.length - 1) {
+          scenarioEl?.querySelector("[data-scenario-next]")?.click();
+        }
+      });
+    }
+
+    // Slaat elke wijziging direct op.
+    answerFields.forEach((field) => {
+      field.addEventListener("input", () => writeSavedAnswer({ values: collectValues() }, { debounce: true }));
+      field.addEventListener("change", () => writeSavedAnswer({ values: collectValues() }));
+    });
+
+    // Onthoudt of het antwoord is nagekeken. Deze listener draait na de check zelf;
+    // de knop is alleen verborgen als het antwoord geldig was.
+    checkAnswerBtn?.addEventListener("click", () => {
+      if (checkAnswerBtn.style.display === "none") {
+        writeSavedAnswer({ values: collectValues(), checked: true });
+      }
+    });
+
+    // Onthoudt de keuzes in de minigame.
+    if (scenarioGame) {
+      scenarioGame.querySelectorAll("[data-scenario]").forEach((scenarioEl, scenarioIndex) => {
+        scenarioEl.querySelectorAll(".scenario-option").forEach((button, choiceIndex) => {
+          button.addEventListener("click", () => {
+            const scenarioChoices = [...(savedAnswer.scenarios || [])];
+            scenarioChoices[scenarioIndex] = choiceIndex;
+            writeSavedAnswer({ scenarios: scenarioChoices });
+          });
+        });
+      });
+    }
   }
 
   // Instellingenpaneel openen en sluiten.
@@ -1500,6 +1686,14 @@ const accentColor = categoryColorMap[categorySlug] ?? "#B1F2D9";
     line-height: 1.6;
   }
 
+  /* Toelichting in plaats van een quote: zelfde kader, gewone tekst. */
+  .scenario-quote--info p {
+    margin: 0;
+    font-family: var(--font-light);
+    font-size: var(--size-lg);
+    line-height: 1.6;
+  }
+
   .scenario-quote figcaption {
     margin-top: 0.4rem;
     font-family: var(--font-semi-bold);
@@ -1562,6 +1756,10 @@ const accentColor = categoryColorMap[categorySlug] ?? "#B1F2D9";
 
   .answer-feedback p {
     margin: 0.35rem 0 0;
+  }
+
+  .answer-feedback p:first-child {
+    margin-top: 0;
   }
 
   .correct-answer-list {
@@ -1665,6 +1863,17 @@ const accentColor = categoryColorMap[categorySlug] ?? "#B1F2D9";
     color: white;
     box-shadow: 0 4px 14px color-mix(in srgb, var(--color-accent) 50%, transparent);
     transform: translateY(-1px);
+  }
+
+  /* Uitgeschakelde knop, bijvoorbeeld "Check antwoord" zolang er te weinig is aangevinkt. */
+  .btn--primary:disabled,
+  .btn--primary:disabled:hover {
+    background: var(--color-accent);
+    color: var(--color-text);
+    box-shadow: none;
+    transform: none;
+    opacity: 0.5;
+    cursor: not-allowed;
   }
 
   .btn--primary:active { transform: scale(0.97); }
