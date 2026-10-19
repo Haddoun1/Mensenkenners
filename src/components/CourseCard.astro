@@ -1,19 +1,23 @@
 ---
+import { Image } from "astro:assets";
+
 const {
   title,
   description = '',
-  image = '',
+  image,
   progress = 0,
   href = '#',
   color = '#2AB789',
-  duration = null
+  duration = null,
+  // "high" = eerste zichtbare kaart, "eager" = ook direct zichtbaar, "lazy" = pas laden bij scrollen.
+  imagePriority = 'lazy'
 } = Astro.props;
 ---
 
 <a
   href={href}
   class="course-card"
-  style={`--bg-image: url(${image}); --bg-color: ${color};`}
+  style={`--bg-color: ${color};`}
 >
 
   {duration && (
@@ -27,7 +31,16 @@ const {
   )}
 
   <div class="image-wrapper">
-    <img src={image} alt={title}/>
+    {image && (
+      <Image
+        src={image}
+        alt={title}
+        widths={[240, 400, 600]}
+        sizes="(min-width: 768px) 300px, 60vw"
+        loading={imagePriority === 'lazy' ? 'lazy' : 'eager'}
+        fetchpriority={imagePriority === 'high' ? 'high' : 'auto'}
+      />
+    )}
   </div>
 
   <div class="card-title">
