@@ -66,7 +66,8 @@
       "type": "video",
       "section": "module_1_inclusief_contact",
       "title": "Video inclusief contact",
-      "url": "https://www.youtube.com/watch?v=Exd7KPKudOI",
+      "subtitle": "Bekijk het fragment. Let op wat er in het contact gebeurt.",
+      "url": "https://assets.frame.io/encode/66ce40b5-b390-4f3c-b408-dd25b797371a/h264_1080_best.mp4?x-amz-meta-resource_type=asset&x-amz-meta-resource_id=66ce40b5-b390-4f3c-b408-dd25b797371a&x-amz-meta-project_id=37a5d23b-b9d5-4edf-9e7f-9551df75376a&Expires=1790424000&Signature=bfosY1RvPgx-gNd4Uba5jfgJGeewPVxnfDLRHZVlF-fW~M8erdG3s6nsTtbxLCOloDuNTanBw0mJHAY2DI1lZhcMCtaTK90F1WMAGtbbSaesnqIy8Q~iL-h7NSe8DIe01tnFfpNbk3JzmgljgreAqVNSMDJKb1U63fKySfMAQEMZ2URae4vCbkLStQXB0y7ym53eAl6~gkZ9Y4fnvXwTuU-KYgQKXuK0hp8ca~2f79fRbN4bl-sz3dL0hI2CT8RRxTsM7Ddr89qknL6wL06Sv8dEg7uKLJSCJo3kZh-GYH89JBI4168etnAucos8gjVn81YdWsB2rnyCT1UO6NpSBw__&Key-Pair-Id=K1XW5DOJMY1ET9",
       "optional": true,
       "Category": "Module 1"
     },
@@ -295,8 +296,8 @@
       "section": "module_3_toegankelijkheid_werkplek",
       "title": "Wat maakt een werkplek toegankelijk?",
       "paragraphs": [
-        "Een toegankelijke plek of locatie gaat niet alleen over de vraag of er een lift, een drempelvrije ingang of een aangepast toilet aanwezig is. Het gaat er net zo goed om dat die voorzieningen ook echt bruikbaar blijven.",
-        "Een toegankelijk toilet dat is volgezet met dozen of schoonmaakspullen is in de praktijk niet toegankelijk. We gaan kijken naar de fysieke toegankelijkheid van jouw eigen werkplek: wat er al is, wat er nog ontbreekt, en hoe je ervoor zorgt dat wat er is ook echt te gebruiken blijft."
+        "Een toegankelijke plek of locatie gaat niet alleen over de vraag of er een lift, een drempelvrije ingang of een aangepast toilet aanwezig is. Het gaat er net zo goed om dat je kan meedenken over toegankelijkheid en obstakels begrijpt.",
+        "We gaan kijken naar de fysieke toegankelijkheid van jouw eigen werkplek: wat er al is, en wat er nog beter kan."
       ],
       "Category": "Module 3"
     },
