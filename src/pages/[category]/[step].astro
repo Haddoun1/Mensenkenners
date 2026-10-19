@@ -326,11 +326,11 @@ const accentColor = categoryColorMap[categorySlug] ?? "#B1F2D9";
               {item.label && <label class="field-label">{item.label}</label>}
 
               {item.input_type === "text" && (
-                <input class="text-input" type="text" placeholder={item.placeholder || "Typ hier je antwoord"} />
+                <input class:list={["text-input", { "has-example": item.placeholder }]} type="text" placeholder={item.placeholder || "Typ hier je antwoord"} />
               )}
 
               {item.input_type === "long_text" && (
-                <textarea class="text-area" rows="5" placeholder={item.placeholder || "Typ hier je antwoord"} />
+                <textarea class:list={["text-area", { "has-example": item.placeholder }]} rows="5" placeholder={item.placeholder || "Typ hier je antwoord"} />
               )}
 
               {item.input_type === "single_choice" && (
@@ -1595,6 +1595,11 @@ const accentColor = categoryColorMap[categorySlug] ?? "#B1F2D9";
   .text-area:focus {
     border-color: var(--color-accent);
     box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-accent) 30%, transparent);
+  }
+
+  /* Voorbeeldantwoord als placeholder: schuin, zodat het niet als echte invoer leest. */
+  .has-example::placeholder {
+    font-style: italic;
   }
 
   /* OPTIONS */
