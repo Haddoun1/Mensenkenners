@@ -80,6 +80,14 @@
       "Category": "Module 1"
     },
     {
+      "id": "m1_video_youtube",
+      "type": "video",
+      "section": "module_1_inclusief_contact",
+      "title": "Bekijk de video",
+      "url": "https://youtu.be/Exd7KPKudOI?si=6mTWNFaArUTTinZX",
+      "Category": "Module 1"
+    },
+    {
       "id": "m1_q02_matching_gedrag_effect",
       "type": "question",
       "section": "module_1_inclusief_contact",
