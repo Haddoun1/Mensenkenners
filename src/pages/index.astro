@@ -32,7 +32,7 @@ import { courses } from "../data/courses.js";
         <div class="carousel-wrapper">
           <ul class="carousel">
             {
-              courses.map((course) => (
+              courses.map((course, index) => (
                 <li class="carousel-item" data-course-id={course.id}>
                   <CourseCard
                     title={course.title}
@@ -42,6 +42,7 @@ import { courses } from "../data/courses.js";
                     href={course.href}
                     color={course.color}
                     duration={course.duration}
+                    imagePriority={index === 0 ? "high" : index < 3 ? "eager" : "lazy"}
                   />
                 </li>
               ))
