@@ -3,6 +3,7 @@
 import { ClientRouter } from "astro:transitions";
 import BaseHead from '../components/BaseHead.astro';
 import FixedThemeToggle from '../components/FixedThemeToggle.astro';
+import OnboardingImage from '../components/OnboardingImage.astro';
 
 
 const bounceTransition = {
@@ -94,17 +95,26 @@ const {
           )
         }
       </div>
+      <!-- Lazy: het logo van het andere thema is verborgen en wordt dan niet gedownload. Zelfde bestanden als header en footer. -->
       <div class="logo-mobile">
         <div>
           <img
             class="logo-image logo-image--light"
-            src="/images/logohorizontaal.png"
+            src="/images/logo-footer.webp"
             alt="Stichting Mensenkenners logo"
+            width="500"
+            height="81"
+            loading="lazy"
+            decoding="async"
           />
           <img
             class="logo-image logo-image--dark"
-            src="/images/mensenkennerslogowit.png"
+            src="/images/logo-footer-wit.webp"
             alt="Stichting Mensenkenners logo"
+            width="500"
+            height="81"
+            loading="lazy"
+            decoding="async"
           />
         </div>
       </div>
@@ -121,18 +131,26 @@ const {
 
         <!-- Rechts op desktop: logo, tekst, progress, knoppen -->
         <div class="panel-right">
-          {mockupSrc && <img class="mockup" src={mockupSrc} alt="mockup" transition:name="mockup" />}
+          {mockupSrc && <OnboardingImage class="mockup" src={mockupSrc} alt="mockup" transition:name="mockup" />}
           <div class="logo-desktop">
                 <div>
           <img
             class="logo-image logo-image--light"
-            src="/images/logohorizontaal.png"
+            src="/images/logo-footer.webp"
             alt="Stichting Mensenkenners logo"
+            width="500"
+            height="81"
+            loading="lazy"
+            decoding="async"
           />
           <img
             class="logo-image logo-image--dark"
-            src="/images/mensenkennerslogowit.png"
+            src="/images/logo-footer-wit.webp"
             alt="Stichting Mensenkenners logo"
+            width="500"
+            height="81"
+            loading="lazy"
+            decoding="async"
           />
         </div>
           </div>

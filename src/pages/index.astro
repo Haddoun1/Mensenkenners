@@ -53,20 +53,24 @@ import { courses } from "../data/courses.js";
     </div>
 
     <!-- COURSE Details -->
-  <aside class="course-detail" id="course-detail" tabindex="-1">
+  <!-- inert zolang het paneel dicht is: dan zijn de links niet bereikbaar met Tab of een schermlezer. -->
+  <aside class="course-detail" id="course-detail" aria-labelledby="detail-title" inert>
       <div class="detail-image">
         <div class="detail-image-placeholder"></div>
       </div>
       <div class="detail-content">
-        <h3 id="detail-title"></h3>
+        <!-- Startwaarde zodat de kop nooit leeg is; het klikscript zet de titel van de aangeklikte cursus. -->
+        <h3 id="detail-title">{courses[0].title}</h3>
         <p class="detail-progress" id="detail-progress"></p>
         <p class="detail-description" id="detail-description"></p>
         <div class="detail-actions">
+          <!-- Startwaarde is een echte cursuslink; het klikscript hieronder zet de href
+               naar de aangeklikte module (of de stap waar je gebleven was). -->
           <!-- Alleen zichtbaar bij een afgeronde cursus: terugkijken zonder antwoorden te wissen. -->
-          <a href="#" class="detail-cta" id="detail-review" hidden
+          <a href={courses[0].href} class="detail-cta" id="detail-review" hidden
             >Bekijk je antwoorden</a
           >
-          <a href="#" class="detail-cta" id="detail-cta"
+          <a href={courses[0].href} class="detail-cta" id="detail-cta"
             >Ga verder met deze cursus</a
           >
         </div>
@@ -75,11 +79,11 @@ import { courses } from "../data/courses.js";
 
     <!-- Keuzevenster op telefoon en tablet bij een afgeronde cursus (daar is geen detailpaneel). -->
     <dialog class="course-dialog" id="course-dialog" aria-labelledby="course-dialog-title">
-      <h2 id="course-dialog-title"></h2>
+      <h2 id="course-dialog-title">{courses[0].title}</h2>
       <p>Je hebt deze cursus afgerond. Wil je opnieuw beginnen of je antwoorden terugkijken?</p>
       <div class="detail-actions">
-        <a href="#" class="detail-cta" id="dialog-review">Bekijk je antwoorden</a>
-        <a href="#" class="detail-cta detail-cta--secondary" id="dialog-restart">Start deze cursus opnieuw</a>
+        <a href={courses[0].href} class="detail-cta" id="dialog-review">Bekijk je antwoorden</a>
+        <a href={courses[0].href} class="detail-cta detail-cta--secondary" id="dialog-restart">Start deze cursus opnieuw</a>
         <button type="button" class="course-dialog-close" id="dialog-close">Annuleren</button>
       </div>
     </dialog>
@@ -380,6 +384,7 @@ import { courses } from "../data/courses.js";
         detail.dataset.openCourse === courseId
       ) {
         detail.classList.remove("active");
+        detail.inert = true;
         detail.dataset.openCourse = "";
         return;
       }
@@ -429,9 +434,11 @@ import { courses } from "../data/courses.js";
         progressText + " compleet";
 
       detail.classList.add("active");
+      detail.inert = false;
 
-detail.setAttribute("tabindex", "-1");
-detail.focus();
+      // Focus naar de hoofdknop van het paneel: een link is al focusbaar, dus de aside heeft geen tabindex nodig.
+      // Schermlezers melden bij het binnengaan ook de naam van het paneel (aria-labelledby).
+      (reviewable ? review : cta).focus();
     });
   });
 </script>
