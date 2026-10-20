@@ -1,11 +1,18 @@
 // Centrale cursusdata: gebruikt door het dashboard (index.astro) en het profiel (profile.astro),
 // zodat het aantal vragen per module maar op één plek staat.
 
+// Afbeeldingen worden geïmporteerd zodat Astro's <Image /> ze kan verkleinen en optimaliseren.
+import onboardingImage from "../assets/images/mockupmensenkenners.webp";
+import module1Image from "../assets/images/Mensenkennerskaderdoof.webp";
+import module2Image from "../assets/images/Mensenkennerskaderroller.webp";
+import module3Image from "../assets/images/Mensenkennerskadersd.webp";
+import module4Image from "../assets/images/Mensenkennerskadervisueel.webp";
+
 export const courses = [
   {
     id: "onboarding",
     title: "Onboarding",
-    image: "/images/mockupmensenkenners.webp",
+    image: onboardingImage,
     description:
       "Welkom bij de onboarding! In deze cursus maken we je wegwijs in het platform en leggen we uit wat je kunt verwachten in de verschillende delen van de cursus.",
     progress: 0,
@@ -18,7 +25,7 @@ export const courses = [
     title: "Module 1: Inclusief contact",
     description:
       "In deze module oefen je met basisprincipes die in veel situaties toepasbaar zijn.",
-    image: "/images/Mensenkennerskaderdoof.webp",
+    image: module1Image,
     progress: 0,
     href: "/module-1/1",
     color: "var(--color-pink)",
@@ -29,7 +36,7 @@ export const courses = [
     title: "Module 2: Perspectief en inlevingsvermogen",
     description:
       "In deze module sta je stil bij situaties waarin bezoekers de wereld anders ervaren.",
-    image: "images/Mensenkennerskaderroller.webp",
+    image: module2Image,
     progress: 0,
     href: "/module-2/1",
     color: "var(--color-yellow)",
@@ -40,7 +47,7 @@ export const courses = [
     title: "Module 3: Toegankelijkheid van jouw werkplek",
     description:
       "In deze module ga je leren hoe je jouw werplek concreet inclusief kunt maken.",
-    image: "/images/Mensenkennerskadersd.webp",
+    image: module3Image,
     progress: 0,
     href: "/module-3/1",
     color: "var(--color-red)",
@@ -50,7 +57,7 @@ export const courses = [
     id: "module_4",
     title: "Module 4: Praktijksituaties en toepassing",
     description: "In deze module oefen je met herkenbare situaties.",
-    image: "/images/Mensenkennerskadervisueel.webp",
+    image: module4Image,
     progress: 0,
     href: "/module-4/1",
     color: "var(--color-blue)",

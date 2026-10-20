@@ -21,15 +21,24 @@ export const prerender = false;
 >
   
   <div class="logo-container-theme">
+    <!-- Lazy: het logo van het andere thema is verborgen en wordt dan niet gedownload. -->
     <img
       class="logo-image logo-image--light"
-      src="/images/logohorizontaal.png"
+      src="/images/logo-footer.webp"
       alt="Stichting Mensenkenners logo"
+      width="500"
+      height="81"
+      loading="lazy"
+      decoding="async"
     />
     <img
       class="logo-image logo-image--dark"
-      src="/images/mensenkennerslogowit.png"
+      src="/images/logo-footer-wit.webp"
       alt="Stichting Mensenkenners logo"
+      width="500"
+      height="81"
+      loading="lazy"
+      decoding="async"
     />
 
   </div>

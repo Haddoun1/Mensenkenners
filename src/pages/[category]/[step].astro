@@ -63,19 +63,29 @@ const ratings = Array.from(
 
 // Zet video-URL's om naar embed-URL's wanneer een videoblok wordt gebruikt.
 
-let embedUrl = item.url;
-if (item.url?.includes("vimeo.com")) {
-  const id = item.url.split("/").filter(Boolean).pop()?.split("?")[0];
-  embedUrl = `https://player.vimeo.com/video/${id}`;
-}
-if (item.url?.includes("youtube.com/watch?v=")) {
-  const id = item.url.split("v=")[1]?.split("&")[0];
-  embedUrl = `https://www.youtube.com/embed/${id}`;
-}
-if (item.url?.includes("youtu.be/")) {
-  const id = item.url.split("youtu.be/")[1]?.split("?")[0];
-  embedUrl = `https://www.youtube.com/embed/${id}`;
-}
+const toEmbedUrl = (url) => {
+  if (url?.includes("vimeo.com")) {
+    const id = url.split("/").filter(Boolean).pop()?.split("?")[0];
+    return `https://player.vimeo.com/video/${id}`;
+  }
+  if (url?.includes("youtube.com/watch?v=")) {
+    const id = url.split("v=")[1]?.split("&")[0];
+    return `https://www.youtube.com/embed/${id}`;
+  }
+  if (url?.includes("youtu.be/")) {
+    const id = url.split("youtu.be/")[1]?.split("?")[0];
+    return `https://www.youtube.com/embed/${id}`;
+  }
+  return url;
+};
+
+let embedUrl = toEmbedUrl(item.url);
+
+// Carousel met meerdere video's (bijvoorbeeld aan het einde van module 4).
+const carouselVideos = (item.videos || []).map((video) => ({
+  ...video,
+  embedUrl: toEmbedUrl(video.url)?.trim() || "",
+}));
 
 // Bepaalt welk type vraag getoond wordt en of de check-knop nodig is.
 
@@ -227,7 +237,7 @@ const accentColor = categoryColorMap[categorySlug] ?? "#B1F2D9";
       <!-- Contentkaart met tekst, video, vraag of eindscherm. -->
         <section class="card">
           {item.title && <h1 class="card-title">{item.title}</h1>}
-          {item.subtitle && <p class="card-subtitle">{item.subtitle}</p>}
+          {item.subtitle && <h2 class="question-text reflection-question">{item.subtitle}</h2>}
           {item.paragraphs && Array.isArray(item.paragraphs) ? (
             item.paragraphs.map((paragraph) => <p class="card-body">{paragraph}</p>)
           ) : (
@@ -264,6 +274,48 @@ const accentColor = categoryColorMap[categorySlug] ?? "#B1F2D9";
             </div>
           )}
 
+        <!-- Videocarousel: één video tegelijk, bladeren met de knoppen. -->
+          {carouselVideos.length > 0 && (
+            <div class="video-carousel" data-video-carousel role="region" aria-roledescription="carousel" aria-label={item.title}>
+              <div class="carousel-track" data-carousel-track>
+                {carouselVideos.map((video, index) => (
+                  <figure
+                    class="carousel-slide"
+                    data-carousel-slide
+                    role="group"
+                    aria-roledescription="slide"
+                    aria-label={`${index + 1} van ${carouselVideos.length}: ${video.title}`}
+                  >
+                    <div class="video-wrapper">
+                      {video.embedUrl ? (
+                        <iframe
+                          src={video.embedUrl}
+                          title={video.title}
+                          loading="lazy"
+                          frameborder="0"
+                          allow="autoplay; fullscreen; picture-in-picture"
+                          allowfullscreen
+                        />
+                      ) : (
+                        <div class="video-placeholder">Video volgt binnenkort</div>
+                      )}
+                    </div>
+                    <figcaption class="carousel-caption">
+                      <span class="carousel-video-title">{video.title}</span>
+                      {video.text && <span class="carousel-video-text">{video.text}</span>}
+                    </figcaption>
+                  </figure>
+                ))}
+              </div>
+
+              <div class="carousel-controls">
+                <button type="button" class="carousel-btn" data-carousel-prev aria-label="Vorige video">‹</button>
+                <span class="carousel-counter" data-carousel-counter aria-live="polite">1 / {carouselVideos.length}</span>
+                <button type="button" class="carousel-btn" data-carousel-next aria-label="Volgende video">›</button>
+              </div>
+            </div>
+          )}
+
         <!-- Vraagblok. De inhoud wordt bepaald door input_type uit de JSON. -->
           {item.type === "question" && (
             <div class="question-block">
@@ -274,11 +326,11 @@ const accentColor = categoryColorMap[categorySlug] ?? "#B1F2D9";
               {item.label && <label class="field-label">{item.label}</label>}
 
               {item.input_type === "text" && (
-                <input class="text-input" type="text" placeholder={item.placeholder || "Typ hier je antwoord"} />
+                <input class:list={["text-input", { "has-example": item.placeholder }]} type="text" placeholder={item.placeholder || "Typ hier je antwoord"} />
               )}
 
               {item.input_type === "long_text" && (
-                <textarea class="text-area" rows="5" placeholder={item.placeholder || "Typ hier je antwoord"} />
+                <textarea class:list={["text-area", { "has-example": item.placeholder }]} rows="5" placeholder={item.placeholder || "Typ hier je antwoord"} />
               )}
 
               {item.input_type === "single_choice" && (
@@ -519,6 +571,53 @@ const accentColor = categoryColorMap[categorySlug] ?? "#B1F2D9";
   const stepId = main?.dataset.stepId;
   const category = main?.dataset.category;
   const startedAt = new Date();
+
+  // Videocarousel: vorige/volgende knoppen en teller bijhouden.
+  const videoCarousel = document.querySelector("[data-video-carousel]");
+  if (videoCarousel) {
+    const track = videoCarousel.querySelector("[data-carousel-track]");
+    const slides = [...videoCarousel.querySelectorAll("[data-carousel-slide]")];
+    const prevBtn = videoCarousel.querySelector("[data-carousel-prev]");
+    const nextBtn = videoCarousel.querySelector("[data-carousel-next]");
+    const counter = videoCarousel.querySelector("[data-carousel-counter]");
+
+    // De actieve video is de slide die het dichtst bij het midden van de track staat.
+    const currentIndex = () => {
+      const center = track.scrollLeft + track.clientWidth / 2;
+      let closest = 0;
+      slides.forEach((slide, index) => {
+        const slideCenter = slide.offsetLeft + slide.offsetWidth / 2;
+        const closestCenter = slides[closest].offsetLeft + slides[closest].offsetWidth / 2;
+        if (Math.abs(slideCenter - center) < Math.abs(closestCenter - center)) closest = index;
+      });
+      return closest;
+    };
+    const goTo = (index) => {
+      const slide = slides[Math.max(0, Math.min(index, slides.length - 1))];
+      track.scrollTo({ left: slide.offsetLeft - (track.clientWidth - slide.offsetWidth) / 2 });
+    };
+    const updateControls = () => {
+      const index = currentIndex();
+      slides.forEach((slide, i) => {
+        slide.classList.toggle("is-active", i === index);
+        slide.setAttribute("aria-hidden", i === index ? "false" : "true");
+      });
+      counter.textContent = `${index + 1} / ${slides.length}`;
+      prevBtn.disabled = index === 0;
+      nextBtn.disabled = index === slides.length - 1;
+    };
+
+    prevBtn.addEventListener("click", () => goTo(currentIndex() - 1));
+    nextBtn.addEventListener("click", () => goTo(currentIndex() + 1));
+    // Klik op een zij-video om die naar het midden te halen.
+    slides.forEach((slide, index) => {
+      slide.addEventListener("click", () => {
+        if (!slide.classList.contains("is-active")) goTo(index);
+      });
+    });
+    track.addEventListener("scroll", updateControls, { passive: true });
+    updateControls();
+  }
 
   // Alleen de intro/onboarding-categorie is toegankelijk zonder in te loggen.
   // Voor alle modules moet de gebruiker eerst inloggen.
@@ -1225,14 +1324,6 @@ const accentColor = categoryColorMap[categorySlug] ?? "#B1F2D9";
     margin: 0;
   }
 
-  .card-subtitle {
-    font-family: var(--font-semi-bold);
-    font-size: var(--size-xl);
-    opacity: 0.7;
-    margin: 0;
-    line-height: 1.3;
-  }
-
   .card-body {
     font-family: var(--font-light);
     font-size: var(--size-lg);
@@ -1251,7 +1342,7 @@ const accentColor = categoryColorMap[categorySlug] ?? "#B1F2D9";
   }
 
   .card-list li {
-    font-family: var(--font-light);
+    font-family: var(--font-bold);
     font-size: var(--size-lg);
     line-height: 1.5;
     color: var(--color-text);
@@ -1300,6 +1391,150 @@ const accentColor = categoryColorMap[categorySlug] ?? "#B1F2D9";
     width: 100%;
     height: 100%;
     border: none;
+  }
+
+  /* ── Videocarousel ───────────────────────────────────────────── */
+
+  .video-carousel {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    width: 100%;
+    max-width: 820px;
+    margin: 0 auto;
+  }
+
+  /* De middelste video staat groot in beeld, de buren piepen er kleiner naast. */
+  .carousel-track {
+    position: relative;
+    display: flex;
+    gap: 0.5rem;
+    padding: 0.5rem 15%;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scroll-behavior: smooth;
+    scrollbar-width: none;
+    -webkit-mask-image: linear-gradient(to right, transparent, black 12%, black 88%, transparent);
+    mask-image: linear-gradient(to right, transparent, black 12%, black 88%, transparent);
+  }
+
+  .carousel-track::-webkit-scrollbar {
+    display: none;
+  }
+
+  .carousel-slide {
+    flex: 0 0 70%;
+    margin: 0;
+    scroll-snap-align: center;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    transform: scale(0.85);
+    opacity: 0.5;
+    cursor: pointer;
+    transition: transform 0.3s ease, opacity 0.3s ease;
+  }
+
+  .carousel-slide iframe {
+    pointer-events: none;
+  }
+
+  .carousel-slide.is-active {
+    transform: scale(1);
+    opacity: 1;
+    cursor: default;
+  }
+
+  .carousel-slide.is-active iframe {
+    pointer-events: auto;
+  }
+
+  .carousel-slide:not(.is-active) .carousel-caption {
+    visibility: hidden;
+  }
+
+  .carousel-slide .video-wrapper {
+    box-shadow: 0 6px 20px color-mix(in srgb, var(--color-text) 12%, transparent);
+  }
+
+  @media (max-width: 600px) {
+    .carousel-track {
+      padding: 0.5rem 12%;
+    }
+
+    .carousel-slide {
+      flex-basis: 76%;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .carousel-track {
+      scroll-behavior: auto;
+    }
+
+    .carousel-slide {
+      transition: none;
+    }
+  }
+
+  .video-placeholder {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-light);
+    color: var(--color-text);
+    background: color-mix(in srgb, var(--color-accent) 20%, transparent);
+  }
+
+  .carousel-caption {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .carousel-video-title {
+    font-family: var(--font-semi-bold);
+    color: var(--color-text);
+  }
+
+  .carousel-video-text {
+    font-family: var(--font-light);
+    font-size: var(--size-sm);
+    color: var(--color-text);
+  }
+
+  .carousel-controls {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+  }
+
+  .carousel-btn {
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 50%;
+    border: 1px solid color-mix(in srgb, var(--color-accent) 60%, transparent);
+    background: color-mix(in srgb, var(--color-accent) 35%, transparent);
+    color: var(--color-text);
+    font-size: 1.4rem;
+    line-height: 1;
+    cursor: pointer;
+  }
+
+  .carousel-btn:disabled {
+    opacity: 0.35;
+    cursor: default;
+  }
+
+  .carousel-counter {
+    font-family: var(--font-semi-bold);
+    font-size: var(--size-sm);
+    color: var(--color-text);
+    min-width: 3.5rem;
+    text-align: center;
   }
 
   /* QUESTION */
@@ -1360,6 +1595,11 @@ const accentColor = categoryColorMap[categorySlug] ?? "#B1F2D9";
   .text-area:focus {
     border-color: var(--color-accent);
     box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-accent) 30%, transparent);
+  }
+
+  /* Voorbeeldantwoord als placeholder: schuin, zodat het niet als echte invoer leest. */
+  .has-example::placeholder {
+    font-style: italic;
   }
 
   /* OPTIONS */

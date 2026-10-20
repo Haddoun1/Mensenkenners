@@ -8,11 +8,26 @@ const currentYear = new Date().getFullYear();
   <div class="footer-inner">
 
     <div class="footer-brand">
-    <img
-  class="footer-logo-image"
-  src="/images/logohorizontaal.png"
-  alt="Stichting Mensenkenners logo"
-/>
+      <a href="/" class="footer-logo">
+        <img
+          class="footer-logo-image footer-logo-image--light"
+          src="/images/logo-footer.webp"
+          alt="Stichting Mensenkenners logo"
+          width="500"
+          height="81"
+          loading="lazy"
+          decoding="async"
+        />
+        <img
+          class="footer-logo-image footer-logo-image--dark"
+          src="/images/logo-footer-wit.webp"
+          alt="Stichting Mensenkenners logo"
+          width="500"
+          height="81"
+          loading="lazy"
+          decoding="async"
+        />
+      </a>
       <p class="brand-tagline">Leer in jouw eigen tempo.</p>
     </div>
 
@@ -69,8 +84,15 @@ const currentYear = new Date().getFullYear();
     gap: 0.75rem;
   }
 
-  .footer-brand img {
-    max-width: 250px;
+  .footer-logo {
+    display: inline-block;
+    align-self: flex-start;
+  }
+
+  .footer-logo-image {
+    display: block;
+    width: 250px;
+    max-width: 100%;
     height: auto;
   }
 
@@ -148,7 +170,16 @@ const currentYear = new Date().getFullYear();
     }
   }
 
- :global(html.dark-mode) .footer-logo-image {
-  content: url("/images/mensenkennerslogowit.png");
-}
+  /* Beide logo's staan in de HTML; CSS toont het juiste. Een verborgen lazy-afbeelding wordt niet gedownload. */
+  .footer-logo-image--dark {
+    display: none;
+  }
+
+  :global(html.dark-mode) .footer-logo-image--light {
+    display: none;
+  }
+
+  :global(html.dark-mode) .footer-logo-image--dark {
+    display: block;
+  }
 </style>

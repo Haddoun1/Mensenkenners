@@ -1,6 +1,7 @@
 ---
 export const prerender = false;
 import MainLayout from "../../layouts/Layout-onboarding.astro";
+import OnboardingImage from "../../components/OnboardingImage.astro";
 import QuestionSingle from "../../components/QuestionSingle.astro";
 import QuestionMulti from "../../components/QuestionMulti.astro";
 import stepsJson from "../../data/onboarding-steps.json";
@@ -40,5 +41,5 @@ if (!data) return Astro.redirect("/onboarding/step-1");
     <QuestionMulti slot="question" name={data.question.name} options={data.question.options} />
   )}
 
-  <img class="mockup" src={data.imageSrc} alt={data.imageAlt} />
+  <OnboardingImage class="mockup" src={data.imageSrc} alt={data.imageAlt} />
 </MainLayout>

@@ -5,15 +5,24 @@ import ThemeToggle from "../components/ThemeToggle.astro";
 <header>
   <div>
       <a href="/" class="logo">
+    <!-- Lazy: het verborgen logo (ander thema) wordt dan niet gedownload. Zelfde bestanden als de footer. -->
     <img
       class="logo-image logo-image--light"
-      src="/images/logohorizontaal.png"
+      src="/images/logo-footer.webp"
       alt="Stichting Mensenkenners logo"
+      width="500"
+      height="81"
+      loading="lazy"
+      decoding="async"
     />
     <img
       class="logo-image logo-image--dark"
-      src="/images/mensenkennerslogowit.png"
+      src="/images/logo-footer-wit.webp"
       alt="Stichting Mensenkenners logo"
+      width="500"
+      height="81"
+      loading="lazy"
+      decoding="async"
     />
   </a>
   </div>
@@ -174,8 +183,8 @@ import ThemeToggle from "../components/ThemeToggle.astro";
   }
 
   .logo-image {
-    height: 40px;
-    width: 160px;
+    height: 48px;
+    width: 192px;
     object-fit: contain;
     object-position: left;
   }
