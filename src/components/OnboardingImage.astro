@@ -1,0 +1,31 @@
+---
+// @ts-nocheck
+import { Image } from "astro:assets";
+
+// Zoekt een afbeelding uit src/assets/images op bestandsnaam. Zo kunnen pagina's en
+// onboarding-steps.json gewoon een pad als "/images/x.webp" gebruiken, terwijl Astro's
+// <Image /> de afbeelding verkleint en optimaliseert.
+const images = import.meta.glob("../assets/images/*.{webp,png,jpg,jpeg}", { eager: true });
+
+const { src, alt = "", class: className = "mockup", ...rest } = Astro.props;
+
+const fileName = src?.split("/").pop();
+const match = Object.entries(images).find(([path]) => path.endsWith(`/${fileName}`));
+---
+
+{
+  match ? (
+    <Image
+      src={match[1].default}
+      alt={alt}
+      class={className}
+      widths={[400, 800]}
+      sizes="(min-width: 768px) 400px, 90vw"
+      loading="eager"
+      {...rest}
+    />
+  ) : (
+    // Staat de afbeelding (nog) niet in src/assets/images, dan gewoon de oude <img>.
+    src && <img src={src} alt={alt} class={className} {...rest} />
+  )
+}

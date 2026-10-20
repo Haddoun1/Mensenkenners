@@ -1,6 +1,13 @@
 ---
 export const prerender = false;
 import MainLayout from "../../layouts/Layout-onboarding.astro";
+import { getImage } from "astro:assets";
+import simulatorAnimation from "../../assets/images/mensenkenners.webp";
+
+// Bewegende WebP (365 frames). Verkleind naar 400px scheelt veel (561 KB i.p.v. 912 KB), maar op
+// volle breedte maakt Astro hem groter dan het origineel. Daarom: kleine versie voor smalle schermen,
+// het originele bestand voor brede. <Image /> kan het origineel niet in de srcset zetten, vandaar <img>.
+const small = await getImage({ src: simulatorAnimation, width: 400, format: "webp" });
 ---
 
 <MainLayout title="Stap 4"
@@ -16,7 +23,13 @@ category="onboarding"
 
 <img class="mockup"
   src="/images/mensenkenners.webp"
+  srcset={`${small.src} 400w, /images/mensenkenners.webp 700w`}
+  sizes="(min-width: 768px) 400px, 90vw"
+  width="700"
+  height="333"
   alt="Mensenkenners logo"
+  loading="eager"
+  decoding="async"
 />
 
 </MainLayout>
