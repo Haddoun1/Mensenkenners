@@ -11,6 +11,10 @@ import FixedThemeToggle from "../../components/FixedThemeToggle.astro";
 let errorMessage = "";
 let email = "";
 
+// Melding voor accounts zonder admin-rechten. Het adminpaneel stuurt zulke accounts hierheen met ?geen-toegang.
+const noAccessMessage = "Dit account heeft geen toegang tot het adminpaneel. Log in met een admin-account, of vraag een admin om je toegang te geven.";
+let noAccess = Astro.url.searchParams.has("geen-toegang");
+
 // Controleert of het formulier werd verstuurd.
 if (Astro.request.method === "POST") {
   // Leest alle velden uit het formulier.
@@ -26,18 +30,30 @@ if (Astro.request.method === "POST") {
   const supabase = createSupabaseServerClient(Astro);
 
   // Probeert in te loggen met e-mail en wachtwoord.
-  const { error } = await supabase.auth.signInWithPassword({
+  const { data, error } = await supabase.auth.signInWithPassword({
     email,
     password,
   });
 
   // Als de login mislukt, tonen we een foutmelding.
   if (error) {
+    noAccess = false;
     errorMessage = "Inloggen is niet gelukt. Controleer je e-mailadres en wachtwoord.";
   } else {
-    // Als de login lukt, sturen we de gebruiker
-    // direct door naar het admin dashboard.
-    return Astro.redirect("/admin");
+    // Controleert of het account admin is voordat we doorsturen.
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("role")
+      .eq("id", data.user.id)
+      .single();
+
+    if (profile?.role === "admin") {
+      // Admin: direct door naar het admin dashboard.
+      return Astro.redirect("/admin");
+    }
+
+    // Geen admin: op deze pagina blijven en de melding tonen.
+    noAccess = true;
   }
 }
 ---
@@ -77,6 +93,13 @@ if (Astro.request.method === "POST") {
 
     <h1 id="login-title">Adminpaneel</h1>
     <p class="intro">Log in met je admin-account om de resultaten van de training te bekijken.</p>
+
+    {noAccess && (
+      <div class="notice" role="alert">
+        <p class="notice-title">Geen toegang</p>
+        <p>{noAccessMessage}</p>
+      </div>
+    )}
 
     {errorMessage && (
       <p class="error" role="alert">{errorMessage}</p>
@@ -211,6 +234,23 @@ if (Astro.request.method === "POST") {
     border-radius: 10px;
     padding: 0.75rem 1rem;
     margin-bottom: 1.25rem;
+  }
+
+  /* Melding "Geen toegang" (waarschuwingskleuren uit global.css). */
+  .notice {
+    font-size: 0.85rem;
+    line-height: 1.45;
+    color: light-dark(#725500, #f0cf6b);
+    background: light-dark(#fff8df, #332804);
+    border: 1px solid #e0aa00;
+    border-radius: 10px;
+    padding: 0.85rem 1rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .notice-title {
+    font-weight: 600;
+    margin-bottom: 0.2rem;
   }
 
   form {
