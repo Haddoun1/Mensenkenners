@@ -107,7 +107,7 @@ export const prerender = false;
 
 <script>
   // @ts-nocheck
-  import { supabase } from "../../lib/supabase";
+  import { supabase, authHeaders } from "../../lib/supabase";
 
   // Stuurt de "Ga terug"-knop naar de pagina waar de gebruiker vandaan kwam,
   // met de welkomstpagina als terugvaloptie.
@@ -146,17 +146,13 @@ export const prerender = false;
     }
     if (!user?.id || pending.length === 0) return;
 
+    const headers = await authHeaders();
     await Promise.all(
       pending.map((step) =>
         fetch("/api/track-step", {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            userId: user.id,
-            email: user.email || null,
-            name: user.user_metadata?.name || null,
-            ...step,
-          }),
+          headers,
+          body: JSON.stringify(step),
         }),
       ),
     );

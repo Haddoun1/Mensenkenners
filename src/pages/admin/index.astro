@@ -202,7 +202,7 @@ const missingTimedModules = courseModules.length - timedModules.length;
 
 // ── "Wat neem je mee?" ───────────────────────────────────────────
 // Haalt de antwoorden op de afsluitende reflectievraag van elke module op.
-// Admins mogen alle antwoorden lezen dankzij supabase/course_answers_admin.sql.
+// Admins mogen alle antwoorden lezen dankzij supabase/security_rls.sql.
 const { data: takeawayRows, error: takeawayError } = await supabase
   .from("course_answers")
   .select("category, question_id, answer, updated_at")
@@ -449,7 +449,7 @@ const totalTakeaways = takeaways.reduce((sum, mod) => sum + mod.answers.length, 
       {!takeawayError && totalTakeaways === 0 && (
         <p class="section-text">
           Er zijn nog geen antwoorden. Weet je zeker dat er wel antwoorden zijn? Controleer dan of
-          <code>supabase/course_answers_admin.sql</code> in Supabase is uitgevoerd, zodat admins alle antwoorden mogen lezen.
+          <code>supabase/security_rls.sql</code> in Supabase is uitgevoerd, zodat admins alle antwoorden mogen lezen.
         </p>
       )}
 
