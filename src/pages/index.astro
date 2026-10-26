@@ -92,7 +92,7 @@ import { courses } from "../data/courses.js";
 
 <script>
   // @ts-nocheck
-  import { supabase } from "../lib/supabase";
+  import { supabase, authHeaders } from "../lib/supabase";
   import { totals, courseStartHref, categoryToCourseId } from "../data/courses.js";
 
   // Get user data for progress
@@ -126,8 +126,7 @@ import { courses } from "../data/courses.js";
 
     const response = await fetch("/api/get-progress", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ userId: user.id }),
+      headers: await authHeaders(),
     });
 
     const result = await response.json();
@@ -297,11 +296,8 @@ import { courses } from "../data/courses.js";
     const now = new Date().toISOString();
     await fetch("/api/track-step", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: await authHeaders(),
       body: JSON.stringify({
-        userId: user.id,
-        email: user.email || null,
-        name: user.user_metadata?.name || null,
         stepId: "reset",
         category,
         currentUrl: null,

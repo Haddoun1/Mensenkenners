@@ -73,7 +73,7 @@ import MainLayout from "../layouts/Layout.astro";
 
 <script>
   // @ts-nocheck
-  import { supabase } from "../lib/supabase";
+  import { supabase, authHeaders } from "../lib/supabase";
   import { courses, totals, categoryToCourseId } from "../data/courses.js";
 
   const {
@@ -94,8 +94,7 @@ import MainLayout from "../layouts/Layout.astro";
     // welke cursussen al volledig afgerond zijn.
     const response = await fetch("/api/get-progress", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ userId: user.id }),
+      headers: await authHeaders(),
     });
     const result = await response.json();
     const rows = result.data || [];

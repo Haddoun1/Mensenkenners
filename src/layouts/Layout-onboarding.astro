@@ -241,7 +241,7 @@ const {
 <script>
   // @ts-nocheck
   import { navigate } from "astro:transitions/client";
-  import { supabase } from "../lib/supabase";
+  import { supabase, authHeaders } from "../lib/supabase";
 
   let goingBack = false;
   let controller = new AbortController();
@@ -293,16 +293,9 @@ const {
 
       await fetch("/api/track-step", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          userId: user.id,
-          email: user.email || localStorage.getItem("email") || null,
-          name:
-            user.user_metadata?.name || localStorage.getItem("name") || null,
-          ...step,
-        }),
+        headers: await authHeaders(),
+        keepalive: true,
+        body: JSON.stringify(step),
       });
     }
 
