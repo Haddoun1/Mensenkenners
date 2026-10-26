@@ -1,33 +1,19 @@
-import { supabase } from "../../lib/supabase";
+// Haalt de voortgang van de ingelogde gebruiker op.
+// De gebruiker wordt bepaald aan de hand van het meegestuurde toegangstoken (Authorization-header),
+// niet aan de hand van een userId in het verzoek. Zo kan niemand de voortgang van een ander opvragen.
+import { getSupabaseForRequest } from "../../lib/supabaseServer";
 
 export async function POST({ request }) {
-  let body = {};
+  const { supabase, user } = await getSupabaseForRequest(request);
 
-  try {
-    body = await request.json();
-  } catch {
+  if (!user) {
     return new Response(
       JSON.stringify({
         data: null,
-        error: "Ongeldige JSON"
+        error: "Niet ingelogd"
       }),
       {
-        status: 400,
-        headers: {
-          "Content-Type": "application/json"
-        }
-      }
-    );
-  }
-
-  if (!body.userId) {
-    return new Response(
-      JSON.stringify({
-        data: null,
-        error: "userId ontbreekt"
-      }),
-      {
-        status: 400,
+        status: 401,
         headers: {
           "Content-Type": "application/json"
         }
@@ -37,8 +23,8 @@ export async function POST({ request }) {
 
   const { data, error } = await supabase
     .from("course_progress")
-    .select("*")
-    .eq("user_id", body.userId)
+    .select("step_id, category, current_url, started_at, ended_at, created_at, duration_seconds")
+    .eq("user_id", user.id)
     .order("ended_at", { ascending: false });
 
   // Bij "Start deze cursus opnieuw" wordt een rij met step_id "reset" opgeslagen.

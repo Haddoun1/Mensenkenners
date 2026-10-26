@@ -557,7 +557,7 @@ const accentColor = categoryColorMap[categorySlug] ?? "#B1F2D9";
 
 <script>
   // @ts-nocheck
-  import { supabase } from "../../lib/supabase";
+  import { supabase, authHeaders } from "../../lib/supabase";
 
   // Haalt de belangrijkste DOM-elementen en stapmetadata op.
   const main = document.querySelector("main.content-col");
@@ -647,13 +647,13 @@ const accentColor = categoryColorMap[categorySlug] ?? "#B1F2D9";
       data: { user },
     } = await supabase.auth.getUser();
 
+    if (!user) return;
+
     await fetch("/api/track-step", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: await authHeaders(),
+      keepalive: true,
       body: JSON.stringify({
-        userId: user?.id || null,
-        email: user?.email || null,
-        name: user?.user_metadata?.name || null,
         stepId,
         category,
         currentUrl: window.location.pathname,
