@@ -38,10 +38,16 @@ export function createSupabaseServerClient(Astro: any) {
           return Astro.cookies.get(name)?.value;
         },
 
+        // De sessiecookie bevat het access- en refreshtoken:
+        // httpOnly zodat scripts (en dus XSS) hem niet kunnen lezen, secure zodat hij alleen via https gaat.
+        // De admin leest de sessie alleen op de server, dus httpOnly breekt niets.
         set(name: string, value: string, options: any) {
           Astro.cookies.set(name, value, {
             ...options,
             path: options?.path ?? "/",
+            httpOnly: true,
+            secure: true,
+            sameSite: "lax",
           });
         },
 

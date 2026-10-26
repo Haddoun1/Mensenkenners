@@ -69,11 +69,7 @@ if (Astro.request.method === "POST") {
   href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&display=swap"
   rel="stylesheet"
 />
-<script is:inline>
-  if (localStorage.getItem("theme") === "dark") {
-    document.documentElement.classList.add("dark-mode");
-  }
-</script>
+<script is:inline src="/scripts/theme-init.js"></script>
 
 <!-- Light/dark mode knop rechtsboven, net als op de andere pagina's -->
 <FixedThemeToggle />

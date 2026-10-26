@@ -1,0 +1,225 @@
+---
+import MainLayout from "../layouts/Layout.astro";
+
+// Datum van de laatste inhoudelijke wijziging van deze verklaring. Aanpassen als de tekst verandert.
+const lastUpdated = "26 oktober 2026";
+---
+
+<MainLayout title="Privacy">
+  <article class="privacy">
+    <header class="privacy-header">
+      <h1>Privacyverklaring</h1>
+      <p class="privacy-intro">
+        In deze verklaring lees je welke gegevens de Mensenkenners training gebruikt, waarom, en wat je
+        rechten zijn. We verzamelen niet meer dan nodig is om de training te laten werken.
+      </p>
+      <p class="privacy-updated">Laatst bijgewerkt: {lastUpdated}</p>
+    </header>
+
+    <section class="privacy-card">
+      <h2>Wie is verantwoordelijk?</h2>
+      <p>
+        Stichting Mensenkenners is verantwoordelijk voor de gegevens die via deze training worden verwerkt.
+        Vragen over je gegevens kun je stellen via de{" "}
+        <a href="https://www.stichtingmensenkenners.nl/contact">contactpagina van Stichting Mensenkenners</a>.
+      </p>
+    </section>
+
+    <section class="privacy-card">
+      <h2>Welke gegevens gebruiken we?</h2>
+      <ul>
+        <li>
+          <strong>Accountgegevens:</strong> je e-mailadres, je voor- en achternaam en je wachtwoord. Je
+          wachtwoord wordt versleuteld opgeslagen; niemand kan het inzien.
+        </li>
+        <li>
+          <strong>Geboortedatum:</strong> alleen als je die zelf invult op je profielpagina. Dit is niet
+          verplicht.
+        </li>
+        <li>
+          <strong>Voortgang:</strong> welke stappen van de training je hebt bekeken, wanneer, en hoe lang je
+          ongeveer bij een stap bent gebleven.
+        </li>
+        <li>
+          <strong>Antwoorden:</strong> wat je invult bij de vragen en oefeningen in de modules.
+        </li>
+      </ul>
+    </section>
+
+    <section class="privacy-card">
+      <h2>Waarvoor gebruiken we ze?</h2>
+      <ul>
+        <li>Om je te laten inloggen en je account te beheren.</li>
+        <li>Om je voortgang te bewaren, zodat je verder kunt waar je gebleven was.</li>
+        <li>
+          Om de training te verbeteren. Beheerders zien hoeveel deelnemers bij elke stap afhaken en wat
+          deelnemers per module meenemen. Antwoorden worden daarbij <strong>zonder naam</strong> getoond.
+        </li>
+      </ul>
+      <p>We verkopen je gegevens niet en gebruiken ze niet voor reclame.</p>
+    </section>
+
+    <section class="privacy-card">
+      <h2>Wie kan je gegevens zien?</h2>
+      <ul>
+        <li>Jij ziet alleen je eigen gegevens, voortgang en antwoorden.</li>
+        <li>
+          Een klein aantal beheerders van Stichting Mensenkenners kan voortgang en antwoorden inzien om de
+          training te verbeteren.
+        </li>
+        <li>
+          De gegevens worden opgeslagen bij <strong>Supabase</strong>, de dienst die wij gebruiken voor
+          inloggen en de database. Supabase verwerkt de gegevens alleen in onze opdracht.
+        </li>
+      </ul>
+    </section>
+
+    <section class="privacy-card">
+      <h2>Video's van YouTube en Vimeo</h2>
+      <p>
+        Sommige stappen bevatten video's van YouTube of Vimeo. Als je zo'n stap opent, laadt je browser de
+        speler van die dienst. YouTube en Vimeo kunnen dan cookies plaatsen en gegevens verzamelen, zoals je
+        IP-adres. Daarop is het privacybeleid van{" "}
+        <a href="https://policies.google.com/privacy?hl=nl">Google (YouTube)</a> en{" "}
+        <a href="https://vimeo.com/privacy">Vimeo</a> van toepassing.
+      </p>
+    </section>
+
+    <section class="privacy-card">
+      <h2>Cookies en lokale opslag</h2>
+      <p>
+        Deze training gebruikt geen advertentie- of trackingcookies. In je browser bewaren we alleen wat
+        nodig is om de site te laten werken:
+      </p>
+      <ul>
+        <li>je inlogsessie, zodat je ingelogd blijft;</li>
+        <li>of je de lichte of donkere weergave hebt gekozen;</li>
+        <li>je voortgang in de onboarding, tot je bent ingelogd en die is opgeslagen.</li>
+      </ul>
+    </section>
+
+    <section class="privacy-card">
+      <h2>Hoe lang bewaren we je gegevens?</h2>
+      <p>
+        We bewaren je gegevens zolang je account bestaat. Wil je dat je account en alle bijbehorende
+        gegevens worden verwijderd? Neem dan contact met ons op.
+      </p>
+    </section>
+
+    <section class="privacy-card">
+      <h2>Beveiliging</h2>
+      <p>
+        Je gegevens zijn alleen bereikbaar voor wie daar toegang toe moet hebben: jij voor je eigen
+        gegevens, en beheerders voor het verbeteren van de training. Verbindingen met de site zijn
+        versleuteld.
+      </p>
+    </section>
+
+    <section class="privacy-card">
+      <h2>Jouw rechten</h2>
+      <p>Op grond van de AVG heb je het recht om:</p>
+      <ul>
+        <li>je gegevens in te zien;</li>
+        <li>onjuiste gegevens te laten aanpassen (je naam kun je ook zelf wijzigen op je <a href="/profile">profielpagina</a>);</li>
+        <li>je gegevens te laten verwijderen;</li>
+        <li>een kopie van je gegevens te krijgen;</li>
+        <li>bezwaar te maken tegen het gebruik van je gegevens.</li>
+      </ul>
+      <p>
+        Je kunt deze verzoeken indienen via de{" "}
+        <a href="https://www.stichtingmensenkenners.nl/contact">contactpagina</a>. Ben je niet tevreden over
+        hoe wij met je gegevens omgaan? Dan kun je een klacht indienen bij de{" "}
+        <a href="https://www.autoriteitpersoonsgegevens.nl">Autoriteit Persoonsgegevens</a>.
+      </p>
+    </section>
+  </article>
+</MainLayout>
+
+<style>
+  .privacy {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    max-width: 780px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem 4rem;
+  }
+
+  @media (min-width: 768px) {
+    .privacy {
+      padding: 2rem 2.5rem 4rem;
+    }
+  }
+
+  .privacy-header {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .privacy-header h1 {
+    font-size: var(--size-2xl);
+    font-family: var(--font-bold);
+    color: var(--color-text);
+  }
+
+  .privacy-intro {
+    margin: 0;
+    font-family: var(--font-regular);
+    font-size: var(--size-lg);
+    line-height: 1.6;
+    color: var(--color-text);
+  }
+
+  .privacy-updated {
+    margin: 0;
+    font-family: var(--font-light);
+    font-size: var(--size-sm);
+    color: var(--color-text-muted);
+  }
+
+  .privacy-card {
+    background: color-mix(in srgb, var(--color-surface) 72%, transparent);
+    border: 1px solid color-mix(in srgb, var(--color-text) 10%, transparent);
+    border-radius: 20px;
+    padding: 1.75rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .privacy-card h2 {
+    font-size: var(--size-lg);
+    font-family: var(--font-semi-bold);
+    color: var(--color-text);
+  }
+
+  .privacy-card p,
+  .privacy-card li {
+    margin: 0;
+    font-family: var(--font-regular);
+    font-size: var(--size-base);
+    line-height: 1.65;
+    color: var(--color-text);
+  }
+
+  .privacy-card ul {
+    margin: 0;
+    padding-left: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+
+  .privacy-card strong {
+    font-family: var(--font-semi-bold);
+    font-weight: normal;
+  }
+
+  .privacy-card a {
+    color: var(--color-success-text);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+</style>
