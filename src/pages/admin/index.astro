@@ -8,6 +8,9 @@ export const prerender = false;
 // Importeert de server-side Supabase client.
 // Deze kan cookies lezen en dus veilig controleren wie is ingelogd.
 import { createSupabaseServerClient } from "../../lib/supabaseServer";
+import data from "../../data/mensenkennersvragen.json";
+import { slugify } from "../../utils/slugify";
+import FixedThemeToggle from "../../components/FixedThemeToggle.astro";
 
 // Maakt een Supabase client aan voor deze pagina.
 const supabase = createSupabaseServerClient(Astro);
@@ -32,7 +35,7 @@ const { data: profile, error: profileError } = await supabase
 // Als er een fout is of de gebruiker is geen admin,
 // stuur diegene terug naar het normale dashboard.
 if (profileError || profile?.role !== "admin") {
-  return Astro.redirect("/");
+  return Astro.redirect("/admin/login?geen-toegang");
 }
 
 // Haalt alle opgeslagen cursusvoortgang op uit Supabase.
@@ -45,18 +48,6 @@ const { data: progress, error } = await supabase
 // Als er geen data is, gebruiken we een lege array zodat de pagina niet crasht.
 // Rijen met step_id "reset" (cursus opnieuw gestart) zijn geen echte stap en tellen niet mee.
 const records = (progress || []).filter((row) => row.step_id !== "reset");
-
-// Telt hoeveel voortgangsrecords er totaal zijn opgeslagen.
-const totalRecords = records.length;
-
-// Telt alle seconden bij elkaar op die gebruikers actief zijn geweest.
-const totalSeconds = records.reduce(
-  (sum, row) => sum + (row.duration_seconds || 0),
-  0,
-);
-
-// Zet seconden om naar minuten.
-const totalMinutes = Math.round(totalSeconds / 60);
 
 // Telt hoeveel unieke gebruikers er zijn.
 const uniqueUsers = new Set(records.map((row) => row.user_id)).size;
@@ -103,7 +94,144 @@ const categories = Object.entries(byCategory).map(([name, usersObj]) => ({
   name,
   users: Object.values(usersObj as any),
 }));
+
+// ── Afhaakanalyse ────────────────────────────────────────────────
+// Per module: hoeveel deelnemers bereiken elke stap, en bij welke stap stoppen ze.
+
+// Wie langer dan zoveel dagen niets meer in een module heeft gedaan, telt als afgehaakt.
+// Wie korter geleden actief was, telt als "nog bezig".
+const DROP_AFTER_DAYS = 3;
+const MAX_STEP_SECONDS = 20 * 60;
+const now = Date.now();
+
+// Haalt het stapnummer uit een step_id, bijvoorbeeld "4" of "onboarding_step-4".
+const stepNumber = (stepId) => {
+  const match = String(stepId).match(/(\d+)$/);
+  return match ? Number(match[1]) : null;
+};
+
+const typeLabels = { question: "Vraag", video: "Video", content: "Tekst", onboarding: "Stap" };
+
+// Zelfde kleuren per module als in de cursus (public/styles/global.css), licht en donker.
+// In de donkere modus gebruiken we ook de heldere kleuren: de donkere varianten uit de cursus
+// zijn bedoeld als achtergrond en vallen als balk weg tegen de donkere achtergrond.
+const moduleColors = {
+  intro: "#B1F2D9",
+  "module-1": "#FF94E1",
+  "module-2": "#E9F279",
+  "module-3": "#FF6631",
+  "module-4": "#647bef",
+};
+
+// Bouwt de stappen per module op in dezelfde volgorde als de cursuspagina's.
+const moduleSteps: any = {
+  onboarding: {
+    name: "Onboarding",
+    steps: Array.from({ length: 11 }, (_, i) => ({ title: `Onboardingstap ${i + 1}`, type: "onboarding" })),
+  },
+};
+data.blocks
+  .filter((block) => (block.Category ?? block.category) && ["content", "video", "question"].includes(block.type))
+  .forEach((block) => {
+    const name = block.Category ?? block.category;
+    const slug = slugify(name);
+    if (!moduleSteps[slug]) moduleSteps[slug] = { name, steps: [] };
+    moduleSteps[slug].steps.push({ title: block.title, type: block.type });
+  });
+
+const funnels = Object.entries(moduleSteps)
+  .map(([slug, mod]: any) => {
+    const total = mod.steps.length;
+
+    // Per deelnemer: de verste stap in deze module en wanneer die voor het laatst actief was.
+    // Anonieme bezoekers (niet ingelogd) zijn niet van elkaar te onderscheiden en tellen niet mee.
+    const users: any = {};
+    records
+      .filter((row) => row.category === slug && row.user_id && row.user_id !== "anonymous")
+      .forEach((row) => {
+        const n = stepNumber(row.step_id);
+        if (!n || n > total) return;
+        const user = (users[row.user_id] ||= { furthest: 0, lastSeen: 0, seconds: 0 });
+        user.furthest = Math.max(user.furthest, n);
+        // Een tabblad dat lang openstaat telt niet als leertijd: maximaal MAX_STEP_SECONDS per stap.
+        user.seconds += Math.min(row.duration_seconds || 0, MAX_STEP_SECONDS);
+        user.lastSeen = Math.max(user.lastSeen, new Date(row.ended_at || row.created_at).getTime());
+      });
+
+    const list: any[] = Object.values(users);
+    const started = list.length;
+    const completedUsers = list.filter((user) => user.furthest >= total);
+    const completed = completedUsers.length;
+    // Gemiddelde tijd van de deelnemers die de module helemaal hebben afgerond.
+    const avgSeconds = completed
+      ? completedUsers.reduce((sum, user) => sum + user.seconds, 0) / completed
+      : null;
+
+    const steps = mod.steps.map((step, i) => {
+      const n = i + 1;
+      const reached = list.filter((user) => user.furthest >= n).length;
+      const stoppedHere = n < total ? list.filter((user) => user.furthest === n) : [];
+      const dropped = stoppedHere.filter(
+        (user) => now - user.lastSeen > DROP_AFTER_DAYS * 24 * 60 * 60 * 1000,
+      ).length;
+      return {
+        n,
+        title: step.title,
+        typeLabel: typeLabels[step.type] || step.type,
+        reached,
+        percentage: started ? Math.round((reached / started) * 100) : 0,
+        dropped,
+        busy: stoppedHere.length - dropped,
+      };
+    });
+
+    const maxDropped = Math.max(0, ...steps.map((step) => step.dropped));
+    const worstStep = maxDropped > 0 ? steps.find((step) => step.dropped === maxDropped) : null;
+
+    return { slug, name: mod.name, started, completed, avgSeconds, steps, maxDropped, worstStep };
+  })
+  .filter((funnel) => funnel.started > 0);
+
+// Gemiddelde tijd voor de hele cursus: de gemiddelde tijd per module (Module 1 t/m 4) bij elkaar opgeteld.
+const courseModules = Object.keys(moduleSteps).filter((slug) => slug.startsWith("module-"));
+const timedModules = funnels.filter((funnel) => courseModules.includes(funnel.slug) && funnel.avgSeconds !== null);
+const courseAvgMinutes = timedModules.length
+  ? Math.round(timedModules.reduce((sum, funnel) => sum + funnel.avgSeconds, 0) / 60)
+  : null;
+const missingTimedModules = courseModules.length - timedModules.length;
+
+// ── "Wat neem je mee?" ───────────────────────────────────────────
+// Haalt de antwoorden op de afsluitende reflectievraag van elke module op.
+// Admins mogen alle antwoorden lezen dankzij supabase/course_answers_admin.sql.
+const { data: takeawayRows, error: takeawayError } = await supabase
+  .from("course_answers")
+  .select("category, question_id, answer, updated_at")
+  .like("question_id", "%_meenemen")
+  .order("updated_at", { ascending: false });
+
+// Antwoorden worden bewust anoniem getoond: geen naam, e-mail of gebruikers-id.
+
+const takeaways = Object.entries(moduleSteps)
+  .filter(([slug]) => slug.startsWith("module-"))
+  .map(([slug, mod]: any) => ({
+    slug,
+    name: mod.name,
+    answers: (takeawayRows || [])
+      .filter((row) => row.category === slug)
+      .map((row) => ({
+        text: String(row.answer?.values?.[0] ?? "").trim(),
+        date: row.updated_at,
+      }))
+      .filter((answer) => answer.text),
+  }));
+
+const totalTakeaways = takeaways.reduce((sum, mod) => sum + mod.answers.length, 0);
 ---
+
+<!-- Zorgt dat tekens als – en ë goed worden weergegeven -->
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Mensenkenners Adminpaneel</title>
 
 <!-- Laadt Google Fonts voor het admin dashboard -->
 <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -118,17 +246,16 @@ const categories = Object.entries(byCategory).map(([name, usersObj]) => ({
   }
 </script>
 
+<!-- Light/dark mode knop rechtsboven, net als op de andere pagina's -->
+<FixedThemeToggle />
+
 <main>
   <div class="shell">
     <!-- Bovenste balk van het dashboard -->
     <header>
       <div class="header-left">
-        <span class="logo-dot"></span>
-        <h1>Mensenkenners</h1>
+        <h1>Mensenkenners Adminpaneel</h1>
       </div>
-
-      <!-- Label zodat duidelijk is dat dit het admin dashboard is -->
-      <span class="badge">Admin</span>
     </header>
 
     <!-- Toont een foutmelding als Supabase data ophalen mislukt -->
@@ -140,11 +267,20 @@ const categories = Object.entries(byCategory).map(([name, usersObj]) => ({
       )
     }
 
+    <div class="section-intro section-intro--top">
+      <h2 class="section-title">Algemeen</h2>
+    </div>
+
     <!-- Statistieken bovenaan het dashboard -->
     <section class="stats-grid">
       <article class="stat-card accent">
-        <p class="stat-label">Opgeslagen stappen</p>
-        <p class="stat-value">{totalRecords}</p>
+        <p class="stat-label">Gemiddelde tijd hele cursus</p>
+        <p class="stat-value">
+          {courseAvgMinutes !== null ? courseAvgMinutes : "–"}<span class="stat-unit">min</span>
+        </p>
+        {missingTimedModules > 0 && courseAvgMinutes !== null && (
+          <p class="stat-note">{timedModules.length} van {courseModules.length} modules</p>
+        )}
       </article>
 
       <article class="stat-card">
@@ -153,85 +289,200 @@ const categories = Object.entries(byCategory).map(([name, usersObj]) => ({
       </article>
 
       <article class="stat-card">
-        <p class="stat-label">Totale actieve tijd</p>
-        <p class="stat-value">
-          {totalMinutes}<span class="stat-unit">min</span>
-        </p>
-      </article>
-
-      <article class="stat-card">
         <p class="stat-label">Cursussen actief</p>
         <p class="stat-value">{categories.length}</p>
       </article>
     </section>
 
-    <!-- Lijst met cursussen/categorieën en gebruikersvoortgang -->
-    <div class="cards">
+    <!-- Afhaakanalyse: per module tot welke stap deelnemers komen en waar ze stoppen -->
+    <section class="dropoff">
+      <div class="section-intro">
+        <h2 class="section-title">Waar haken deelnemers af?</h2>
+        <p class="section-text">
+          Per module zie je hoeveel deelnemers elke stap hebben bereikt. Bij <strong>Afgehaakt</strong>
+          staan de deelnemers die bij die stap zijn gestopt en al {DROP_AFTER_DAYS} dagen niet meer actief
+          waren in de module. Wie korter geleden actief was, staat bij <strong>Nog bezig</strong>.
+        </p>
+      </div>
+
+      {funnels.length === 0 && <p class="section-text">Er is nog geen voortgang van ingelogde deelnemers.</p>}
+
       {
-        categories.map((cat) => (
-          <div class="card">
-            {/* Header van één cursuskaart */}
-            <div class="card-header">
+        funnels.map((funnel) => (
+          <details class="card funnel" style={`--module-color: ${moduleColors[funnel.slug] ?? "var(--accent)"}`}>
+            <summary class="card-header">
               <div class="cat-info">
                 <span class="cat-dot" />
-                <h2>{cat.name}</h2>
+                <h2>{funnel.name}</h2>
               </div>
 
-              {/* Kleine labels rechtsboven in de kaart */}
               <div class="pills">
-                <span class="pill">
-                  {cat.users.length} deelnemer
-                  {cat.users.length !== 1 ? "s" : ""}
-                </span>
-
+                <span class="pill">{funnel.started} gestart</span>
                 <span class="pill accent-pill">
-                  {cat.users.reduce((s, u) => s + u.stepCount, 0)} stappen
+                  {funnel.completed} afgerond ({Math.round((funnel.completed / funnel.started) * 100)}%)
                 </span>
+                {funnel.worstStep && (
+                  <span class="pill danger-pill">
+                    Meeste afhakers: stap {funnel.worstStep.n} ({funnel.worstStep.dropped})
+                  </span>
+                )}
               </div>
-            </div>
+            </summary>
 
-            {/* Tabel met gebruikersdata */}
+            {/* Kolomdiagram: hoeveel deelnemers bereikten elke stap */}
+            <figure class="chart" data-chart>
+              <figcaption class="chart-caption">Aantal deelnemers dat elke stap bereikte</figcaption>
+
+              <div class="chart-body" style={`--steps: ${funnel.steps.length}`}>
+                <div class="chart-yaxis" aria-hidden="true">
+                  <span>{funnel.started}</span>
+                  <span>{Math.round(funnel.started / 2)}</span>
+                  <span>0</span>
+                </div>
+
+                <div class="chart-plot">
+                  <div class="chart-grid" aria-hidden="true">
+                    <span /><span /><span />
+                  </div>
+                  <div class="chart-columns">
+                    {funnel.steps.map((step) => {
+                      const isWorst = funnel.maxDropped > 0 && step.dropped === funnel.maxDropped;
+                      return (
+                        <button
+                          type="button"
+                          class:list={["chart-col", { "is-worst": isWorst }]}
+                          data-step={step.n}
+                          data-title={step.title}
+                          data-type={step.typeLabel}
+                          data-reached={`${step.reached} van ${funnel.started} (${step.percentage}%)`}
+                          data-dropped={step.dropped}
+                          data-busy={step.busy}
+                          aria-label={`Stap ${step.n}, ${step.title}: ${step.reached} bereikt, ${step.dropped} afgehaakt`}
+                        >
+                          {isWorst && (
+                            <span class="chart-flag" style={`bottom: calc(${step.percentage}% + 0.4rem)`}>
+                              Meeste afhakers
+                            </span>
+                          )}
+                          <span class="chart-bar" style={`height: ${step.percentage}%`} />
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                <span class="chart-row-label" aria-hidden="true">Stap</span>
+                <div class="chart-xaxis" aria-hidden="true">
+                  {funnel.steps.map((step) => <span>{step.n}</span>)}
+                </div>
+
+                <span class="chart-row-label" aria-hidden="true">Afgehaakt</span>
+                <div class="chart-drops" aria-hidden="true">
+                  {funnel.steps.map((step) => (
+                    <span class:list={{ "has-drops": step.dropped > 0 }}>{step.dropped > 0 ? step.dropped : ""}</span>
+                  ))}
+                </div>
+              </div>
+
+              <div class="chart-tooltip" data-chart-tooltip hidden />
+            </figure>
+
             <div class="table-wrap">
-              <table>
+              <table class="funnel-table">
                 <thead>
                   <tr>
-                    <th>ID</th>
-                    <th>Stappen</th>
-                    <th>Tijd besteed</th>
-                    <th>Laatste stap</th>
-                    <th>Laatst actief</th>
+                    <th>Stap</th>
+                    <th>Onderdeel</th>
+                    <th>Bereikt</th>
+                    <th>Afgehaakt</th>
+                    <th>Nog bezig</th>
                   </tr>
                 </thead>
-
                 <tbody>
-                  {cat.users.map((user) => (
-                    <tr>
-                      <td class="mono muted">{user.userId}</td>
-
+                  {funnel.steps.map((step) => (
+                    <tr class:list={{ "is-worst": funnel.maxDropped > 0 && step.dropped === funnel.maxDropped }}>
+                      <td class="mono muted">{step.n}</td>
                       <td>
-                        <span class="step-count">{user.stepCount}</span>
+                        <span class="type-tag">{step.typeLabel}</span>
+                        {step.title}
                       </td>
-
-                      <td class="mono">
-                        {Math.round(user.totalSeconds / 60)} min
+                      <td class="reached-cell">
+                        <div class="bar" aria-hidden="true">
+                          <span class="bar-fill" style={`width: ${step.percentage}%`} />
+                        </div>
+                        <span class="mono">{step.reached} ({step.percentage}%)</span>
                       </td>
-
                       <td>
-                        <span class="step-tag">{user.lastStep}</span>
+                        {step.dropped > 0 ? (
+                          <span class="drop-count">{step.dropped}</span>
+                        ) : (
+                          <span class="muted">–</span>
+                        )}
                       </td>
-
-                      <td class="mono muted">
-                        {new Date(user.lastSeen).toLocaleString("nl-NL")}
-                      </td>
+                      <td class="mono muted">{step.busy > 0 ? step.busy : "–"}</td>
                     </tr>
                   ))}
                 </tbody>
               </table>
             </div>
-          </div>
+          </details>
         ))
       }
-    </div>
+    </section>
+
+    <!-- Antwoorden op "Wat neem je mee?" per module -->
+    <section class="takeaways">
+      <div class="section-intro">
+        <h2 class="section-title">Wat nemen deelnemers mee?</h2>
+        <p class="section-text">
+          De antwoorden op de vraag "Wat neem je uit deze module mee naar je eigen dag, bijeenkomst of
+          activiteit?", per module. Nieuwste antwoorden staan bovenaan.
+        </p>
+      </div>
+
+      {takeawayError && (
+        <div class="error-bar">
+          <span>⚠</span> Antwoorden ophalen mislukt: {takeawayError.message}
+        </div>
+      )}
+
+      {!takeawayError && totalTakeaways === 0 && (
+        <p class="section-text">
+          Er zijn nog geen antwoorden. Weet je zeker dat er wel antwoorden zijn? Controleer dan of
+          <code>supabase/course_answers_admin.sql</code> in Supabase is uitgevoerd, zodat admins alle antwoorden mogen lezen.
+        </p>
+      )}
+
+      {totalTakeaways > 0 &&
+        takeaways.map((mod) => (
+          <details class="card" style={`--module-color: ${moduleColors[mod.slug] ?? "var(--accent)"}`}>
+            <summary class="card-header">
+              <div class="cat-info">
+                <span class="cat-dot module-dot" />
+                <h2>{mod.name}</h2>
+              </div>
+              <div class="pills">
+                <span class="pill">
+                  {mod.answers.length} {mod.answers.length === 1 ? "antwoord" : "antwoorden"}
+                </span>
+              </div>
+            </summary>
+
+            {mod.answers.length === 0 ? (
+              <p class="takeaway-empty">Nog geen antwoorden in deze module.</p>
+            ) : (
+              <ul class="takeaway-list">
+                {mod.answers.map((answer) => (
+                  <li class="takeaway">
+                    <p class="takeaway-text">{answer.text}</p>
+                    <span class="takeaway-date mono muted">{new Date(answer.date).toLocaleDateString("nl-NL")}</span>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </details>
+        ))}
+    </section>
 
     <!-- Admin tools onderaan het dashboard -->
     <section class="admin-tools card">
@@ -365,6 +616,52 @@ const categories = Object.entries(byCategory).map(([name, usersObj]) => ({
   removeAdminBtn.addEventListener("click", () => {
     updateAdminRole("remove");
   });
+
+  // Tooltip bij het afhaakdiagram: toont de details van de kolom waar je op staat.
+  document.querySelectorAll("[data-chart]").forEach((chart) => {
+    const tooltip = chart.querySelector("[data-chart-tooltip]");
+
+    const line = (label, value) => {
+      const row = document.createElement("div");
+      row.className = "chart-tooltip-row";
+      const strong = document.createElement("strong");
+      strong.textContent = value;
+      const span = document.createElement("span");
+      span.textContent = label;
+      row.append(strong, span);
+      return row;
+    };
+
+    const show = (col) => {
+      const heading = document.createElement("div");
+      heading.className = "chart-tooltip-title";
+      heading.textContent = `Stap ${col.dataset.step} · ${col.dataset.type}: ${col.dataset.title}`;
+      tooltip.replaceChildren(
+        heading,
+        line("bereikt", col.dataset.reached),
+        line("afgehaakt", col.dataset.dropped),
+        line("nog bezig", col.dataset.busy),
+      );
+      tooltip.hidden = false;
+
+      // Plaatst de tooltip boven de kolom, binnen de randen van het diagram.
+      const chartBox = chart.getBoundingClientRect();
+      const colBox = col.getBoundingClientRect();
+      const left = colBox.left - chartBox.left + colBox.width / 2;
+      const max = chartBox.width - tooltip.offsetWidth / 2 - 8;
+      tooltip.style.left = `${Math.max(tooltip.offsetWidth / 2 + 8, Math.min(left, max))}px`;
+    };
+    const hide = () => {
+      tooltip.hidden = true;
+    };
+
+    chart.querySelectorAll(".chart-col").forEach((col) => {
+      col.addEventListener("pointerenter", () => show(col));
+      col.addEventListener("focus", () => show(col));
+      col.addEventListener("pointerleave", hide);
+      col.addEventListener("blur", hide);
+    });
+  });
 </script>
 
 <style>
@@ -386,16 +683,29 @@ const categories = Object.entries(byCategory).map(([name, usersObj]) => ({
   */
   :root {
     color-scheme: light;
-    --accent: #2ab789;
-    --accent-light: light-dark(#2ab78912, #2ab78930);
-    --accent-mid: light-dark(#2ab78930, #2ab78955);
-    --bg: light-dark(#f7f8f7, #14171a);
-    --surface: light-dark(#ffffff, #1b1f1d);
-    --border: light-dark(#e8eae8, #2c3230);
-    --text: light-dark(#111c17, #f2f4f3);
-    --muted: light-dark(#7a8c84, #93a19b);
+    /* Kleuren uit public/styles/global.css (licht, donker), zodat het paneel aansluit op de rest van de site. */
+    --accent: #2ab789; /* --color-green: voor vlakken en balken */
+    --accent-text: light-dark(#126341, #8fe9c2); /* --color-success-text: groene tekst die goed leesbaar is */
+    --accent-light: light-dark(#ecfff7, #12301f); /* --color-success-bg */
+    --accent-mid: light-dark(#2fbf7f66, #2fbf7f99); /* --color-success-border */
+    --bg: light-dark(#f6faf8, #161a18);
+    --surface: light-dark(#ffffff, #1b1f1d); /* --color-surface */
+    --border: light-dark(#e3e8e6, #313835);
+    --text: light-dark(#222020, #ffffff); /* --color-text */
+    --muted: light-dark(#6b6e73, #a3a9ae); /* --color-text-muted */
+    --danger: light-dark(#9f2b00, #ffb199); /* --color-error-text */
+    --danger-light: light-dark(#fff0ed, #35180f); /* --color-error-bg */
+    --danger-mid: #ff6631; /* --color-error-border */
+    /* Kleuren van de diagramkolommen (gecontroleerd op kleurenblindheid, licht en donker). */
+    /* Donker (licht in dark mode), zodat hij naast elke modulekleur opvalt. */
+    --chart-bar-worst: var(--text);
     --font: "DM Sans", sans-serif;
     --mono: "DM Mono", monospace;
+
+    /* Variabelen die de ThemeToggle-knop gebruikt (uit global.css, dat hier niet geladen wordt). */
+    --color-text: var(--text);
+    --color-surface: var(--surface);
+    --color-cyan: light-dark(#B1F2D9, #1e4d3a);
 
     &.dark-mode {
       color-scheme: dark;
@@ -506,8 +816,8 @@ const categories = Object.entries(byCategory).map(([name, usersObj]) => ({
     Hover-effect voor admin tool knoppen.
   */
   .resetBtn:hover {
-    background: var(--accent);
-    color: white;
+    background: var(--color-cyan);
+    color: var(--text);
     transform: translateY(-1px);
     box-shadow: 0 4px 14px rgba(42, 183, 137, 0.25);
     transition: transform 0.2s;
@@ -546,7 +856,7 @@ const categories = Object.entries(byCategory).map(([name, usersObj]) => ({
     Titel bovenaan.
   */
   h1 {
-    font-size: 1.25rem;
+    font-size: clamp(1.5rem, 4vw, 2rem);
     font-weight: 600;
     letter-spacing: -0.02em;
   }
@@ -560,7 +870,7 @@ const categories = Object.entries(byCategory).map(([name, usersObj]) => ({
     font-weight: 500;
     text-transform: uppercase;
     letter-spacing: 0.08em;
-    color: var(--accent);
+    color: var(--accent-text);
     background: var(--accent-light);
     border: 1px solid var(--accent-mid);
     padding: 0.25rem 0.65rem;
@@ -585,7 +895,7 @@ const categories = Object.entries(byCategory).map(([name, usersObj]) => ({
   */
   .stats-grid {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(3, 1fr);
     gap: 1rem;
     margin-bottom: 2rem;
   }
@@ -598,14 +908,6 @@ const categories = Object.entries(byCategory).map(([name, usersObj]) => ({
     border: 1px solid var(--border);
     border-radius: 12px;
     padding: 1.25rem 1.5rem;
-    transition: box-shadow 0.2s;
-  }
-
-  /*
-    Subtiele hover op statistiekkaart.
-  */
-  .stat-card:hover {
-    box-shadow: 0 4px 16px color-mix(in srgb, var(--text) 6%, transparent);
   }
 
   /*
@@ -617,7 +919,7 @@ const categories = Object.entries(byCategory).map(([name, usersObj]) => ({
   }
 
   .stat-card.accent .stat-value {
-    color: var(--accent);
+    color: var(--accent-text);
   }
 
   /*
@@ -737,7 +1039,7 @@ const categories = Object.entries(byCategory).map(([name, usersObj]) => ({
     Accentlabel voor aantal stappen.
   */
   .accent-pill {
-    color: var(--accent);
+    color: var(--accent-text);
     background: var(--accent-light);
     border-color: var(--accent-mid);
   }
@@ -814,7 +1116,7 @@ const categories = Object.entries(byCategory).map(([name, usersObj]) => ({
     height: 28px;
     border-radius: 50%;
     background: var(--accent-mid);
-    color: var(--accent);
+    color: var(--accent-text);
     font-size: 0.72rem;
     font-weight: 600;
     display: flex;
@@ -844,7 +1146,7 @@ const categories = Object.entries(byCategory).map(([name, usersObj]) => ({
     font-size: 0.72rem;
     background: var(--accent-light);
     border: 1px solid var(--accent-mid);
-    color: var(--accent);
+    color: var(--accent-text);
     padding: 0.15rem 0.5rem;
     border-radius: 4px;
   }
@@ -862,6 +1164,424 @@ const categories = Object.entries(byCategory).map(([name, usersObj]) => ({
   */
   .muted {
     color: var(--muted);
+  }
+
+  /*
+    Titels en uitleg boven elk onderdeel van het dashboard.
+  */
+  .section-intro {
+    margin: 4rem 0 1rem;
+  }
+
+  .section-intro:first-child {
+    margin-top: 0;
+  }
+
+  /* "Algemeen" staat direct onder de header en heeft geen extra ruimte erboven nodig. */
+  .stat-note {
+    margin-top: 0.5rem;
+    font-size: 0.75rem;
+    color: var(--muted);
+    line-height: 1.4;
+  }
+
+  .section-intro--top {
+    margin-top: 0;
+  }
+
+  /* Ruimte tussen de grote secties (algemeen, afhaken, meenemen, admin tools). */
+  .dropoff,
+  .takeaways,
+  .admin-tools {
+    margin-top: 4rem;
+  }
+
+  .section-title {
+    font-size: 1.1rem;
+    margin-bottom: 0.35rem;
+  }
+
+  .section-text {
+    font-size: 0.875rem;
+    color: var(--muted);
+    max-width: 70ch;
+    line-height: 1.5;
+  }
+
+  /*
+    Klikbare kaartkoppen (details/summary).
+  */
+  summary.card-header {
+    cursor: pointer;
+    list-style: none;
+  }
+
+  summary.card-header::-webkit-details-marker {
+    display: none;
+  }
+
+  summary.card-header .cat-info::before {
+    content: "▸";
+    color: var(--muted);
+    transition: transform 0.2s;
+  }
+
+  details[open] > summary.card-header .cat-info::before {
+    transform: rotate(90deg);
+  }
+
+  details:not([open]) > summary.card-header {
+    border-bottom: none;
+  }
+
+  /*
+    Afhaakanalyse per module.
+  */
+  .dropoff {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+  }
+
+  .dropoff .section-intro {
+    margin-bottom: 0;
+  }
+
+  .danger-pill {
+    color: var(--danger);
+    background: var(--danger-light);
+    border-color: var(--danger-mid);
+  }
+
+  .funnel-table td {
+    padding: 0.6rem 1.5rem;
+  }
+
+  /*
+    Afhaakdiagram: kolommen per stap.
+  */
+  .chart {
+    position: relative;
+    margin: 0;
+    padding: 1.25rem 1.5rem 1rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .chart-caption {
+    font-size: 0.8rem;
+    color: var(--muted);
+    margin-bottom: 1.75rem;
+  }
+
+  .chart-body {
+    display: grid;
+    grid-template-columns: 4.5rem 1fr;
+    column-gap: 0.5rem;
+    row-gap: 0.4rem;
+  }
+
+  .chart-yaxis {
+    height: 180px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: flex-end;
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    color: var(--muted);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .chart-yaxis span {
+    line-height: 0;
+  }
+
+  .chart-plot {
+    position: relative;
+    height: 180px;
+  }
+
+  .chart-grid {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    pointer-events: none;
+  }
+
+  .chart-grid span {
+    height: 1px;
+    background: var(--border);
+  }
+
+  .chart-columns,
+  .chart-xaxis,
+  .chart-drops {
+    display: grid;
+    grid-template-columns: repeat(var(--steps), 1fr);
+    gap: 2px;
+  }
+
+  .chart-columns {
+    position: absolute;
+    inset: 0;
+  }
+
+  .chart-col {
+    position: relative;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    height: 100%;
+    padding: 0;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    border-radius: 4px;
+  }
+
+  .chart-col:hover,
+  .chart-col:focus-visible {
+    background: var(--accent-light);
+    outline: none;
+  }
+
+  .chart-col:focus-visible {
+    box-shadow: 0 0 0 2px var(--accent);
+  }
+
+  .chart-bar {
+    display: block;
+    width: 100%;
+    max-width: 24px;
+    min-height: 2px;
+    background: var(--module-color, var(--accent));
+    border-radius: 4px 4px 0 0;
+    transition: filter 0.15s;
+  }
+
+  .chart-col:hover .chart-bar,
+  .chart-col:focus-visible .chart-bar {
+    filter: brightness(1.12);
+  }
+
+  /*
+    Antwoorden op "Wat neem je mee?".
+  */
+  .takeaways {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+  }
+
+  .takeaways .section-intro {
+    margin-bottom: 0;
+  }
+
+  .takeaways code {
+    font-family: var(--mono);
+    font-size: 0.8rem;
+  }
+
+  .takeaway-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .takeaway {
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid var(--border);
+    box-shadow: inset 3px 0 0 var(--module-color, var(--accent));
+  }
+
+  .takeaway:last-child {
+    border-bottom: none;
+  }
+
+  .takeaway-date {
+    display: block;
+    margin-top: 0.35rem;
+    font-size: 0.72rem;
+  }
+
+  .takeaway-text {
+    font-size: 0.9rem;
+    line-height: 1.55;
+    white-space: pre-line;
+    max-width: 75ch;
+  }
+
+  .takeaway-empty {
+    padding: 1rem 1.5rem;
+    font-size: 0.875rem;
+    color: var(--muted);
+  }
+
+  .module-dot,
+  .funnel .cat-dot {
+    background: var(--module-color, var(--accent));
+  }
+
+  .chart-col.is-worst .chart-bar {
+    background: var(--chart-bar-worst);
+  }
+
+  .chart-flag {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    white-space: nowrap;
+    font-size: 0.68rem;
+    font-weight: 600;
+    color: var(--text);
+    background: var(--danger-light);
+    border: 1px solid var(--danger-mid);
+    padding: 0.05rem 0.45rem;
+    border-radius: 99px;
+  }
+
+  .chart-row-label {
+    font-size: 0.68rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--muted);
+    text-align: right;
+    align-self: center;
+  }
+
+  .chart-xaxis span,
+  .chart-drops span {
+    text-align: center;
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .chart-xaxis span {
+    color: var(--muted);
+  }
+
+  .chart-drops span.has-drops {
+    color: var(--text);
+    font-weight: 500;
+  }
+
+  .chart-drops span.has-drops::before {
+    content: "";
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    margin-right: 0.25rem;
+    border-radius: 50%;
+    background: var(--chart-bar-worst);
+    vertical-align: middle;
+  }
+
+  .chart-tooltip {
+    position: absolute;
+    top: 0.5rem;
+    transform: translateX(-50%);
+    min-width: 200px;
+    max-width: 280px;
+    padding: 0.6rem 0.75rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    box-shadow: 0 6px 20px color-mix(in srgb, var(--text) 12%, transparent);
+    font-size: 0.8rem;
+    pointer-events: none;
+    z-index: 2;
+  }
+
+  .chart-tooltip[hidden] {
+    display: none;
+  }
+
+  :global(.chart-tooltip-title) {
+    font-size: 0.75rem;
+    color: var(--muted);
+    margin-bottom: 0.35rem;
+  }
+
+  :global(.chart-tooltip-row) {
+    display: flex;
+    gap: 0.4rem;
+    align-items: baseline;
+  }
+
+  :global(.chart-tooltip-row strong) {
+    font-family: var(--mono);
+    font-weight: 500;
+  }
+
+  :global(.chart-tooltip-row span) {
+    color: var(--muted);
+  }
+
+  @media (max-width: 600px) {
+    .chart {
+      padding: 1rem;
+    }
+
+    .chart-body {
+      grid-template-columns: 3.5rem 1fr;
+    }
+  }
+
+  .type-tag {
+    display: inline-block;
+    min-width: 3.4rem;
+    margin-right: 0.6rem;
+    font-family: var(--mono);
+    font-size: 0.68rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .reached-cell {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    white-space: nowrap;
+  }
+
+  .bar {
+    width: 120px;
+    height: 8px;
+    border-radius: 99px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+
+  .bar-fill {
+    display: block;
+    height: 100%;
+    background: var(--module-color, var(--accent));
+    border-radius: 99px;
+  }
+
+  .drop-count {
+    font-family: var(--mono);
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: var(--danger);
+    background: var(--danger-light);
+    border: 1px solid var(--danger-mid);
+    padding: 0.1rem 0.5rem;
+    border-radius: 6px;
+  }
+
+  .funnel-table tr.is-worst td {
+    background: var(--danger-light);
+  }
+
+  .funnel-table tr.is-worst td:first-child {
+    box-shadow: inset 3px 0 0 var(--danger);
   }
 
   /*
