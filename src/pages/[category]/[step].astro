@@ -1245,6 +1245,17 @@ const accentColor = categoryColorMap[categorySlug] ?? "#B1F2D9";
     transform: scale(0.97);
   }
 
+  /* Dark mode: de donkere modulekleur is op 35% bijna onzichtbaar, dus voller vlak en een lichte rand. */
+  :global(html.dark-mode) .header-btn {
+    background: color-mix(in srgb, var(--color-accent) 80%, var(--color-surface));
+    border-color: color-mix(in srgb, var(--color-accent) 40%, #ffffff);
+  }
+
+  :global(html.dark-mode) .header-btn:hover {
+    background: color-mix(in srgb, var(--color-accent) 85%, #ffffff);
+    border-color: color-mix(in srgb, var(--color-accent) 25%, #ffffff);
+  }
+
   /* Pijltje alleen op back-button */
   .back-button::before {
     content: "←";
@@ -1976,9 +1987,9 @@ const accentColor = categoryColorMap[categorySlug] ?? "#B1F2D9";
   }
 
   .answer-feedback--incorrect {
-    background: #e7edf2;
-    border-color: #8092a4;
-    color: #2f4051;
+    background: var(--color-neutral-bg);
+    border-color: var(--color-neutral-border);
+    color: var(--color-neutral-text);
     padding-left: 2vw;
   }
 
@@ -2013,18 +2024,20 @@ const accentColor = categoryColorMap[categorySlug] ?? "#B1F2D9";
     border: 1.5px solid currentColor;
     border-radius: 10px;
     padding: 0.55rem 0.75rem;
-    background: color-mix(in srgb, var(--color-surface) 55%, transparent);
+    background: color-mix(in srgb, currentColor 8%, transparent);
   }
 
   .option-label.option-label--correct {
     border-color: #2fbf7f !important;
     background: var(--module-right-correct) !important;
+    color: var(--color-text);
     box-shadow: 0 0 0 2px rgba(47, 191, 127, 0.25) !important;
   }
 
   .option-label.option-label--incorrect {
-    border-color: #8092a4 !important;
-    background: #e7edf2 !important;
+    border-color: var(--color-neutral-border) !important;
+    background: var(--color-neutral-bg) !important;
+    color: var(--color-neutral-text);
     box-shadow: 0 0 0 2px rgba(128, 146, 164, 0.25) !important;
   }
 
@@ -2035,27 +2048,35 @@ const accentColor = categoryColorMap[categorySlug] ?? "#B1F2D9";
   }
 
   .option-label.option-label--incorrect .option-key {
-    background: #687d91 !important;
+    background: var(--color-neutral-key) !important;
     color: white !important;
-    border-color: #687d91 !important;
+    border-color: var(--color-neutral-key) !important;
   }
 
   .matching-prompt.matching-prompt--correct,
   .matching-select.matching-select--correct {
     border-color: #2fbf7f !important;
     background: var(--module-right-correct) !important;
+    color: var(--color-text);
     box-shadow: 0 0 0 2px rgba(47, 191, 127, 0.25) !important;
   }
 
   .matching-prompt.matching-prompt--incorrect,
   .matching-select.matching-select--incorrect {
-    border-color: #8092a4 !important;
-    background: #e7edf2 !important;
+    border-color: var(--color-neutral-border) !important;
+    background: var(--color-neutral-bg) !important;
+    color: var(--color-neutral-text);
     box-shadow: 0 0 0 2px rgba(128, 146, 164, 0.25) !important;
   }
 
+  /* Uitklaplijst: vaste achtergrond, anders tekent de browser witte tekst op een witte lijst. */
   .matching-select option {
     background-color: var(--select-dropdown);
+    color: var(--color-text);
+  }
+
+  :global(html.dark-mode) .matching-select {
+    color-scheme: dark;
   }
 
   .matching-prompt.matching-prompt--correct .option-key {
@@ -2065,9 +2086,9 @@ const accentColor = categoryColorMap[categorySlug] ?? "#B1F2D9";
   }
 
   .matching-prompt.matching-prompt--incorrect .option-key {
-    background: #687d91 !important;
+    background: var(--color-neutral-key) !important;
     color: white !important;
-    border-color: #687d91 !important;
+    border-color: var(--color-neutral-key) !important;
   }
 
   .action-row {

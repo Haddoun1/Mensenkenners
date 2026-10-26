@@ -116,6 +116,22 @@ const { category, categorySlug, categoryItems, currentStep, totalSteps, accentCo
     box-shadow: 0 4px 14px color-mix(in srgb, var(--color-accent) 50%, transparent);
   }
 
+  /* Dark mode: zelfde vollere knop als de andere headerknoppen in [step].astro. */
+  :global(html.dark-mode) .hamburger-btn {
+    background: color-mix(in srgb, var(--color-accent) 80%, var(--color-surface));
+    border-color: color-mix(in srgb, var(--color-accent) 40%, #ffffff);
+  }
+
+  :global(html.dark-mode) .hamburger-btn:hover {
+    background: color-mix(in srgb, var(--color-accent) 85%, #ffffff);
+    border-color: color-mix(in srgb, var(--color-accent) 25%, #ffffff);
+  }
+
+  :global(html.dark-mode) .step-total {
+    color: #ffffff;
+    opacity: 0.8;
+  }
+
   .table-of-contents-icon {
     width: 22px;
     height: 22px;
