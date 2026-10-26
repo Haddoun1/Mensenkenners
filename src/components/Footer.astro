@@ -159,6 +159,12 @@ const currentYear = new Date().getFullYear();
     color: var(--color-green);
   }
 
+  /* Dark mode: --color-green is dan bijna zwart, dus lichtgroen voor de hover. */
+  :global(html.dark-mode) a:hover,
+  :global(html.dark-mode) .footer-bottom a:hover {
+    color: var(--color-success-text);
+  }
+
   .divider {
     color: var(--color-cyan-dark);
   }

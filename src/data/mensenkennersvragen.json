@@ -312,7 +312,7 @@
       "required": true,
       "scale": {
         "min": 1,
-        "max": 10,
+        "max": 5,
         "min_label": "Niet toegankelijk",
         "max_label": "Zeer toegankelijk"
       },
