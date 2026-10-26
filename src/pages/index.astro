@@ -508,6 +508,12 @@ import { courses } from "../data/courses.js";
     }
   }
 
+  /* Dark mode: niet-actieve filterknoppen wit, zodat ze leesbaar zijn op de donkere achtergrond. */
+  :global(html.dark-mode) .dashboard-cursus .dashboard-buttons .filter-button:not(.active) {
+    color: #ffffff;
+    border-color: #ffffff;
+  }
+
   .dashboard-cursus hr {
     border: 1.6px solid var(--color-green);
   }

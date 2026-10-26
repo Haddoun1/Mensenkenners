@@ -124,7 +124,12 @@ html {
   --simulator-background-panel: #ffffff;
   --simulator-num: #00000014;
 
-  --select-dropdown: #ffffff00;
+  --select-dropdown: #ffffff;
+
+  --color-neutral-bg: #e7edf2;
+  --color-neutral-border: #8092a4;
+  --color-neutral-text: #2f4051;
+  --color-neutral-key: #687d91;
 
   --accent-intro: #B1F2D9;
   --accent-module-1: #FF94E1;
@@ -196,7 +201,7 @@ html.dark-mode {
 
   --module-card-background: #9ebfaf47;
   --module-wrong-error: #ffffff00;
-  --module-right-correct: #ffffff00;
+  --module-right-correct: #12301f;
   --module-option-label-hover: #e2e2e290;
   --module-option-checked-letter: #ffffff00;
   --module-text-input: #a0b4acab;
@@ -224,7 +229,12 @@ html.dark-mode {
   --simulator-background-panel: #1b1f1d;
   --simulator-num: #ffffff26;
 
-  --select-dropdown: #00000047;
+  --select-dropdown: #1b1f1d;
+
+  --color-neutral-bg: #232b33;
+  --color-neutral-border: #8092a4;
+  --color-neutral-text: #dbe3ea;
+  --color-neutral-key: #687d91;
 
   --accent-intro: var(--accent-intro-dark);
   --accent-module-1: var(--accent-module-1-dark);
