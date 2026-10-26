@@ -158,9 +158,8 @@
       "section": "module_2_perspectief_inlevingsvermogen",
       "title": "Wanneer iets vanzelfsprekend lijkt",
       "text": "Sommige dingen doe je zonder na te denken. Voor een ander kan precies dat een drempel zijn.",
-      "question": "Wat is iets dat jij vanzelfsprekend vindt in contact met mensen, maar niet voor iedereen vanzelfsprekend is?",
+      "question": "Wat doe jij vanzelfsprekend in contact met anderen, waar anderen misschien niet bij stilstaan?",
       "input_type": "long_text",
-      "placeholder": "Bijvoorbeeld: iemand die slechtziend is helpen met oversteken, zonder dat diegene erom vraagt.",
       "required": true,
       "Category": "Module 2"
     },
@@ -312,7 +311,7 @@
       "required": true,
       "scale": {
         "min": 1,
-        "max": 10,
+        "max": 5,
         "min_label": "Niet toegankelijk",
         "max_label": "Zeer toegankelijk"
       },
