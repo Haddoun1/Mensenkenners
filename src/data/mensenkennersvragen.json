@@ -160,7 +160,6 @@
       "text": "Sommige dingen doe je zonder na te denken. Voor een ander kan precies dat een drempel zijn.",
       "question": "Wat is iets dat jij vanzelfsprekend vindt in contact met mensen, maar niet voor iedereen vanzelfsprekend is?",
       "input_type": "long_text",
-      "placeholder": "Bijvoorbeeld: iemand die slechtziend is helpen met oversteken, zonder dat diegene erom vraagt.",
       "required": true,
       "Category": "Module 2"
     },
