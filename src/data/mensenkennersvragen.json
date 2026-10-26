@@ -67,7 +67,7 @@
       "section": "module_1_inclusief_contact",
       "title": "Video inclusief contact",
       "subtitle": "Bekijk het fragment. Let op wat er in het contact gebeurt.",
-      "url": "https://assets.frame.io/encode/66ce40b5-b390-4f3c-b408-dd25b797371a/h264_1080_best.mp4?x-amz-meta-resource_type=asset&x-amz-meta-resource_id=66ce40b5-b390-4f3c-b408-dd25b797371a&x-amz-meta-project_id=37a5d23b-b9d5-4edf-9e7f-9551df75376a&Expires=1790424000&Signature=bfosY1RvPgx-gNd4Uba5jfgJGeewPVxnfDLRHZVlF-fW~M8erdG3s6nsTtbxLCOloDuNTanBw0mJHAY2DI1lZhcMCtaTK90F1WMAGtbbSaesnqIy8Q~iL-h7NSe8DIe01tnFfpNbk3JzmgljgreAqVNSMDJKb1U63fKySfMAQEMZ2URae4vCbkLStQXB0y7ym53eAl6~gkZ9Y4fnvXwTuU-KYgQKXuK0hp8ca~2f79fRbN4bl-sz3dL0hI2CT8RRxTsM7Ddr89qknL6wL06Sv8dEg7uKLJSCJo3kZh-GYH89JBI4168etnAucos8gjVn81YdWsB2rnyCT1UO6NpSBw__&Key-Pair-Id=K1XW5DOJMY1ET9",
+      "url": "https://vimeo.com/reviews/cc07abb6-20d0-4d53-9768-7278306dcb9a/videos/1238261246",
       "optional": true,
       "Category": "Module 1"
     },
@@ -170,7 +170,7 @@
       "section": "module_2_perspectief_inlevingsvermogen",
       "title": "Video over een hand geven",
       "text": "Een hand geven voelt voor veel mensen vanzelfsprekend. Maar niet iedereen kan of wil op dezelfde manier begroeten. Let op wat iemand zelf aangeeft en stem je begroeting daarop af.",
-      "url": "https://assets.frame.io/encode/66ce40b5-b390-4f3c-b408-dd25b797371a/h264_1080_best.mp4?x-amz-meta-resource_type=asset&x-amz-meta-resource_id=66ce40b5-b390-4f3c-b408-dd25b797371a&x-amz-meta-project_id=37a5d23b-b9d5-4edf-9e7f-9551df75376a&Expires=1790424000&Signature=bfosY1RvPgx-gNd4Uba5jfgJGeewPVxnfDLRHZVlF-fW~M8erdG3s6nsTtbxLCOloDuNTanBw0mJHAY2DI1lZhcMCtaTK90F1WMAGtbbSaesnqIy8Q~iL-h7NSe8DIe01tnFfpNbk3JzmgljgreAqVNSMDJKb1U63fKySfMAQEMZ2URae4vCbkLStQXB0y7ym53eAl6~gkZ9Y4fnvXwTuU-KYgQKXuK0hp8ca~2f79fRbN4bl-sz3dL0hI2CT8RRxTsM7Ddr89qknL6wL06Sv8dEg7uKLJSCJo3kZh-GYH89JBI4168etnAucos8gjVn81YdWsB2rnyCT1UO6NpSBw__&Key-Pair-Id=K1XW5DOJMY1ET9",
+      "url": "https://vimeo.com/reviews/cc07abb6-20d0-4d53-9768-7278306dcb9a/videos/1238261148",
       "Category": "Module 2"
     },
     {
@@ -179,7 +179,7 @@
       "section": "module_2_perspectief_inlevingsvermogen",
       "title": "Video over onzekerheid bij het vragen om hulp",
       "text": "Niet iedereen vraagt gemakkelijk om hulp. Daarom is het belangrijk om ondersteuning aan te bieden zonder deze op te dringen.",
-      "url": "https://assets.frame.io/encode/66ce40b5-b390-4f3c-b408-dd25b797371a/h264_1080_best.mp4?x-amz-meta-resource_type=asset&x-amz-meta-resource_id=66ce40b5-b390-4f3c-b408-dd25b797371a&x-amz-meta-project_id=37a5d23b-b9d5-4edf-9e7f-9551df75376a&Expires=1790424000&Signature=bfosY1RvPgx-gNd4Uba5jfgJGeewPVxnfDLRHZVlF-fW~M8erdG3s6nsTtbxLCOloDuNTanBw0mJHAY2DI1lZhcMCtaTK90F1WMAGtbbSaesnqIy8Q~iL-h7NSe8DIe01tnFfpNbk3JzmgljgreAqVNSMDJKb1U63fKySfMAQEMZ2URae4vCbkLStQXB0y7ym53eAl6~gkZ9Y4fnvXwTuU-KYgQKXuK0hp8ca~2f79fRbN4bl-sz3dL0hI2CT8RRxTsM7Ddr89qknL6wL06Sv8dEg7uKLJSCJo3kZh-GYH89JBI4168etnAucos8gjVn81YdWsB2rnyCT1UO6NpSBw__&Key-Pair-Id=K1XW5DOJMY1ET9",
+      "url": "https://vimeo.com/reviews/cc07abb6-20d0-4d53-9768-7278306dcb9a/videos/1238260903",
       "Category": "Module 2"
     },
     {
@@ -286,7 +286,7 @@
       "id": "m3_video_toegankelijk_toilet_bakfiets",
       "type": "video",
       "section": "module_3_toegankelijkheid_werkplek",
-      "title": "Video toegankelijk toilet/bakfiets",
+      "title": "Video toegankelijke werkplek",
       "url": "https://www.youtube.com/watch?v=pLw4ZjlX5xM&t=13s",
       "optional": true,
       "Category": "Module 3"
@@ -374,7 +374,7 @@
       "type": "video",
       "section": "module_3_toegankelijkheid_werkplek",
       "title": "Je hoeft niet iedereen te wijzen op toegankelijkheid",
-      "url": "https://assets.frame.io/encode/66ce40b5-b390-4f3c-b408-dd25b797371a/h264_1080_best.mp4?x-amz-meta-resource_type=asset&x-amz-meta-resource_id=66ce40b5-b390-4f3c-b408-dd25b797371a&x-amz-meta-project_id=37a5d23b-b9d5-4edf-9e7f-9551df75376a&Expires=1790424000&Signature=bfosY1RvPgx-gNd4Uba5jfgJGeewPVxnfDLRHZVlF-fW~M8erdG3s6nsTtbxLCOloDuNTanBw0mJHAY2DI1lZhcMCtaTK90F1WMAGtbbSaesnqIy8Q~iL-h7NSe8DIe01tnFfpNbk3JzmgljgreAqVNSMDJKb1U63fKySfMAQEMZ2URae4vCbkLStQXB0y7ym53eAl6~gkZ9Y4fnvXwTuU-KYgQKXuK0hp8ca~2f79fRbN4bl-sz3dL0hI2CT8RRxTsM7Ddr89qknL6wL06Sv8dEg7uKLJSCJo3kZh-GYH89JBI4168etnAucos8gjVn81YdWsB2rnyCT1UO6NpSBw__&Key-Pair-Id=K1XW5DOJMY1ET9",
+      "url": "https://vimeo.com/reviews/cc07abb6-20d0-4d53-9768-7278306dcb9a/videos/1238260904",
       "optional": true,
       "Category": "Module 3"
     },

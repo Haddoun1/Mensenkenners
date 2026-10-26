@@ -35,7 +35,7 @@ const { data: profile, error: profileError } = await supabase
 // Als er een fout is of de gebruiker is geen admin,
 // stuur diegene terug naar het normale dashboard.
 if (profileError || profile?.role !== "admin") {
-  return Astro.redirect("/");
+  return Astro.redirect("/admin/login?geen-toegang");
 }
 
 // Haalt alle opgeslagen cursusvoortgang op uit Supabase.
@@ -908,14 +908,6 @@ const totalTakeaways = takeaways.reduce((sum, mod) => sum + mod.answers.length, 
     border: 1px solid var(--border);
     border-radius: 12px;
     padding: 1.25rem 1.5rem;
-    transition: box-shadow 0.2s;
-  }
-
-  /*
-    Subtiele hover op statistiekkaart.
-  */
-  .stat-card:hover {
-    box-shadow: 0 4px 16px color-mix(in srgb, var(--text) 6%, transparent);
   }
 
   /*
