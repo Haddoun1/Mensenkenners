@@ -1,0 +1,36 @@
+---
+// Logo dat meewisselt met het thema: zwart in light mode, wit in dark mode.
+// Gebruik: <ThemeLogo class="logo-image" />. De class bepaalt de grootte (die verschilt per plek).
+// Beide logo's staan in de HTML en CSS toont het juiste. Omdat ze lazy zijn, wordt het verborgen
+// logo niet gedownload.
+const { class: className, loading = "lazy", ...rest } = Astro.props;
+---
+
+<img
+  class:list={["theme-logo theme-logo--light", className]}
+  src="/images/logo-footer.webp"
+  alt="Stichting Mensenkenners logo"
+  width="500"
+  height="81"
+  loading={loading}
+  decoding="async"
+  {...rest}
+/>
+<img
+  class:list={["theme-logo theme-logo--dark", className]}
+  src="/images/logo-footer-wit.webp"
+  alt="Stichting Mensenkenners logo"
+  width="500"
+  height="81"
+  loading={loading}
+  decoding="async"
+  {...rest}
+/>
+
+<style>
+  /* !important: de grootte-class van de pagina mag het verbergen nooit overschrijven. */
+  :global(html:not(.dark-mode)) .theme-logo--dark,
+  :global(html.dark-mode) .theme-logo--light {
+    display: none !important;
+  }
+</style>

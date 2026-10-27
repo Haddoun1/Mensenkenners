@@ -8,8 +8,9 @@
 <!-- Setting overlay (backdrop) -->
 <div class="setting-overlay" id="settingOverlay"></div>
 
-<!-- Slide-in setting panel (from right) -->
-<nav class="setting-panel" id="settingPanel" aria-label="Instellingen">
+<!-- Slide-in setting panel (from right). inert zolang het dicht is: dan kun je er niet in tabben
+     en leest een schermlezer het niet voor. [step].astro zet inert uit bij openen. -->
+<nav class="setting-panel" id="settingPanel" aria-label="Instellingen" inert>
   <div class="setting-panel-header">
     <span class="setting-panel-title">Beperking Simulator</span>
     <button class="setting-close-btn" id="settingCloseBtn" aria-label="Sluit instellingen"

@@ -4,6 +4,7 @@ import { ClientRouter } from "astro:transitions";
 import BaseHead from '../components/BaseHead.astro';
 import FixedThemeToggle from '../components/FixedThemeToggle.astro';
 import OnboardingImage from '../components/OnboardingImage.astro';
+import ThemeLogo from '../components/ThemeLogo.astro';
 
 
 const bounceTransition = {
@@ -65,16 +66,10 @@ const {
 
 <html lang="nl">
   <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>{title}</title>
-    <link rel="stylesheet" href="/styles/global.css" />
+    <!-- BaseHead zet charset, viewport, title, global.css, favicon en het dark-mode script. -->
+    <BaseHead title={title} />
     <link rel="stylesheet" href="/styles/onboarding.css" />
-    <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png?v=2" />
-      <BaseHead title={title} />
-  <link rel="stylesheet" href="/styles/onboarding.css" />
-  <ClientRouter />
-  
+    <ClientRouter />
   </head>
 
   <body>
@@ -95,27 +90,9 @@ const {
           )
         }
       </div>
-      <!-- Lazy: het logo van het andere thema is verborgen en wordt dan niet gedownload. Zelfde bestanden als header en footer. -->
       <div class="logo-mobile">
         <div>
-          <img
-            class="logo-image logo-image--light"
-            src="/images/logo-footer.webp"
-            alt="Stichting Mensenkenners logo"
-            width="500"
-            height="81"
-            loading="lazy"
-            decoding="async"
-          />
-          <img
-            class="logo-image logo-image--dark"
-            src="/images/logo-footer-wit.webp"
-            alt="Stichting Mensenkenners logo"
-            width="500"
-            height="81"
-            loading="lazy"
-            decoding="async"
-          />
+          <ThemeLogo class="logo-image" />
         </div>
       </div>
 
@@ -134,24 +111,7 @@ const {
           {mockupSrc && <OnboardingImage class="mockup" src={mockupSrc} alt="mockup" transition:name="mockup" />}
           <div class="logo-desktop">
                 <div>
-          <img
-            class="logo-image logo-image--light"
-            src="/images/logo-footer.webp"
-            alt="Stichting Mensenkenners logo"
-            width="500"
-            height="81"
-            loading="lazy"
-            decoding="async"
-          />
-          <img
-            class="logo-image logo-image--dark"
-            src="/images/logo-footer-wit.webp"
-            alt="Stichting Mensenkenners logo"
-            width="500"
-            height="81"
-            loading="lazy"
-            decoding="async"
-          />
+          <ThemeLogo class="logo-image" />
         </div>
           </div>
 
@@ -220,20 +180,8 @@ const {
     object-position: left;
   }
 
-  .logo-image--dark {
-    display: none;
-  }
-
   .logo-mobile .logo-image{
     transform: scale(1.8);
-  }
-
-  :global(html.dark-mode) .logo-image--light {
-    display: none;
-  }
-
-  :global(html.dark-mode) .logo-image--dark {
-    display: block;
   }
 </style>
 

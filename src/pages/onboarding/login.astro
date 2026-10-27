@@ -1,5 +1,6 @@
 ---
 import MainLayout from "../../layouts/Layout-onboarding.astro";
+import ThemeLogo from "../../components/ThemeLogo.astro";
 
 export const prerender = false;
 ---
@@ -21,25 +22,7 @@ export const prerender = false;
 >
   
   <div class="logo-container-theme">
-    <!-- Lazy: het logo van het andere thema is verborgen en wordt dan niet gedownload. -->
-    <img
-      class="logo-image logo-image--light"
-      src="/images/logo-footer.webp"
-      alt="Stichting Mensenkenners logo"
-      width="500"
-      height="81"
-      loading="lazy"
-      decoding="async"
-    />
-    <img
-      class="logo-image logo-image--dark"
-      src="/images/logo-footer-wit.webp"
-      alt="Stichting Mensenkenners logo"
-      width="500"
-      height="81"
-      loading="lazy"
-      decoding="async"
-    />
+    <ThemeLogo class="logo-image" />
 
   </div>
   <form class="login-form" method="post">
@@ -90,18 +73,6 @@ export const prerender = false;
     width: 160px;
     object-fit: contain;
     object-position: left;
-  }
-
-  .logo-image--dark {
-    display: none;
-  }
-
-  :global(html.dark-mode) .logo-image--light {
-    display: none;
-  }
-
-  :global(html.dark-mode) .logo-image--dark {
-    display: block;
   }
 </style>
 
