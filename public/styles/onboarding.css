@@ -198,11 +198,25 @@ html {
     padding: var(--size-base) 0;
   }
 
+  /* Knoplabel in de onboarding-links. Was een <button> in een <a> (ongeldige HTML); nu een span
+     met dezelfde standaardwaarden als een browserknop, zodat het er hetzelfde uitziet. */
+  .onboarding-btn {
+    display: inline-block;
+    box-sizing: border-box;
+    text-align: center;
+    /* Losse eigenschappen, geen font-shorthand: die zou de line-height uit global.css (*) overschrijven. */
+    font-family: Arial;
+    font-size: 13.3333px;
+    font-weight: 400;
+  }
+
   .button-next,
   .button-back {
     width: 100%;
+    /* Een <button> hield de onderstreping van de link tegen, een span niet. */
+    text-decoration: none;
 
-    & button {
+    & .onboarding-btn {
       width: 100%;
       padding: var(--size-xs) var(--size-2xl);
       border-radius: 25px;
@@ -212,7 +226,7 @@ html {
     }
   }
 
-  .button-next button {
+  .button-next .onboarding-btn {
     background-color: var(--color-cyan-dark);
     color: var(--color-background);
     transition:
@@ -230,7 +244,7 @@ html {
     }
   }
 
-  .button-back button {
+  .button-back .onboarding-btn {
     /* background-color: var(--color-background);
   color: var(--color-green);
   border: 2px solid var(--color-green); */
@@ -613,7 +627,7 @@ html {
       width: 100%;
       order: 2;
 
-      button {
+      .onboarding-btn {
         width: 100%;
         padding: var(--size-xs) var(--size-2xl);
         border-radius: 25px;
@@ -860,7 +874,7 @@ html {
       font-size: var(--size-lg);
     }
 
-    .buttons-onboarding button {
+    .buttons-onboarding :is(button, .onboarding-btn) {
       font-size: var(--size-base);
     }
 

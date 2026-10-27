@@ -17,6 +17,7 @@ showProgress={false}
 showBack={false}
 showNext={false}
 mockupSrc="/images/Mensenkennerskaderdoof.webp"
+mockupAlt="Vrouw maakt een handgebaar"
 showDashboardButton={false}
 >
 
@@ -82,7 +83,7 @@ showDashboardButton={false}
 
     <div class="buttons-onboarding">
     <a class="button-back" href="/onboarding/login" id="back-btn">
-        <button type="button">Ga terug</button>
+        <span class="onboarding-btn">Ga terug</span>
     </a>
     <button type="submit">Registreer</button>
     </div>
@@ -285,7 +286,7 @@ button[type="submit"] {
 .button-back {
     width: 100%;
 
-    & button {
+    & .onboarding-btn {
     width: 100%;
     padding: var(--size-xs) var(--size-2xl);
     border-radius: 25px;

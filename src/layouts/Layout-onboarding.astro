@@ -54,6 +54,7 @@ const {
   showProgress = true,
   showNext = true,
   mockupSrc = "",
+  mockupAlt = "",
   variant = "",
   showDashboardButton = true,
   hasQuestion = null,
@@ -108,7 +109,7 @@ const {
 
         <!-- Rechts op desktop: logo, tekst, progress, knoppen -->
         <div class="panel-right">
-          {mockupSrc && <OnboardingImage class="mockup" src={mockupSrc} alt="mockup" transition:name="mockup" />}
+          {mockupSrc && <OnboardingImage class="mockup" src={mockupSrc} alt={mockupAlt} transition:name="mockup" />}
           <div class="logo-desktop">
                 <div>
           <ThemeLogo class="logo-image" />
@@ -145,11 +146,13 @@ const {
             </div>
           </div>
 
+          <!-- Links die eruitzien als knop. Geen <button> in de <a>: dat is ongeldige HTML en geeft
+               toetsenbordgebruikers twee tabstops voor één knop. De span krijgt de knopstijl (onboarding.css). -->
           <div class="buttons-onboarding">
             {
               showNext && (
                 <a class="button-next" href={nextHref} data-direction="forward" data-require-login={requireLogin ? "true" : undefined}>
-                  <button>{nextLabel}</button>
+                  <span class="onboarding-btn">{nextLabel}</span>
                 </a>
               )
             }
@@ -161,7 +164,7 @@ const {
                   id="back-btn"
                   data-direction="back"
                 >
-                  <button>Ga terug</button>
+                  <span class="onboarding-btn">Ga terug</span>
                 </a>
               )
             }
@@ -194,8 +197,19 @@ const {
   let goingBack = false;
   let controller = new AbortController();
 
-  document.addEventListener("astro:before-preparation", () => {
+  document.addEventListener("astro:before-preparation", (e) => {
     document.documentElement.classList.toggle("is-going-back", goingBack);
+
+    // Onthoud waar je vandaan kwam: bij view transitions wordt document.referrer niet bijgewerkt.
+    // login.astro gebruikt dit voor de "Ga terug"-knop.
+    try {
+      sessionStorage.setItem(
+        "onboardingPreviousPage",
+        JSON.stringify({ from: e.from.pathname + e.from.search, to: e.to.pathname + e.to.search }),
+      );
+    } catch {
+      // sessionStorage niet beschikbaar: login valt terug op document.referrer.
+    }
   });
 
   async function setupTracking() {
@@ -270,7 +284,7 @@ const {
     // Laatste onboardingstap: wie nog niet is ingelogd, gaat eerst naar de login.
     if (nextBtn && !user && nextBtn.getAttribute("href") === "/") {
       nextBtn.setAttribute("href", "/onboarding/login");
-      const label = nextBtn.querySelector("button");
+      const label = nextBtn.querySelector(".onboarding-btn");
       if (label) label.textContent = "Log in om verder te gaan";
     }
 

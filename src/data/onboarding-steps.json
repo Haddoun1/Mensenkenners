@@ -11,7 +11,7 @@
     "stepId": "onboarding_step-1",
     "category": "onboarding",
     "imageSrc": "/images/Mensenkennerskaderspraak.webp",
-    "imageAlt": "Mensenkenners logo"
+    "imageAlt": "Persoon trekt de kraag van een trui voor de mond"
   },
   {
     "id": 2,
@@ -25,7 +25,7 @@
     "stepId": "onboarding_step-2",
     "category": "onboarding",
     "imageSrc": "/images/Mensenkennerskaderroller.webp",
-    "imageAlt": "Mensenkenners logo"
+    "imageAlt": "Vrouw in een rolstoel kijkt in de camera"
   },
   {
     "id": 3,
@@ -39,7 +39,7 @@
     "stepId": "onboarding_step-3",
     "category": "onboarding",
     "imageSrc": "/images/onboarding-1.png",
-    "imageAlt": "Mensenkenners logo"
+    "imageAlt": "Voorbeeld van een cursuskaart op het dashboard: Module 1, Inclusief contact, 50% voltooid"
   },
   {
     "id": 5,
@@ -53,7 +53,7 @@
     "stepId": "onboarding_step-5",
     "category": "onboarding",
     "imageSrc": "/images/Mensenkennerskadersd.webp",
-    "imageAlt": "Mensenkenners logo"
+    "imageAlt": "Jonge vrouw glimlacht in de camera"
   },
   {
     "id": 6,
@@ -67,7 +67,7 @@
     "stepId": "onboarding_step-6",
     "category": "onboarding",
     "imageSrc": "/images/mockupmensenkenners.webp",
-    "imageAlt": "Mensenkenners logo",
+    "imageAlt": "Hand houdt een telefoon vast met de Mensenkenners-training in beeld",
     "requireLogin": true
   },
   {
@@ -82,7 +82,7 @@
     "stepId": "onboarding_step-7",
     "category": "onboarding",
     "imageSrc": "/images/Mensenkennerskadervisueel.webp",
-    "imageAlt": "Mensenkenners logo",
+    "imageAlt": "Man in een groene jas kijkt omhoog",
     "variant": "steps-quiz",
     "question": {
       "type": "single",
@@ -102,7 +102,7 @@
     "stepId": "onboarding_step-8",
     "category": "onboarding",
     "imageSrc": "/images/Mensenkennerskaderroller.webp",
-    "imageAlt": "Mensenkenners logo",
+    "imageAlt": "Vrouw in een rolstoel kijkt in de camera",
     "variant": "steps-quiz",
     "question": {
       "type": "single",
@@ -122,7 +122,7 @@
     "stepId": "onboarding_step-9",
     "category": "onboarding",
     "imageSrc": "/images/Mensenkennerskaderdoof.webp",
-    "imageAlt": "Mensenkenners logo",
+    "imageAlt": "Vrouw maakt een handgebaar",
     "variant": "steps-quiz",
     "question": {
       "type": "single",
@@ -142,7 +142,7 @@
     "stepId": "onboarding_step-10",
     "category": "onboarding",
     "imageSrc": "/images/Mensenkennerskadersd.webp",
-    "imageAlt": "Mensenkenners logo",
+    "imageAlt": "Jonge vrouw glimlacht in de camera",
     "variant": "steps-quiz",
     "question": {
       "type": "single",
@@ -167,6 +167,6 @@
     "stepId": "onboarding_step-11",
     "category": "onboarding",
     "imageSrc": "/images/mockupmensenkenners.webp",
-    "imageAlt": "Mensenkenners logo"
+    "imageAlt": "Hand houdt een telefoon vast met de Mensenkenners-training in beeld"
   }
 ]
