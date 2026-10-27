@@ -73,6 +73,12 @@
   :global(html.dark-mode) .theme-toggle-icon-light { display: none; }
 
   :global(html.dark-mode) .theme-toggle-icon-dark { display: block; }
+
+  :global(html.theme-switching *),
+  :global(html.theme-switching *::before),
+  :global(html.theme-switching *::after) {
+    transition: none !important;
+  }
 </style>
 
 <script>
@@ -87,13 +93,21 @@
     }
 
     themeToggleCheckbox.addEventListener("change", () => {
+      const html = document.documentElement;
+      // Transities even uit, zodat kleuren niet langzaam overlopen naar het nieuwe thema.
+      html.classList.add("theme-switching");
+
       if (themeToggleCheckbox.checked) {
-        document.documentElement.classList.add("dark-mode");
+        html.classList.add("dark-mode");
         localStorage.setItem("theme", "dark");
       } else {
-        document.documentElement.classList.remove("dark-mode");
+        html.classList.remove("dark-mode");
         localStorage.setItem("theme", "light");
       }
+
+      // Stijlen direct laten toepassen (met transities uit), daarna transities weer aan.
+      void html.offsetHeight;
+      requestAnimationFrame(() => html.classList.remove("theme-switching"));
     });
   }
   setupThemeToggle();
