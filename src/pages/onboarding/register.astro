@@ -1,5 +1,6 @@
 ---
 import MainLayout from "../../layouts/Layout-onboarding.astro";
+import ThemeLogo from "../../components/ThemeLogo.astro";
 
 export const prerender = false;
 ---
@@ -19,15 +20,7 @@ mockupSrc="/images/Mensenkennerskaderdoof.webp"
 showDashboardButton={false}
 >
 
-<img
-    class="logo-desktop-register"
-    src="/images/logo-footer.webp"
-    alt="Mensenkenners logo"
-    width="500"
-    height="81"
-    loading="lazy"
-    decoding="async"
-/>
+<ThemeLogo class="logo-desktop-register" />
 
 <form class="register-form">
     <fieldset>

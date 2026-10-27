@@ -26,6 +26,7 @@ const { category, categorySlug, categoryItems, currentStep, totalSteps, accentCo
   id="qnav-hamburger-btn"
   aria-label="Open vragennavigatie"
   aria-expanded="false"
+  aria-controls="qnav-panel"
   style={`--color-accent: ${accentColor}`}
 >
   <img class="table-of-contents-icon" src="/images/table-of-contents.svg" alt="Inhoudsopgave" aria-hidden="true">
@@ -35,8 +36,8 @@ const { category, categorySlug, categoryItems, currentStep, totalSteps, accentCo
 <!-- Overlay -->
 <div class="qnav-overlay" id="qnav-overlay"></div>
 
-<!-- Slide-in nav panel -->
-<nav class="qnav-panel" id="qnav-panel" aria-label="Vragennavigatie" style={`--color-accent: ${accentColor}`}>
+<!-- Slide-in nav panel. inert zolang het dicht is: dan kun je er niet in tabben en leest een schermlezer het niet voor. -->
+<nav class="qnav-panel" id="qnav-panel" aria-label="Vragennavigatie" style={`--color-accent: ${accentColor}`} inert>
   <div class="qnav-header">
     <span class="qnav-title">{category}</span>
     <button class="qnav-close-btn" id="qnav-close-btn" aria-label="Sluit menu">&#10005;</button>
@@ -68,12 +69,22 @@ const { category, categorySlug, categoryItems, currentStep, totalSteps, accentCo
     panel?.classList.add("open");
     overlay?.classList.add("open");
     hamburgerBtn?.setAttribute("aria-expanded", "true");
+    if (panel) panel.inert = false;
+    // Focus naar de huidige stap (of de eerste link), zodat je met Tab direct door de inhoudsopgave gaat.
+    (
+      panel?.querySelector<HTMLElement>(".qnav-list a.active") ||
+      panel?.querySelector<HTMLElement>(".qnav-list a")
+    )?.focus();
   }
 
   function close() {
+    // Stond de focus in het paneel, zet hem dan terug op de knop; anders raakt hij kwijt als het paneel inert wordt.
+    const hadFocus = panel?.contains(document.activeElement);
     panel?.classList.remove("open");
     overlay?.classList.remove("open");
     hamburgerBtn?.setAttribute("aria-expanded", "false");
+    if (panel) panel.inert = true;
+    if (hadFocus) hamburgerBtn?.focus();
   }
 
   hamburgerBtn?.addEventListener("click", () => {
@@ -82,6 +93,10 @@ const { category, categorySlug, categoryItems, currentStep, totalSteps, accentCo
 
   closeBtn?.addEventListener("click", close);
   overlay?.addEventListener("click", close);
+  // Escape sluit de inhoudsopgave.
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && panel?.classList.contains("open")) close();
+  });
 </script>
 
 <style>
