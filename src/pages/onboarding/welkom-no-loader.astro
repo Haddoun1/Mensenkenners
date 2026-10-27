@@ -17,31 +17,6 @@ import OnboardingImage from "../../components/OnboardingImage.astro";
 
   <OnboardingImage class="mockup"
     src="/images/mockupmensenkenners.webp"
-    alt="Mensenkenners logo"
+    alt="Hand houdt een telefoon vast met de Mensenkenners-training in beeld"
   />
 </MainLayout>
-
-<script>
-  // @ts-nocheck
-  const loader = document.querySelector(".loader");
-
-  if (loader) {
-    const isMobile = window.matchMedia("(max-width: 768px)").matches;
-
-    window.addEventListener("load", () => {
-      if (isMobile) {
-        setTimeout(() => {
-          loader.classList.add("hidden-mobile");
-        }, 750);
-      } else {
-        loader.classList.add("revealed");
-      }
-    });
-
-    loader.addEventListener("transitionend", (e) => {
-      if (e.propertyName === "mask-size") {
-        loader.classList.add("hidden");
-      }
-    });
-  }
-</script>
