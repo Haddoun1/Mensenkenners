@@ -204,7 +204,7 @@ const accentColor = categoryColorMap[categorySlug] ?? "#B1F2D9";
 
     <!-- Hoofdlayout van de cursuspagina. -->
     <div class="page-shell" style={`--color-accent: ${accentColor}`}>
-      <aside class="sidebar-left" aria-label="Navigatiemenu"></aside>
+      <aside class="sidebar-left" aria-hidden="true"></aside>
 
       <main
         class="content-col"
@@ -231,11 +231,10 @@ const accentColor = categoryColorMap[categorySlug] ?? "#B1F2D9";
           <button
             class="setting-btn header-btn"
             id="settingBtn"
-            aria-label="Open instellingen"
             aria-expanded="false"
             aria-controls="settingPanel"
           >
-            <img class="accessibility-icon" src="/images/accessibility.svg" alt="Accessibility" aria-hidden="true">
+            <img class="accessibility-icon" src="/images/accessibility.svg" alt="">
             Simulator
           </button>
         </header>
@@ -606,7 +605,8 @@ const accentColor = categoryColorMap[categorySlug] ?? "#B1F2D9";
       const index = currentIndex();
       slides.forEach((slide, i) => {
         slide.classList.toggle("is-active", i === index);
-        slide.setAttribute("aria-hidden", i === index ? "false" : "true");
+        // inert i.p.v. aria-hidden: dan is de iframe van een verborgen slide ook niet met Tab bereikbaar.
+        slide.inert = i !== index;
       });
       counter.textContent = `${index + 1} / ${slides.length}`;
       prevBtn.disabled = index === 0;

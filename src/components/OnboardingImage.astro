@@ -1,22 +1,40 @@
 ---
 // @ts-nocheck
-import { Image } from "astro:assets";
+import { Image, getImage } from "astro:assets";
 
 // Zoekt een afbeelding uit src/assets/images op bestandsnaam. Zo kunnen pagina's en
 // onboarding-steps.json gewoon een pad als "/images/x.webp" gebruiken, terwijl Astro's
 // <Image /> de afbeelding verkleint en optimaliseert.
 const images = import.meta.glob("../assets/images/*.{webp,png,jpg,jpeg}", { eager: true });
 
-const { src, alt = "", class: className = "mockup", ...rest } = Astro.props;
+// animated: voor een bewegende WebP. Verkleind naar 400px scheelt veel, maar op volle breedte
+// maakt Astro hem groter dan het origineel. Daarom: kleine versie voor smalle schermen, het
+// originele bestand (uit public/) voor brede. <Image /> kan het origineel niet in de srcset zetten, vandaar <img>.
+const { src, alt = "", class: className = "mockup", animated = false, ...rest } = Astro.props;
 
 const fileName = src?.split("/").pop();
 const match = Object.entries(images).find(([path]) => path.endsWith(`/${fileName}`));
+const asset = match?.[1].default;
+const small = animated && asset ? await getImage({ src: asset, width: 400, format: "webp" }) : null;
 ---
 
 {
-  match ? (
+  small ? (
+    <img
+      src={src}
+      srcset={`${small.src} 400w, ${src} ${asset.width}w`}
+      sizes="(min-width: 768px) 400px, 90vw"
+      width={asset.width}
+      height={asset.height}
+      alt={alt}
+      class={className}
+      loading="eager"
+      decoding="async"
+      {...rest}
+    />
+  ) : asset ? (
     <Image
-      src={match[1].default}
+      src={asset}
       alt={alt}
       class={className}
       widths={[400, 800]}
