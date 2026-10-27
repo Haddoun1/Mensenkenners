@@ -7,6 +7,10 @@ const { PUBLIC_SUPABASE_URL } = loadEnv(process.env.NODE_ENV ?? 'production', pr
 
 export default defineConfig({
   output: 'server',
+  // Oude URL van de welkompagina blijft werken (bv. bladwijzers).
+  redirects: {
+    '/onboarding/welkom-no-loader': '/onboarding/welkom',
+  },
   adapter: node({
     mode: 'standalone',
   }),

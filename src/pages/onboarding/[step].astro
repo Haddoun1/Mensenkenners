@@ -11,6 +11,7 @@ type Step = (typeof stepsJson)[number] & {
   showProgress?: boolean;
   requireLogin?: boolean;
   nextLabel?: string;
+  animated?: boolean;
   question?: { confirmation?: string };
 };
 const steps: Step[] = stepsJson;
@@ -45,5 +46,5 @@ if (!data) return Astro.redirect("/onboarding/step-1");
     <QuestionMulti slot="question" name={data.question.name} options={data.question.options} />
   )}
 
-  <OnboardingImage class="mockup" src={data.imageSrc} alt={data.imageAlt} />
+  <OnboardingImage class="mockup" src={data.imageSrc} alt={data.imageAlt} animated={data.animated ?? false} />
 </MainLayout>
