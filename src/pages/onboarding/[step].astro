@@ -9,6 +9,8 @@ import stepsJson from "../../data/onboarding-steps.json";
 // Optionele velden die (nog) niet in de JSON voorkomen
 type Step = (typeof stepsJson)[number] & {
   showProgress?: boolean;
+  requireLogin?: boolean;
+  nextLabel?: string;
   question?: { confirmation?: string };
 };
 const steps: Step[] = stepsJson;
@@ -32,6 +34,8 @@ if (!data) return Astro.redirect("/onboarding/step-1");
   category={data.category}
   variant={data.variant}
   showProgress={data.showProgress ?? true}
+  requireLogin={data.requireLogin ?? false}
+  nextLabel={data.nextLabel}
   hasQuestion={Boolean(data.question)}
 >
   {data.question?.type === "single" && (

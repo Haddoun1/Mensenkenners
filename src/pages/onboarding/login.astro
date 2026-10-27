@@ -1,5 +1,6 @@
 ---
 import MainLayout from "../../layouts/Layout-onboarding.astro";
+import ThemeLogo from "../../components/ThemeLogo.astro";
 
 export const prerender = false;
 ---
@@ -16,30 +17,13 @@ export const prerender = false;
   showBack={false}
   showNext={false}
   mockupSrc="/images/Mensenkennerskaderdoof.webp"
+  mockupAlt="Vrouw maakt een handgebaar"
   showDashboardButton={false}
   variant="login"
 >
   
   <div class="logo-container-theme">
-    <!-- Lazy: het logo van het andere thema is verborgen en wordt dan niet gedownload. -->
-    <img
-      class="logo-image logo-image--light"
-      src="/images/logo-footer.webp"
-      alt="Stichting Mensenkenners logo"
-      width="500"
-      height="81"
-      loading="lazy"
-      decoding="async"
-    />
-    <img
-      class="logo-image logo-image--dark"
-      src="/images/logo-footer-wit.webp"
-      alt="Stichting Mensenkenners logo"
-      width="500"
-      height="81"
-      loading="lazy"
-      decoding="async"
-    />
+    <ThemeLogo class="logo-image" />
 
   </div>
   <form class="login-form" method="post">
@@ -77,7 +61,7 @@ export const prerender = false;
 
     <div class="buttons-onboarding">
       <a class="button-back" href="/onboarding/step-11" id="back-btn">
-        <button type="button">Ga terug</button>
+        <span class="onboarding-btn">Ga terug</span>
       </a>
       <button type="submit">Login</button>
     </div>
@@ -91,18 +75,6 @@ export const prerender = false;
     object-fit: contain;
     object-position: left;
   }
-
-  .logo-image--dark {
-    display: none;
-  }
-
-  :global(html.dark-mode) .logo-image--light {
-    display: none;
-  }
-
-  :global(html.dark-mode) .logo-image--dark {
-    display: block;
-  }
 </style>
 
 <script>
@@ -110,30 +82,46 @@ export const prerender = false;
   import { supabase, authHeaders } from "../../lib/supabase";
 
   // Stuurt de "Ga terug"-knop naar de pagina waar de gebruiker vandaan kwam,
-  // met de welkomstpagina als terugvaloptie.
+  // met de laatste onboardingstap (de standaard-href) als terugvaloptie.
   // Kwam de gebruiker van een pagina die alleen voor ingelogde gebruikers is
   // (een module of het profiel), dan zou teruggaan meteen weer naar de
   // login-pagina sturen. Stuur die gevallen daarom naar het dashboard.
-  const backBtn = document.getElementById("back-btn");
-  if (backBtn && document.referrer) {
+
+  // Vorige pagina: bij een view transition uit sessionStorage (gezet in Layout-onboarding.astro),
+  // alleen als die overgang echt naar deze pagina ging; anders bij een gewone paginalading de referrer.
+  function getPreviousPage() {
+    const here = location.pathname + location.search;
+    try {
+      const nav = JSON.parse(sessionStorage.getItem("onboardingPreviousPage") || "null");
+      if (nav?.to === here) return nav.from;
+    } catch {}
     try {
       const referrerUrl = new URL(document.referrer);
-      const cameFromProtectedPage =
-        /^\/module-\d+\//.test(referrerUrl.pathname) ||
-        referrerUrl.pathname === "/profile";
+      if (referrerUrl.origin === location.origin) return referrerUrl.pathname + referrerUrl.search;
+    } catch {}
+    return null;
+  }
 
-      if (cameFromProtectedPage) {
-        backBtn.setAttribute("href", "/");
-      } else if (
-        referrerUrl.origin === window.location.origin &&
-        referrerUrl.pathname !== window.location.pathname
-      ) {
-        backBtn.setAttribute("href", referrerUrl.pathname + referrerUrl.search);
-      }
-    } catch {
-      // Ongeldige of ontbrekende referrer: val terug op de standaard-href.
+  function setBackHref() {
+    // Het script blijft actief na een view transition; alleen op de loginpagina uitvoeren.
+    if (location.pathname !== "/onboarding/login") return;
+    const backBtn = document.getElementById("back-btn");
+    const previous = getPreviousPage();
+    if (!backBtn || !previous) return;
+
+    const previousPath = previous.split("?")[0];
+    const cameFromProtectedPage = /^\/module-\d+\//.test(previousPath) || previousPath === "/profile";
+
+    if (cameFromProtectedPage) {
+      backBtn.setAttribute("href", "/");
+    } else if (previousPath !== location.pathname && previousPath !== "/onboarding/register") {
+      // Register zelf niet: daar wijst "Ga terug" weer naar login, dan blijf je heen en weer gaan.
+      backBtn.setAttribute("href", previous);
     }
   }
+
+  setBackHref();
+  document.addEventListener("astro:page-load", setBackHref);
 
   // Slaat onboardingstappen op die zijn doorlopen voordat de gebruiker inlogde
   // (zie saveProgress in Layout-onboarding.astro).

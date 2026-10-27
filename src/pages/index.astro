@@ -28,12 +28,21 @@ import { courses } from "../data/courses.js";
           <button class="filter-button" id="completed">Voltooid</button>
         </div>
 
-        <!-- COURSES Cards -->
+        <!-- COURSES Cards. De data-attributen op elke kaart zijn de gegevens voor het detailpaneel
+             en het keuzevenster; het script leest ze daar uit, zodat courses.js de enige bron is. -->
         <div class="carousel-wrapper">
           <ul class="carousel">
             {
               courses.map((course, index) => (
-                <li class="carousel-item" data-course-id={course.id}>
+                <li
+                  class="carousel-item"
+                  data-course-id={course.id}
+                  data-title={course.title}
+                  data-description={course.description}
+                  data-href={course.href}
+                  data-color={course.color}
+                  data-image={course.image.src}
+                >
                   <CourseCard
                     title={course.title}
                     description={course.description}
@@ -230,48 +239,20 @@ import { courses } from "../data/courses.js";
     document.getElementById("welcome").innerText = `${greeting}!`;
   }
 
-  // Course informatie details
-  const courseData = {
-    onboarding: {
-      title: "Onboarding",
-      href: "/onboarding/welkom-no-loader",
-      description:
-        "Welkom bij de onboarding! In deze cursus maken we je wegwijs in het platform en leggen we uit wat je kunt verwachten in de verschillende delen van de cursus.",
-      image: "/images/mockupmensenkenners.webp",
-      color: "var(--color-green)",
-    },
-    module_1: {
-      title: "Module 1: Inclusief Contact",
-      href: "/module-1/1",
-      description:
-        "In deze module oefen je met basisprincipes die in veel situaties toepasbaar zijn.",
-      image: "/images/Mensenkennerskaderdoof.webp",
-      color: "var(--color-pink)",
-    },
-    module_2: {
-      title: "Module 2: Perspectief en inlevingsvermogen",
-      href: "/module-2/1",
-      description:
-        "In deze module sta je stil bij situaties waarin bezoekers de wereld anders ervaren.",
-      image: "/images/Mensenkennerskaderroller.webp",
-      color: "var(--color-yellow)",
-    },
-    module_3: {
-      title: "Toegankelijkheid van jouw werkplek",
-      href: "/module-3/1",
-      description:
-        "In deze module ga je leren hoe je jouw werplek concreet inclusief kunt maken.",
-      image: "/images/Mensenkennerskaderspraak.webp",
-      color: "var(--color-red)",
-    },
-    module_4: {
-      title: "Module 4: Praktijksituaties en toepassing",
-      href: "/module-4/1",
-      description: "In deze module oefen je met herkenbare situaties.",
-      image: "/images/Mensenkennerskaderspraak.webp",
-      color: "var(--color-blue)",
-    },
-  };
+  // Course informatie details: uit de data-attributen op de kaarten (afkomstig uit courses.js),
+  // zodat titels en afbeeldingen altijd gelijk zijn aan wat de kaarten tonen.
+  const courseData = Object.fromEntries(
+    [...document.querySelectorAll(".carousel-item")].map((item) => [
+      item.dataset.courseId,
+      {
+        title: item.dataset.title,
+        href: item.dataset.href,
+        description: item.dataset.description,
+        image: item.dataset.image,
+        color: item.dataset.color,
+      },
+    ]),
+  );
 
   const detail = document.getElementById("course-detail");
 

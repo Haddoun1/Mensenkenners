@@ -4,6 +4,7 @@ import { ClientRouter } from "astro:transitions";
 import BaseHead from '../components/BaseHead.astro';
 import FixedThemeToggle from '../components/FixedThemeToggle.astro';
 import OnboardingImage from '../components/OnboardingImage.astro';
+import ThemeLogo from '../components/ThemeLogo.astro';
 
 
 const bounceTransition = {
@@ -53,6 +54,7 @@ const {
   showProgress = true,
   showNext = true,
   mockupSrc = "",
+  mockupAlt = "",
   variant = "",
   showDashboardButton = true,
   hasQuestion = null,
@@ -65,16 +67,10 @@ const {
 
 <html lang="nl">
   <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>{title}</title>
-    <link rel="stylesheet" href="/styles/global.css" />
+    <!-- BaseHead zet charset, viewport, title, global.css, favicon en het dark-mode script. -->
+    <BaseHead title={title} />
     <link rel="stylesheet" href="/styles/onboarding.css" />
-    <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png?v=2" />
-      <BaseHead title={title} />
-  <link rel="stylesheet" href="/styles/onboarding.css" />
-  <ClientRouter />
-  
+    <ClientRouter />
   </head>
 
   <body>
@@ -95,27 +91,9 @@ const {
           )
         }
       </div>
-      <!-- Lazy: het logo van het andere thema is verborgen en wordt dan niet gedownload. Zelfde bestanden als header en footer. -->
       <div class="logo-mobile">
         <div>
-          <img
-            class="logo-image logo-image--light"
-            src="/images/logo-footer.webp"
-            alt="Stichting Mensenkenners logo"
-            width="500"
-            height="81"
-            loading="lazy"
-            decoding="async"
-          />
-          <img
-            class="logo-image logo-image--dark"
-            src="/images/logo-footer-wit.webp"
-            alt="Stichting Mensenkenners logo"
-            width="500"
-            height="81"
-            loading="lazy"
-            decoding="async"
-          />
+          <ThemeLogo class="logo-image" />
         </div>
       </div>
 
@@ -131,27 +109,10 @@ const {
 
         <!-- Rechts op desktop: logo, tekst, progress, knoppen -->
         <div class="panel-right">
-          {mockupSrc && <OnboardingImage class="mockup" src={mockupSrc} alt="mockup" transition:name="mockup" />}
+          {mockupSrc && <OnboardingImage class="mockup" src={mockupSrc} alt={mockupAlt} transition:name="mockup" />}
           <div class="logo-desktop">
                 <div>
-          <img
-            class="logo-image logo-image--light"
-            src="/images/logo-footer.webp"
-            alt="Stichting Mensenkenners logo"
-            width="500"
-            height="81"
-            loading="lazy"
-            decoding="async"
-          />
-          <img
-            class="logo-image logo-image--dark"
-            src="/images/logo-footer-wit.webp"
-            alt="Stichting Mensenkenners logo"
-            width="500"
-            height="81"
-            loading="lazy"
-            decoding="async"
-          />
+          <ThemeLogo class="logo-image" />
         </div>
           </div>
 
@@ -185,11 +146,13 @@ const {
             </div>
           </div>
 
+          <!-- Links die eruitzien als knop. Geen <button> in de <a>: dat is ongeldige HTML en geeft
+               toetsenbordgebruikers twee tabstops voor één knop. De span krijgt de knopstijl (onboarding.css). -->
           <div class="buttons-onboarding">
             {
               showNext && (
                 <a class="button-next" href={nextHref} data-direction="forward" data-require-login={requireLogin ? "true" : undefined}>
-                  <button>{nextLabel}</button>
+                  <span class="onboarding-btn">{nextLabel}</span>
                 </a>
               )
             }
@@ -201,7 +164,7 @@ const {
                   id="back-btn"
                   data-direction="back"
                 >
-                  <button>Ga terug</button>
+                  <span class="onboarding-btn">Ga terug</span>
                 </a>
               )
             }
@@ -220,20 +183,8 @@ const {
     object-position: left;
   }
 
-  .logo-image--dark {
-    display: none;
-  }
-
   .logo-mobile .logo-image{
     transform: scale(1.8);
-  }
-
-  :global(html.dark-mode) .logo-image--light {
-    display: none;
-  }
-
-  :global(html.dark-mode) .logo-image--dark {
-    display: block;
   }
 </style>
 
@@ -246,8 +197,19 @@ const {
   let goingBack = false;
   let controller = new AbortController();
 
-  document.addEventListener("astro:before-preparation", () => {
+  document.addEventListener("astro:before-preparation", (e) => {
     document.documentElement.classList.toggle("is-going-back", goingBack);
+
+    // Onthoud waar je vandaan kwam: bij view transitions wordt document.referrer niet bijgewerkt.
+    // login.astro gebruikt dit voor de "Ga terug"-knop.
+    try {
+      sessionStorage.setItem(
+        "onboardingPreviousPage",
+        JSON.stringify({ from: e.from.pathname + e.from.search, to: e.to.pathname + e.to.search }),
+      );
+    } catch {
+      // sessionStorage niet beschikbaar: login valt terug op document.referrer.
+    }
   });
 
   async function setupTracking() {
@@ -322,7 +284,7 @@ const {
     // Laatste onboardingstap: wie nog niet is ingelogd, gaat eerst naar de login.
     if (nextBtn && !user && nextBtn.getAttribute("href") === "/") {
       nextBtn.setAttribute("href", "/onboarding/login");
-      const label = nextBtn.querySelector("button");
+      const label = nextBtn.querySelector(".onboarding-btn");
       if (label) label.textContent = "Log in om verder te gaan";
     }
 

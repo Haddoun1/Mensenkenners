@@ -1,5 +1,6 @@
 ---
 import MainLayout from "../../layouts/Layout-onboarding.astro";
+import ThemeLogo from "../../components/ThemeLogo.astro";
 
 export const prerender = false;
 ---
@@ -16,18 +17,11 @@ showProgress={false}
 showBack={false}
 showNext={false}
 mockupSrc="/images/Mensenkennerskaderdoof.webp"
+mockupAlt="Vrouw maakt een handgebaar"
 showDashboardButton={false}
 >
 
-<img
-    class="logo-desktop-register"
-    src="/images/logo-footer.webp"
-    alt="Mensenkenners logo"
-    width="500"
-    height="81"
-    loading="lazy"
-    decoding="async"
-/>
+<ThemeLogo class="logo-desktop-register" />
 
 <form class="register-form">
     <fieldset>
@@ -89,7 +83,7 @@ showDashboardButton={false}
 
     <div class="buttons-onboarding">
     <a class="button-back" href="/onboarding/login" id="back-btn">
-        <button type="button">Ga terug</button>
+        <span class="onboarding-btn">Ga terug</span>
     </a>
     <button type="submit">Registreer</button>
     </div>
@@ -292,7 +286,7 @@ button[type="submit"] {
 .button-back {
     width: 100%;
 
-    & button {
+    & .onboarding-btn {
     width: 100%;
     padding: var(--size-xs) var(--size-2xl);
     border-radius: 25px;

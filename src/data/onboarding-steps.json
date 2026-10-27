@@ -1,5 +1,76 @@
 [
   {
+    "id": 1,
+    "title": "Stap 1",
+    "nextHref": "/onboarding/step-2",
+    "backHref": "/onboarding/welkom-no-loader",
+    "headingText": "Wat is Mensenkenners?",
+    "bodyText": "Met Mensenkenners trainen we onze inclusiviteitsspier. Kleine bewuste keuzes maken de publieke ruimte al een stuk toegankelijker. Mensen met een beperking passen zich dagelijks aan en het is tijd dat wij dat ook doen.",
+    "step": 1,
+    "totalSteps": 10,
+    "stepId": "onboarding_step-1",
+    "category": "onboarding",
+    "imageSrc": "/images/Mensenkennerskaderspraak.webp",
+    "imageAlt": "Persoon trekt de kraag van een trui voor de mond"
+  },
+  {
+    "id": 2,
+    "title": "Stap 2",
+    "nextHref": "/onboarding/step-3",
+    "backHref": "/onboarding/step-1",
+    "headingText": "Waarom is dit belangrijk?",
+    "bodyText": "Voor iemand met een beperking verlopen 8 op de 10 ontmoetingen in de openbare ruimte ongemakkelijk. Vaak niet door een drempel of een trap, maar door hoe mensen reageren. Een toegankelijk gebouw is dus niet genoeg. Het verschil maak je vooral zelf, in hoe je iemand aanspreekt, helpt en behandelt.",
+    "step": 2,
+    "totalSteps": 10,
+    "stepId": "onboarding_step-2",
+    "category": "onboarding",
+    "imageSrc": "/images/Mensenkennerskaderroller.webp",
+    "imageAlt": "Vrouw in een rolstoel kijkt in de camera"
+  },
+  {
+    "id": 3,
+    "title": "Stap 3",
+    "nextHref": "/onboarding/step-4",
+    "backHref": "/onboarding/step-2",
+    "headingText": "Jouw dashboard",
+    "bodyText": "Op het dashboard vind je alle modules van de training. Elke module behandelt een ander onderwerp, van inclusief contact tot praktijksituaties. Je ziet hier ook hoe ver je bent en welke modules je al hebt afgerond. Zo kun je altijd verdergaan waar je gebleven was.",
+    "step": 3,
+    "totalSteps": 10,
+    "stepId": "onboarding_step-3",
+    "category": "onboarding",
+    "imageSrc": "/images/onboarding-1.png",
+    "imageAlt": "Voorbeeld van een cursuskaart op het dashboard: Module 1, Inclusief contact, 50% voltooid"
+  },
+  {
+    "id": 5,
+    "title": "Stap 5",
+    "nextHref": "/onboarding/step-6",
+    "backHref": "/onboarding/step-4",
+    "headingText": "Vragenlijst",
+    "bodyText": "We gaan je een aantal vragen stellen over jouw ervaringen in de openbare ruimte. Dit doen we zodat jij een beter beeld krijgt van jouw ervaringen en behoeften.",
+    "step": 5,
+    "totalSteps": 10,
+    "stepId": "onboarding_step-5",
+    "category": "onboarding",
+    "imageSrc": "/images/Mensenkennerskadersd.webp",
+    "imageAlt": "Jonge vrouw glimlacht in de camera"
+  },
+  {
+    "id": 6,
+    "title": "Stap 6",
+    "nextHref": "/onboarding/step-7",
+    "backHref": "/onboarding/step-5",
+    "headingText": "Voordat je begint",
+    "bodyText": "Deze cursus leert je meer over het omgaan met mensen met een beperking. Er bestaan geen foute antwoorden, vul in wat voor jou klopt. De hele cursus duurt ongeveer 60 minuten, maar is verdeeld in delen van 15 minuten.",
+    "step": 6,
+    "totalSteps": 10,
+    "stepId": "onboarding_step-6",
+    "category": "onboarding",
+    "imageSrc": "/images/mockupmensenkenners.webp",
+    "imageAlt": "Hand houdt een telefoon vast met de Mensenkenners-training in beeld",
+    "requireLogin": true
+  },
+  {
     "id": 7,
     "title": "Stap 7",
     "nextHref": "/onboarding/step-8",
@@ -11,7 +82,7 @@
     "stepId": "onboarding_step-7",
     "category": "onboarding",
     "imageSrc": "/images/Mensenkennerskadervisueel.webp",
-    "imageAlt": "Mensenkenners logo",
+    "imageAlt": "Man in een groene jas kijkt omhoog",
     "variant": "steps-quiz",
     "question": {
       "type": "single",
@@ -31,7 +102,7 @@
     "stepId": "onboarding_step-8",
     "category": "onboarding",
     "imageSrc": "/images/Mensenkennerskaderroller.webp",
-    "imageAlt": "Mensenkenners logo",
+    "imageAlt": "Vrouw in een rolstoel kijkt in de camera",
     "variant": "steps-quiz",
     "question": {
       "type": "single",
@@ -51,7 +122,7 @@
     "stepId": "onboarding_step-9",
     "category": "onboarding",
     "imageSrc": "/images/Mensenkennerskaderdoof.webp",
-    "imageAlt": "Mensenkenners logo",
+    "imageAlt": "Vrouw maakt een handgebaar",
     "variant": "steps-quiz",
     "question": {
       "type": "single",
@@ -71,7 +142,7 @@
     "stepId": "onboarding_step-10",
     "category": "onboarding",
     "imageSrc": "/images/Mensenkennerskadersd.webp",
-    "imageAlt": "Mensenkenners logo",
+    "imageAlt": "Jonge vrouw glimlacht in de camera",
     "variant": "steps-quiz",
     "question": {
       "type": "single",
@@ -83,5 +154,19 @@
         "Anders..."
       ]
     }
+  },
+  {
+    "id": 11,
+    "title": "Welkom!",
+    "nextHref": "/",
+    "nextLabel": "Naar het dashboard",
+    "backHref": "/onboarding/step-10",
+    "headingText": "Welkom bij Mensenkenners!",
+    "bodyText": "Je hebt de intro afgerond. Je kunt nu aan de slag met de cursussen op het dashboard. Veel succes!",
+    "showProgress": false,
+    "stepId": "onboarding_step-11",
+    "category": "onboarding",
+    "imageSrc": "/images/mockupmensenkenners.webp",
+    "imageAlt": "Hand houdt een telefoon vast met de Mensenkenners-training in beeld"
   }
 ]

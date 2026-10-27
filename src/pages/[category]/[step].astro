@@ -195,7 +195,6 @@ const accentColor = categoryColorMap[categorySlug] ?? "#B1F2D9";
 <html lang="nl">
   <head>
     <BaseHead title={category} />
-    <link rel="stylesheet" href="/styles/global.css" />
   </head>
   <body>
     <FixedThemeToggle />
@@ -233,6 +232,8 @@ const accentColor = categoryColorMap[categorySlug] ?? "#B1F2D9";
             class="setting-btn header-btn"
             id="settingBtn"
             aria-label="Open instellingen"
+            aria-expanded="false"
+            aria-controls="settingPanel"
           >
             <img class="accessibility-icon" src="/images/accessibility.svg" alt="Accessibility" aria-hidden="true">
             Simulator
@@ -1193,12 +1194,19 @@ const accentColor = categoryColorMap[categorySlug] ?? "#B1F2D9";
     settingPanel?.classList.add("open");
     settingOverlay?.classList.add("open");
     settingBtn?.setAttribute("aria-expanded", "true");
+    // Paneel is standaard inert (niet te tabben); bij openen weer bereikbaar en focus erin.
+    if (settingPanel) settingPanel.inert = false;
+    settingCloseBtn?.focus();
   }
 
   function closeSetting() {
+    // Stond de focus in het paneel, zet hem dan terug op de knop; anders raakt hij kwijt als het paneel inert wordt.
+    const hadFocus = settingPanel?.contains(document.activeElement);
     settingPanel?.classList.remove("open");
     settingOverlay?.classList.remove("open");
     settingBtn?.setAttribute("aria-expanded", "false");
+    if (settingPanel) settingPanel.inert = true;
+    if (hadFocus) settingBtn?.focus();
   }
 
   settingBtn?.addEventListener("click", () =>
@@ -1206,6 +1214,10 @@ const accentColor = categoryColorMap[categorySlug] ?? "#B1F2D9";
   );
   settingCloseBtn?.addEventListener("click", closeSetting);
   settingOverlay?.addEventListener("click", closeSetting);
+  // Escape sluit de simulator.
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && settingPanel?.classList.contains("open")) closeSetting();
+  });
 </script>
 
 

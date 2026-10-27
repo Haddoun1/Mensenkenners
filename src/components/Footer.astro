@@ -1,5 +1,6 @@
 ---
 import { courses } from "../data/courses.js";
+import ThemeLogo from "./ThemeLogo.astro";
 
 const currentYear = new Date().getFullYear();
 ---
@@ -9,24 +10,7 @@ const currentYear = new Date().getFullYear();
 
     <div class="footer-brand">
       <a href="/" class="footer-logo">
-        <img
-          class="footer-logo-image footer-logo-image--light"
-          src="/images/logo-footer.webp"
-          alt="Stichting Mensenkenners logo"
-          width="500"
-          height="81"
-          loading="lazy"
-          decoding="async"
-        />
-        <img
-          class="footer-logo-image footer-logo-image--dark"
-          src="/images/logo-footer-wit.webp"
-          alt="Stichting Mensenkenners logo"
-          width="500"
-          height="81"
-          loading="lazy"
-          decoding="async"
-        />
+        <ThemeLogo class="footer-logo-image" />
       </a>
       <p class="brand-tagline">Leer in jouw eigen tempo.</p>
     </div>
@@ -174,18 +158,5 @@ const currentYear = new Date().getFullYear();
       grid-template-columns: 1fr;
       gap: 2rem;
     }
-  }
-
-  /* Beide logo's staan in de HTML; CSS toont het juiste. Een verborgen lazy-afbeelding wordt niet gedownload. */
-  .footer-logo-image--dark {
-    display: none;
-  }
-
-  :global(html.dark-mode) .footer-logo-image--light {
-    display: none;
-  }
-
-  :global(html.dark-mode) .footer-logo-image--dark {
-    display: block;
   }
 </style>
