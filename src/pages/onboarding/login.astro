@@ -81,7 +81,7 @@ export const prerender = false;
   // @ts-nocheck
   import { supabase, authHeaders } from "../../lib/supabase";
   import { safeNextUrl } from "../../lib/safeNextUrl";
-  import { ensureGroup } from "../../lib/groups";
+  import { saveSignupGroup } from "../../lib/groups";
 
   // Stuurt de "Ga terug"-knop naar de pagina waar de gebruiker vandaan kwam,
   // met de laatste onboardingstap (de standaard-href) als terugvaloptie.
@@ -164,8 +164,8 @@ export const prerender = false;
 
   // Al ingelogd en via de onboarding hier gekomen: direct door naar de volgende stap.
   if (nextParam) {
-    supabase.auth.getUser().then(async ({ data: { user } }) => {
-      if (user && (await ensureGroup(user, afterLoginUrl))) window.location.replace(afterLoginUrl);
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (user) window.location.replace(afterLoginUrl);
     });
   }
 
@@ -192,9 +192,8 @@ export const prerender = false;
 
     await savePendingOnboardingProgress(data.user);
 
-    // Nog geen groep? Dan stuurt ensureGroup eerst naar /groep, en daarna door naar de bestemming.
-    if (await ensureGroup(data.user, afterLoginUrl)) {
-      window.location.replace(afterLoginUrl);
-    }
+    // Groep die bij het registreren is gekozen opslaan in het profiel.
+    await saveSignupGroup(data.user);
+    window.location.replace(afterLoginUrl);
   });
 </script>

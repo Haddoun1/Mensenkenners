@@ -23,13 +23,11 @@ export function fillGroupSelect(select, groups) {
   }
 }
 
-// Zorgt dat een ingelogde deelnemer bij een groep hoort.
-// - Al een groep (of hoofdadmin): niets doen.
-// - Groep gekozen bij registreren: die alsnog opslaan.
-// - Anders: naar /groep om er één te kiezen, en daarna door naar `next` (standaard: deze pagina).
-// Geeft true terug als de gebruiker door kan.
-export async function ensureGroup(user, next = window.location.pathname + window.location.search) {
-  if (!user) return true;
+// Slaat de groep die bij het registreren is gekozen op in het profiel, als dat nog niet gebeurd is.
+// Zonder groep kan de deelnemer gewoon verder; de hoofdadmin kan later een groep koppelen.
+export async function saveSignupGroup(user) {
+  const groupFromSignup = user?.user_metadata?.group_id;
+  if (!groupFromSignup) return;
 
   const { data: profile, error } = await supabase
     .from("profiles")
@@ -37,17 +35,10 @@ export async function ensureGroup(user, next = window.location.pathname + window
     .eq("id", user.id)
     .maybeSingle();
 
-  // Bij een fout de deelnemer niet blokkeren; de volgende keer wordt het opnieuw geprobeerd.
-  if (error) return true;
+  // Bij een fout niets doen; de volgende keer wordt het opnieuw geprobeerd.
+  if (error) return;
   // Admins kiezen niet zelf een groep; die koppelt de hoofdadmin (zie set_my_group in supabase/groups.sql).
-  if (profile?.group_id || profile?.role === "admin" || profile?.role === "superadmin") return true;
+  if (profile?.group_id || profile?.role === "admin" || profile?.role === "superadmin") return;
 
-  const groupFromSignup = user.user_metadata?.group_id;
-  if (groupFromSignup) {
-    const { error: rpcError } = await supabase.rpc("set_my_group", { new_group: groupFromSignup });
-    if (!rpcError) return true;
-  }
-
-  window.location.replace(`/groep?next=${encodeURIComponent(next)}`);
-  return false;
+  await supabase.rpc("set_my_group", { new_group: groupFromSignup });
 }

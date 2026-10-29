@@ -127,7 +127,7 @@ form.addEventListener("submit", async (e) => {
     const password = passwordInput.value.trim();
     const name = document.getElementById("first-name").value.trim();
     const surname = document.getElementById("last-name").value.trim();
-    // Wordt na het eerste inloggen vastgezet in het profiel (zie ensureGroup in src/lib/groups.js).
+    // Wordt na het eerste inloggen vastgezet in het profiel (zie saveSignupGroup in src/lib/groups.js).
     const groupId = groupSelect.value || null;
 
     const { error } = await supabase.auth.signUp({
