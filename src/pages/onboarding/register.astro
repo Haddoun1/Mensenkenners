@@ -72,7 +72,7 @@ showDashboardButton={false}
     name="password"
     required
     />
-    <p class="error">Vul hier je wachtwoord in.</p>
+    <p class="error">Kies een wachtwoord dat aan alle eisen voldoet.</p>
 </label>
 
 <label for="group">
@@ -103,6 +103,7 @@ showDashboardButton={false}
 // @ts-nocheck
 import { supabase } from "../../lib/supabase";
 import { loadGroups, fillGroupSelect } from "../../lib/groups";
+import { attachPasswordRules } from "../../lib/passwordRules";
 
 // Vult de keuzelijst met groepen. Admins zien later alleen de deelnemers uit hun eigen groep.
 const groupSelect = document.getElementById("group");
@@ -119,6 +120,9 @@ if (nextQuery) {
 const form = document.querySelector(".register-form");
 const emailInput = document.getElementById("email");
 const passwordInput = document.getElementById("password");
+
+// Toont de wachtwoordeisen onder het veld; zolang ze niet kloppen kan het formulier niet verstuurd worden.
+attachPasswordRules(passwordInput);
 
 form.addEventListener("submit", async (e) => {
     e.preventDefault();

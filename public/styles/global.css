@@ -271,3 +271,36 @@ svg {
     transition: none !important;
   }
 }
+
+/* Wachtwoordeisen onder een wachtwoordveld (zie src/lib/passwordRules.js). */
+.password-rules {
+  list-style: none;
+  margin: 0.4em 0 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.15em 0.9em;
+  font-size: var(--size-xs);
+  font-family: var(--font-light);
+  color: var(--color-text-muted);
+}
+
+.password-rules[hidden] {
+  display: none;
+}
+
+.password-rules li::before {
+  content: "✗";
+  display: inline-block;
+  width: 1.1em;
+  color: var(--color-error-text);
+}
+
+.password-rules li.is-met {
+  color: var(--color-success-text);
+}
+
+.password-rules li.is-met::before {
+  content: "✓";
+  color: var(--color-success-text);
+}
