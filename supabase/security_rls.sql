@@ -11,6 +11,9 @@
 --
 -- Uitvoeren in Supabase: SQL Editor > New query > dit hele bestand plakken > Run.
 -- Het script kan veilig opnieuw worden uitgevoerd.
+--
+-- LET OP: draai daarna altijd supabase/groups.sql. Dat beperkt admins tot hun eigen groep;
+-- dit script alleen geeft admins weer leesrecht op alles.
 
 
 -- 1. Hulpfunctie: is de ingelogde gebruiker admin?

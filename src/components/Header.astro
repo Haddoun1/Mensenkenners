@@ -174,6 +174,7 @@ import ThemeLogo from "../components/ThemeLogo.astro";
 
 <script>
   import { supabase } from "../lib/supabase";
+  import { saveSignupGroup } from "../lib/groups";
 
   const hamburger = document.querySelector(".hamburger");
   const nav = document.querySelector("nav");
@@ -215,6 +216,9 @@ import ThemeLogo from "../components/ThemeLogo.astro";
     if (!user) {
       profileLink.textContent = "Inloggen";
       profileLink.setAttribute("href", "/onboarding/login");
+    } else {
+      // Groep die bij het registreren is gekozen alsnog opslaan in het profiel.
+      await saveSignupGroup(user);
     }
   }
 </script>

@@ -68,11 +68,15 @@
     border: 0;
   }
 
+  /* Flex i.p.v. inline: zo staat het icoon precies in het midden, ook op pagina's zonder global.css
+     (zoals het adminpaneel), waar een inline svg anders op de tekstregel iets omhoog schuift. */
+  .theme-toggle-icon-light { display: flex; }
+
   .theme-toggle-icon-dark { display: none; }
 
   :global(html.dark-mode) .theme-toggle-icon-light { display: none; }
 
-  :global(html.dark-mode) .theme-toggle-icon-dark { display: block; }
+  :global(html.dark-mode) .theme-toggle-icon-dark { display: flex; }
 
   :global(html.theme-switching *),
   :global(html.theme-switching *::before),

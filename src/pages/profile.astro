@@ -27,6 +27,12 @@ import MainLayout from "../layouts/Layout.astro";
             Geboortedatum
             <input type="date" id="birthdate" name="birthdate" />
           </label>
+          <!-- Groep: alleen ter informatie. Wijzigen kan alleen de hoofdadmin (zie /api/admin-role). -->
+          <label>
+            Groep
+            <input type="text" id="group" value="Laden…" readonly aria-describedby="group-hint" />
+            <span class="field-hint" id="group-hint">Je groep kan alleen door de hoofdadmin worden aangepast.</span>
+          </label>
           <button type="submit" class="btn-primary">Opslaan</button>
           <p class="form-message" id="details-message"></p>
         </form>
@@ -89,6 +95,14 @@ import MainLayout from "../layouts/Layout.astro";
       user.user_metadata?.surname || "";
     document.getElementById("birthdate").value =
       user.user_metadata?.birthdate || "";
+
+    // Toont de groep uit het profiel (de gebruiker mag het eigen profiel lezen, niet wijzigen).
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("groups(name)")
+      .eq("id", user.id)
+      .maybeSingle();
+    document.getElementById("group").value = profile?.groups?.name || "Nog geen groep";
 
     // Haalt de voortgang van de gebruiker op om te bepalen
     // welke cursussen al volledig afgerond zijn.
@@ -293,6 +307,17 @@ import MainLayout from "../layouts/Layout.astro";
     color: var(--color-text);
     font-family: var(--font-regular);
     font-size: var(--size-base);
+  }
+
+  .profile-card input[readonly] {
+    background: color-mix(in srgb, var(--color-text) 5%, transparent);
+    cursor: default;
+  }
+
+  .field-hint {
+    font-family: var(--font-light);
+    font-size: var(--size-xs);
+    color: var(--color-text-muted);
   }
 
   .btn-primary {
