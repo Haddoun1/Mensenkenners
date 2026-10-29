@@ -3,13 +3,14 @@
 // Gebruik: <ThemeLogo class="logo-image" />. De class bepaalt de grootte (die verschilt per plek).
 // Beide logo's staan in de HTML en CSS toont het juiste. Omdat ze lazy zijn, wordt het verborgen
 // logo niet gedownload.
-const { class: className, loading = "lazy", ...rest } = Astro.props;
+// alt: geef een andere tekst mee als het logo in een link staat (dan is de alt de naam van de link).
+const { class: className, loading = "lazy", alt = "Stichting Mensenkenners", ...rest } = Astro.props;
 ---
 
 <img
   class:list={["theme-logo theme-logo--light", className]}
   src="/images/logo-footer.webp"
-  alt="Stichting Mensenkenners logo"
+  alt={alt}
   width="500"
   height="81"
   loading={loading}
@@ -19,7 +20,7 @@ const { class: className, loading = "lazy", ...rest } = Astro.props;
 <img
   class:list={["theme-logo theme-logo--dark", className]}
   src="/images/logo-footer-wit.webp"
-  alt="Stichting Mensenkenners logo"
+  alt={alt}
   width="500"
   height="81"
   loading={loading}

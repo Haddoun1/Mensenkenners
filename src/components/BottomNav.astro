@@ -8,7 +8,7 @@ interface Props {
 const { previousPage, nextPage, category } = Astro.props;
 ---
 
-<nav class="bottom-nav" aria-label="Navigatie">
+<nav class="bottom-nav" aria-label="Vorige en volgende vraag">
   {previousPage ? (
     <a class="nav-btn nav-btn--prev" href={previousPage}> Vorige</a>
   ) : (

@@ -64,6 +64,8 @@ import { courses } from "../data/courses.js";
     <!-- COURSE Details -->
   <!-- inert zolang het paneel dicht is: dan zijn de links niet bereikbaar met Tab of een schermlezer. -->
   <aside class="course-detail" id="course-detail" aria-labelledby="detail-title" inert>
+      <!-- Sluitknop rechtsboven; staat als eerste in het paneel, dus met Shift+Tab vanaf de knoppen bereikbaar. -->
+      <button type="button" class="detail-close-btn" id="detail-close" aria-label="Sluit details">&#10005;</button>
       <div class="detail-image">
         <div class="detail-image-placeholder"></div>
       </div>
@@ -256,6 +258,23 @@ import { courses } from "../data/courses.js";
 
   const detail = document.getElementById("course-detail");
 
+  // Sluit het detailpaneel. Stond de focus in het paneel, dan gaat die terug naar de kaart die het opende.
+  function closeDetail() {
+    const openCourse = detail.dataset.openCourse;
+    const hadFocus = detail.contains(document.activeElement);
+    detail.classList.remove("active");
+    detail.inert = true;
+    detail.dataset.openCourse = "";
+    if (hadFocus && openCourse) {
+      document.querySelector(`.carousel-item[data-course-id="${openCourse}"] .course-card`)?.focus();
+    }
+  }
+
+  document.getElementById("detail-close")?.addEventListener("click", closeDetail);
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && detail.classList.contains("active")) closeDetail();
+  });
+
   // Wist de antwoorden van een module in Supabase (tabel course_answers, zie "Antwoorden bewaren"
   // in [step].astro), zodat de vragen leeg zijn als iemand een afgeronde cursus opnieuw start.
   async function clearCourseAnswers(courseId) {
@@ -360,13 +379,13 @@ import { courses } from "../data/courses.js";
         detail.classList.contains("active") &&
         detail.dataset.openCourse === courseId
       ) {
-        detail.classList.remove("active");
-        detail.inert = true;
-        detail.dataset.openCourse = "";
+        closeDetail();
         return;
       }
 
       detail.dataset.openCourse = courseId;
+      // Geen kleurovergang van de knoppen bij het wisselen naar een andere cursus.
+      detail.classList.add("is-switching");
 
       const resumeHref = item.dataset.resumeHref || data.href;
       const status = item.dataset.status || "not-started";
@@ -402,8 +421,6 @@ import { courses } from "../data/courses.js";
 
       const placeholder = document.querySelector(".detail-image-placeholder");
       placeholder.style.backgroundImage = `url('${data.image}')`;
-      placeholder.style.backgroundSize = "cover";
-      placeholder.style.backgroundPosition = "center";
 
       const progressText =
         item.querySelector("[data-progress-text]")?.textContent || "0%";
@@ -412,6 +429,8 @@ import { courses } from "../data/courses.js";
 
       detail.classList.add("active");
       detail.inert = false;
+      void detail.offsetHeight;
+      requestAnimationFrame(() => detail.classList.remove("is-switching"));
 
       // Focus naar de hoofdknop van het paneel: een link is al focusbaar, dus de aside heeft geen tabindex nodig.
       // Schermlezers melden bij het binnengaan ook de naam van het paneel (aria-labelledby).
@@ -548,6 +567,33 @@ import { courses } from "../data/courses.js";
     margin-left: 2rem;
   }
 
+  /* Rechts boven de afbeelding; zelfde knop als de sluitknop van de vragennavigatie en de simulator. */
+  .detail-close-btn {
+    align-self: flex-end;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: color-mix(in srgb, var(--color-text) 10%, transparent);
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    color: var(--color-text);
+    transition: background 0.15s;
+    flex-shrink: 0;
+
+    &:hover {
+      background: color-mix(in srgb, var(--color-text) 22%, transparent);
+    }
+  }
+
+  /* Wisselen van cursus: kleuren in het paneel springen direct om (de class staat één frame, zie script). */
+  .course-detail.is-switching * {
+    transition: none !important;
+  }
+
   .detail-image {
     width: 100%;
     border-radius: 8px;
@@ -558,8 +604,10 @@ import { courses } from "../data/courses.js";
   .detail-image-placeholder {
     width: 100%;
     height: 200px;
-    background-size: cover;
+    /* contain: de hele afbeelding is zichtbaar (cover sneed de randen eraf). */
+    background-size: contain;
     background-position: center;
+    background-repeat: no-repeat;
   }
 
   .detail-content {

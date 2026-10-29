@@ -8,56 +8,15 @@ import OnboardingImage from "../../components/OnboardingImage.astro";
   title="Welkom"
   nextHref="/onboarding/step-1"
   headingText="Welkom bij Mensenkenners!"
-  bodyText="We gaan je een aantal vragen stellen om je ervaring zo persoonlijk mogelijk te maken."
+  bodyText="Jouw digitale training om je gedrag inclusiever te maken."
   step={1}
   totalSteps={5}
   showBack={false}
   showProgress={false}
-  variant="welkom"
 >
-  <div class="loader">
-    <OnboardingImage
-      class="loader-logo"
-      src="/images/Mensenkenners-horizontaal-w.png"
-      alt="Mensenkenners logo"
-      widths={[400, 800, 1200]}
-      sizes="(min-width: 768px) 30vw, 90vw"
-    />
-  </div>
 
-  <OnboardingImage
-    class="mockup"
+  <OnboardingImage class="mockup"
     src="/images/mockupmensenkenners.webp"
-    alt="Hand houdt een telefoon vast met de Mensenkenners-training in beeld"
+    alt="Telefoon met een vraag uit de Mensenkenners-training: een filmje waarin een zus zich inleeft in haar visueel beperkte broer"
   />
 </MainLayout>
-
-<script>
-  // @ts-nocheck
-const loader = document.querySelector(".loader");
-
-if (loader) {
-  const isMobile = window.matchMedia("(max-width: 768px)").matches;
-
-  window.addEventListener("load", () => {
-    const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-
-    if (prefersReduced) {
-      loader.classList.add("hidden");
-    } else if (isMobile) {
-      setTimeout(() => {
-        loader.classList.add("hidden-mobile");
-      }, 750);
-    } else {
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-          loader.classList.add("revealed");
-        });
-      });
-      setTimeout(() => {
-        loader.classList.add("hidden");
-      }, 1200);
-    }
-  });
-}
-</script>

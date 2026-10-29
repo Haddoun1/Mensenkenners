@@ -24,12 +24,12 @@ const { category, categorySlug, categoryItems, currentStep, totalSteps, accentCo
 <button
   class="hamburger-btn"
   id="qnav-hamburger-btn"
-  aria-label="Open vragennavigatie"
+  aria-label={`Vragen, ${currentStep} van ${totalSteps}`}
   aria-expanded="false"
   aria-controls="qnav-panel"
   style={`--color-accent: ${accentColor}`}
 >
-  <img class="table-of-contents-icon" src="/images/table-of-contents.svg" alt="Inhoudsopgave" aria-hidden="true">
+  <img class="table-of-contents-icon" src="/images/table-of-contents.svg" alt="">
   {currentStep}<span class="step-total">/{totalSteps}</span>
 </button>
 
@@ -40,7 +40,7 @@ const { category, categorySlug, categoryItems, currentStep, totalSteps, accentCo
 <nav class="qnav-panel" id="qnav-panel" aria-label="Vragennavigatie" style={`--color-accent: ${accentColor}`} inert>
   <div class="qnav-header">
     <span class="qnav-title">{category}</span>
-    <button class="qnav-close-btn" id="qnav-close-btn" aria-label="Sluit menu">&#10005;</button>
+    <button class="qnav-close-btn" id="qnav-close-btn" aria-label="Sluit vragennavigatie">&#10005;</button>
   </div>
   <ul class="qnav-list">
     {categoryItems.map((navItem, idx) => (

@@ -3,7 +3,7 @@
     "id": 1,
     "title": "Stap 1",
     "nextHref": "/onboarding/step-2",
-    "backHref": "/onboarding/welkom-no-loader",
+    "backHref": "/onboarding/welkom",
     "headingText": "Wat is Mensenkenners?",
     "bodyText": "Met Mensenkenners trainen we onze inclusiviteitsspier. Kleine bewuste keuzes maken de publieke ruimte al een stuk toegankelijker. Mensen met een beperking passen zich dagelijks aan en het is tijd dat wij dat ook doen.",
     "step": 1,
@@ -11,7 +11,7 @@
     "stepId": "onboarding_step-1",
     "category": "onboarding",
     "imageSrc": "/images/Mensenkennerskaderspraak.webp",
-    "imageAlt": "Persoon trekt de kraag van een trui voor de mond"
+    "imageAlt": "Persoon houdt de kraag van een trui voor de mond, zodat alleen de ogen te zien zijn"
   },
   {
     "id": 2,
@@ -25,7 +25,7 @@
     "stepId": "onboarding_step-2",
     "category": "onboarding",
     "imageSrc": "/images/Mensenkennerskaderroller.webp",
-    "imageAlt": "Vrouw in een rolstoel kijkt in de camera"
+    "imageAlt": "Jonge vrouw zit in een rolstoel en kijkt in de camera"
   },
   {
     "id": 3,
@@ -42,6 +42,21 @@
     "imageAlt": "Voorbeeld van een cursuskaart op het dashboard: Module 1, Inclusief contact, 50% voltooid"
   },
   {
+    "id": 4,
+    "title": "Stap 4",
+    "nextHref": "/onboarding/step-5",
+    "backHref": "/onboarding/step-3",
+    "headingText": "De beperking simulator",
+    "bodyText": "Rechtsboven in elke cursuspagina vind je de knop 'Simulator'. Daarmee boots je een beperking na, zoals wazig zicht, weinig contrast, dyslexie of een trillende hand. Zo ervaar je zelf hoe het is om de cursus te volgen als niet alles vanzelf gaat. Je kunt instellingen combineren en met 'Reset alle instellingen' zet je alles weer terug.",
+    "step": 4,
+    "totalSteps": 10,
+    "stepId": "onboarding_step-4",
+    "category": "onboarding",
+    "imageSrc": "/images/mensenkenners.webp",
+    "imageAlt": "Schermopname van een cursuspagina waarop de beperkingssimulator wordt gebruikt",
+    "animated": true
+  },
+  {
     "id": 5,
     "title": "Stap 5",
     "nextHref": "/onboarding/step-6",
@@ -53,7 +68,7 @@
     "stepId": "onboarding_step-5",
     "category": "onboarding",
     "imageSrc": "/images/Mensenkennerskadersd.webp",
-    "imageAlt": "Jonge vrouw glimlacht in de camera"
+    "imageAlt": "Jonge vrouw met het syndroom van Down glimlacht in de camera"
   },
   {
     "id": 6,
@@ -67,7 +82,7 @@
     "stepId": "onboarding_step-6",
     "category": "onboarding",
     "imageSrc": "/images/mockupmensenkenners.webp",
-    "imageAlt": "Hand houdt een telefoon vast met de Mensenkenners-training in beeld",
+    "imageAlt": "Telefoon met een vraag uit de Mensenkenners-training: een filmje waarin een zus zich inleeft in haar visueel beperkte broer",
     "requireLogin": true
   },
   {
@@ -82,7 +97,7 @@
     "stepId": "onboarding_step-7",
     "category": "onboarding",
     "imageSrc": "/images/Mensenkennerskadervisueel.webp",
-    "imageAlt": "Man in een groene jas kijkt omhoog",
+    "imageAlt": "Blinde man met een witte taststok",
     "variant": "steps-quiz",
     "question": {
       "type": "single",
@@ -102,7 +117,7 @@
     "stepId": "onboarding_step-8",
     "category": "onboarding",
     "imageSrc": "/images/Mensenkennerskaderroller.webp",
-    "imageAlt": "Vrouw in een rolstoel kijkt in de camera",
+    "imageAlt": "Jonge vrouw zit in een rolstoel en kijkt in de camera",
     "variant": "steps-quiz",
     "question": {
       "type": "single",
@@ -122,7 +137,7 @@
     "stepId": "onboarding_step-9",
     "category": "onboarding",
     "imageSrc": "/images/Mensenkennerskaderdoof.webp",
-    "imageAlt": "Vrouw maakt een handgebaar",
+    "imageAlt": "Vrouw maakt een gebaar in gebarentaal",
     "variant": "steps-quiz",
     "question": {
       "type": "single",
@@ -142,7 +157,7 @@
     "stepId": "onboarding_step-10",
     "category": "onboarding",
     "imageSrc": "/images/Mensenkennerskadersd.webp",
-    "imageAlt": "Jonge vrouw glimlacht in de camera",
+    "imageAlt": "Jonge vrouw met het syndroom van Down glimlacht in de camera",
     "variant": "steps-quiz",
     "question": {
       "type": "single",
@@ -167,6 +182,6 @@
     "stepId": "onboarding_step-11",
     "category": "onboarding",
     "imageSrc": "/images/mockupmensenkenners.webp",
-    "imageAlt": "Hand houdt een telefoon vast met de Mensenkenners-training in beeld"
+    "imageAlt": "Telefoon met een vraag uit de Mensenkenners-training: een filmje waarin een zus zich inleeft in haar visueel beperkte broer"
   }
 ]
