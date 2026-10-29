@@ -564,7 +564,6 @@ const accentColor = categoryColorMap[categorySlug] ?? "#B1F2D9";
 <script>
   // @ts-nocheck
   import { supabase, authHeaders } from "../../lib/supabase";
-  import { ensureGroup } from "../../lib/groups";
 
   // Haalt de belangrijkste DOM-elementen en stapmetadata op.
   const main = document.querySelector("main.content-col");
@@ -635,9 +634,6 @@ const accentColor = categoryColorMap[categorySlug] ?? "#B1F2D9";
 
     if (!user) {
       window.location.href = "/onboarding/login";
-    } else {
-      // Nog geen groep? Eerst een groep kiezen, daarna terug naar deze stap.
-      await ensureGroup(user);
     }
   }
 

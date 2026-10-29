@@ -174,7 +174,7 @@ import ThemeLogo from "../components/ThemeLogo.astro";
 
 <script>
   import { supabase } from "../lib/supabase";
-  import { ensureGroup } from "../lib/groups";
+  import { saveSignupGroup } from "../lib/groups";
 
   const hamburger = document.querySelector(".hamburger");
   const nav = document.querySelector("nav");
@@ -217,8 +217,8 @@ import ThemeLogo from "../components/ThemeLogo.astro";
       profileLink.textContent = "Inloggen";
       profileLink.setAttribute("href", "/onboarding/login");
     } else {
-      // Ingelogd zonder groep (bijv. geregistreerd vóór de groepen bestonden): eerst een groep kiezen.
-      await ensureGroup(user);
+      // Groep die bij het registreren is gekozen alsnog opslaan in het profiel.
+      await saveSignupGroup(user);
     }
   }
 </script>
