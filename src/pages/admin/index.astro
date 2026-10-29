@@ -48,7 +48,7 @@ const groups = groupRows || [];
 const groupName = (id) => groups.find((group) => group.id === id)?.name ?? null;
 const ownGroupName = groupName(profile.group_id);
 
-// De hoofdadmin kan filteren op één groep via ?groep=<id> (of ?groep=geen voor deelnemers zonder groep).
+// De hoofdadmin kan filteren op één groep via ?groep=<id>.
 const groupFilter = isSuperadmin ? Astro.url.searchParams.get("groep") || "" : "";
 let visibleUserIds: Set<string> | null = null;
 
@@ -56,13 +56,13 @@ if (groupFilter) {
   const { data: memberRows } = await supabase.from("profiles").select("id, group_id");
   visibleUserIds = new Set(
     (memberRows || [])
-      .filter((member) => (groupFilter === "geen" ? !member.group_id : member.group_id === groupFilter))
+      .filter((member) => member.group_id === groupFilter)
       .map((member) => String(member.id)),
   );
 }
 
 const inFilter = (row) => !visibleUserIds || visibleUserIds.has(String(row.user_id));
-const filterLabel = groupFilter === "geen" ? "Zonder groep" : groupName(groupFilter);
+const filterLabel = groupName(groupFilter);
 
 // Haalt alle opgeslagen cursusvoortgang op uit Supabase.
 // Nieuwste records komen bovenaan.
@@ -296,7 +296,6 @@ const totalTakeaways = takeaways.reduce((sum, mod) => sum + mod.answers.length, 
             {groups.map((group) => (
               <option value={group.id} selected={groupFilter === group.id}>{group.name}</option>
             ))}
-            <option value="geen" selected={groupFilter === "geen"}>Zonder groep</option>
           </select>
           {/* Met JavaScript laadt de keuzelijst zelf de groep; de knop is alleen nodig zonder JavaScript. */}
           <noscript><button type="submit" class="resetBtn">Toon</button></noscript>
@@ -502,8 +501,7 @@ const totalTakeaways = takeaways.reduce((sum, mod) => sum + mod.answers.length, 
 
       {!takeawayError && totalTakeaways === 0 && (
         <p class="section-text">
-          Er zijn nog geen antwoorden. Weet je zeker dat er wel antwoorden zijn? Controleer dan of
-          <code>supabase/groups.sql</code> in Supabase is uitgevoerd, zodat admins de antwoorden van hun groep mogen lezen.
+          Er zijn nog geen antwoorden van ingelogde deelnemers.
         </p>
       )}
 
