@@ -31,7 +31,7 @@ import MainLayout from "../layouts/Layout.astro";
           <label>
             Groep
             <input type="text" id="group" value="Laden…" readonly aria-describedby="group-hint" />
-            <span class="field-hint" id="group-hint">Je groep kan alleen door de hoofdadmin worden aangepast.</span>
+            <span class="field-hint" id="group-hint">Je groep kan alleen door een beheerder van Mensenkenners worden aangepast.</span>
           </label>
           <button type="submit" class="btn-primary">Opslaan</button>
           <p class="form-message" id="details-message"></p>
@@ -47,7 +47,6 @@ import MainLayout from "../layouts/Layout.astro";
               type="password"
               id="new-password"
               required
-              minlength="6"
             />
           </label>
           <label>
@@ -56,7 +55,6 @@ import MainLayout from "../layouts/Layout.astro";
               type="password"
               id="confirm-password"
               required
-              minlength="6"
             />
           </label>
           <button type="submit" class="btn-primary">Wachtwoord bijwerken</button>
@@ -80,6 +78,7 @@ import MainLayout from "../layouts/Layout.astro";
 <script>
   // @ts-nocheck
   import { supabase, authHeaders } from "../lib/supabase";
+  import { attachPasswordRules, isStrongPassword } from "../lib/passwordRules";
   import { courses, totals, categoryToCourseId } from "../data/courses.js";
 
   const {
@@ -183,6 +182,7 @@ import MainLayout from "../layouts/Layout.astro";
 
   const passwordForm = document.getElementById("password-form");
   const passwordMessage = document.getElementById("password-message");
+  attachPasswordRules(document.getElementById("new-password"));
 
   passwordForm?.addEventListener("submit", async (e) => {
     e.preventDefault();
@@ -190,9 +190,13 @@ import MainLayout from "../layouts/Layout.astro";
     const newPassword = document.getElementById("new-password").value;
     const confirmPassword = document.getElementById("confirm-password").value;
 
-    if (newPassword !== confirmPassword || newPassword.length < 6) {
-      passwordMessage.textContent =
-        "Wachtwoorden moeten overeenkomen en minstens 6 tekens bevatten.";
+    if (!isStrongPassword(newPassword)) {
+      passwordMessage.textContent = "Je nieuwe wachtwoord voldoet nog niet aan alle eisen.";
+      return;
+    }
+
+    if (newPassword !== confirmPassword) {
+      passwordMessage.textContent = "De wachtwoorden komen niet overeen.";
       return;
     }
 
@@ -204,7 +208,11 @@ import MainLayout from "../layouts/Layout.astro";
       ? error.message
       : "Wachtwoord bijgewerkt.";
 
-    if (!error) passwordForm.reset();
+    if (!error) {
+      passwordForm.reset();
+      // Na het legen van het formulier de eisenlijst weer op "niet voldaan" zetten.
+      document.getElementById("new-password").dispatchEvent(new Event("input"));
+    }
   });
 
   document.getElementById("logout-btn")?.addEventListener("click", async () => {
