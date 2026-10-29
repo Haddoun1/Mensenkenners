@@ -1,0 +1,270 @@
+---
+import MainLayout from "../layouts/Layout-onboarding.astro";
+import ThemeLogo from "../components/ThemeLogo.astro";
+
+export const prerender = false;
+---
+
+<!-- Eenmalig een groep kiezen, voor deelnemers die zich registreerden voordat er groepen waren. -->
+<MainLayout
+title="Kies je groep"
+nextHref="/"
+backHref="/"
+headingText=""
+bodyText=""
+step={1}
+totalSteps={5}
+showProgress={false}
+showBack={false}
+showNext={false}
+mockupSrc="/images/Mensenkennerskaderdoof.webp"
+mockupAlt="Vrouw maakt een handgebaar"
+showDashboardButton={false}
+>
+
+<ThemeLogo class="logo-desktop-group" />
+
+<form class="group-form">
+    <fieldset>
+    <div class="title-group">
+        <legend>Kies je groep</legend>
+        <p>
+        Bij welke groep of organisatie hoor je? Alleen de begeleiders van jouw groep kunnen je voortgang
+        zien. Je kiest dit één keer.
+        </p>
+    </div>
+
+    <label for="group">
+        Groep
+        <select id="group" name="group" required>
+        <option value="" disabled selected>Groepen laden…</option>
+        </select>
+        <p class="error">Kies de groep waar je bij hoort.</p>
+    </label>
+
+    <p class="form-message" id="group-message" role="alert"></p>
+    </fieldset>
+
+    <div class="buttons-group">
+    <button type="submit">Opslaan en verder</button>
+    </div>
+</form>
+</MainLayout>
+
+<script>
+// @ts-nocheck
+import { supabase } from "../lib/supabase";
+import { loadGroups, fillGroupSelect } from "../lib/groups";
+import { safeNextUrl } from "../lib/safeNextUrl";
+
+const afterUrl = safeNextUrl(new URLSearchParams(window.location.search).get("next"));
+const form = document.querySelector(".group-form");
+const groupSelect = document.getElementById("group");
+const message = document.getElementById("group-message");
+
+const {
+    data: { user },
+} = await supabase.auth.getUser();
+
+if (!user) {
+    window.location.replace(`/onboarding/login?next=${encodeURIComponent("/groep?next=" + afterUrl)}`);
+}
+
+const { groups, error } = await loadGroups();
+fillGroupSelect(groupSelect, groups);
+
+if (error || groups.length === 0) {
+    message.textContent = "Er zijn nog geen groepen om uit te kiezen. Neem contact op met je begeleider.";
+}
+
+form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    if (!groupSelect.value) return;
+
+    const { error: saveError } = await supabase.rpc("set_my_group", { new_group: groupSelect.value });
+
+    if (saveError) {
+    console.error("Groep opslaan mislukt:", saveError.message);
+    message.textContent = "Opslaan is niet gelukt. Probeer het later opnieuw.";
+    return;
+    }
+
+    window.location.replace(afterUrl);
+});
+</script>
+
+<style>
+.error {
+    color: var(--color-error-text);
+    display: none;
+    font-size: 1em;
+    margin-top: .3em;
+}
+
+label:has(select:user-invalid) .error {
+    display: block;
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+}
+
+fieldset {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    border: none;
+    margin: var(--size-xl) 0;
+    width: 100%;
+
+    & .title-group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+
+    & p {
+        font-size: var(--size-sm);
+        font-family: var(--font-light);
+        text-align: center;
+        max-width: 70vw;
+        color: var(--color-text-muted);
+    }
+    }
+
+    & legend {
+    font-size: var(--size-lg);
+    font-family: var(--font-extra-bold);
+    text-align: center;
+    }
+}
+
+label {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2em;
+    font-size: var(--size-sm);
+    font-family: var(--font-light);
+    color: var(--color-text-muted);
+
+    & select {
+    padding: 0.75em 1em;
+    border: 1px solid color-mix(in srgb, var(--color-text) 12%, transparent);
+    background-color: color-mix(in srgb, var(--color-surface) 80%, transparent);
+    border-radius: 25px;
+    font-size: var(--size-sm);
+    color: var(--color-text);
+    font-family: inherit;
+    }
+
+    & select option {
+    background-color: var(--select-dropdown);
+    color: var(--color-text);
+    }
+}
+
+.form-message {
+    margin: 0;
+    font-size: var(--size-sm);
+    font-family: var(--font-light);
+    color: var(--color-error-text);
+    text-align: center;
+}
+
+.form-message:empty {
+    display: none;
+}
+
+.buttons-group {
+    width: 100%;
+    margin-top: 2em;
+}
+
+button[type="submit"] {
+    width: 100%;
+    padding: var(--size-xs) var(--size-2xl);
+    border-radius: 25px;
+    border: none;
+    font-weight: 600;
+    cursor: pointer;
+    background-color: var(--color-cyan-dark);
+    color: var(--color-background);
+}
+
+.logo-desktop-group {
+    display: none;
+    width: 150px;
+    margin: 0;
+    margin-right: auto;
+}
+
+/* Zelfde indeling als de registratiepagina. */
+:global(.panel-right) {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+
+    & :global(.buttons-onboarding) {
+    display: none;
+    margin: 0 !important;
+    }
+}
+
+:global(.mockup) {
+    display: none;
+    max-width: 400px;
+    margin-top: auto;
+    margin-bottom: auto;
+}
+
+@media (min-width: 768px) {
+    :global(.content) {
+    flex-direction: row-reverse;
+    }
+
+    :global(.logo-desktop) {
+    display: none !important;
+    }
+
+    fieldset .title-group {
+    align-items: flex-start;
+
+    & p {
+        text-align: left;
+        max-width: 100%;
+    }
+    }
+
+    label select {
+    padding: 0.75em 1.5em;
+    }
+
+    .form-message {
+    text-align: left;
+    }
+
+    :global(.panel-left) {
+    margin: auto 0;
+    }
+
+    :global(.mockup) {
+    display: block;
+    }
+
+    .logo-desktop-group {
+    display: block;
+    }
+}
+
+@media (min-width: 1024px) {
+    .logo-desktop-group {
+    width: 200px;
+    }
+}
+</style>

@@ -80,6 +80,8 @@ export const prerender = false;
 <script>
   // @ts-nocheck
   import { supabase, authHeaders } from "../../lib/supabase";
+  import { safeNextUrl } from "../../lib/safeNextUrl";
+  import { ensureGroup } from "../../lib/groups";
 
   // Stuurt de "Ga terug"-knop naar de pagina waar de gebruiker vandaan kwam,
   // met de laatste onboardingstap (de standaard-href) als terugvaloptie.
@@ -149,22 +151,8 @@ export const prerender = false;
   }
 
   // Waar de gebruiker na het inloggen heen gaat, bijvoorbeeld terug naar de onboarding.
-  // Alleen interne paden zijn toegestaan; anders naar het dashboard.
-  // De browser parset de URL zelf, zodat trucs als "/\evil.com" of "//evil.com" (die de browser als
-  // andere site leest) ook worden afgevangen: alleen een URL op onze eigen origin telt.
+  // Alleen interne paden zijn toegestaan (zie safeNextUrl); anders naar het dashboard.
   const nextParam = new URLSearchParams(window.location.search).get("next");
-
-  function safeNextUrl(next) {
-    if (!next) return "/";
-    try {
-      const url = new URL(next, window.location.origin);
-      if (url.origin !== window.location.origin) return "/";
-      return url.pathname + url.search + url.hash;
-    } catch {
-      return "/";
-    }
-  }
-
   const afterLoginUrl = safeNextUrl(nextParam);
 
   // Geeft de bestemming door aan de registratiepagina, zodat je na registreren en inloggen ook terugkomt.
@@ -176,8 +164,8 @@ export const prerender = false;
 
   // Al ingelogd en via de onboarding hier gekomen: direct door naar de volgende stap.
   if (nextParam) {
-    supabase.auth.getUser().then(({ data: { user } }) => {
-      if (user) window.location.replace(afterLoginUrl);
+    supabase.auth.getUser().then(async ({ data: { user } }) => {
+      if (user && (await ensureGroup(user, afterLoginUrl))) window.location.replace(afterLoginUrl);
     });
   }
 
@@ -204,6 +192,9 @@ export const prerender = false;
 
     await savePendingOnboardingProgress(data.user);
 
-    window.location.replace(afterLoginUrl);
+    // Nog geen groep? Dan stuurt ensureGroup eerst naar /groep, en daarna door naar de bestemming.
+    if (await ensureGroup(data.user, afterLoginUrl)) {
+      window.location.replace(afterLoginUrl);
+    }
   });
 </script>

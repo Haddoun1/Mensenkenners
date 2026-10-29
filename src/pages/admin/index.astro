@@ -28,15 +28,41 @@ if (!user) {
 // Haalt het profiel van de gebruiker op om te controleren of die admin is.
 const { data: profile, error: profileError } = await supabase
   .from("profiles")
-  .select("role")
+  .select("role, group_id")
   .eq("id", user.id)
   .single();
 
-// Als er een fout is of de gebruiker is geen admin,
+// Als er een fout is of de gebruiker is geen admin of hoofdadmin,
 // stuur diegene terug naar het normale dashboard.
-if (profileError || profile?.role !== "admin") {
+if (profileError || !["admin", "superadmin"].includes(profile?.role)) {
   return Astro.redirect("/admin/login?geen-toegang");
 }
+
+// ── Groepen ──────────────────────────────────────────────────────
+// Welke gegevens een admin te zien krijgt, regelt de database zelf (RLS in supabase/groups.sql):
+// een admin krijgt alleen rijen van deelnemers uit de eigen groep, de hoofdadmin alles.
+const isSuperadmin = profile.role === "superadmin";
+
+const { data: groupRows } = await supabase.from("groups").select("id, name").order("name");
+const groups = groupRows || [];
+const groupName = (id) => groups.find((group) => group.id === id)?.name ?? null;
+const ownGroupName = groupName(profile.group_id);
+
+// De hoofdadmin kan filteren op één groep via ?groep=<id> (of ?groep=geen voor deelnemers zonder groep).
+const groupFilter = isSuperadmin ? Astro.url.searchParams.get("groep") || "" : "";
+let visibleUserIds: Set<string> | null = null;
+
+if (groupFilter) {
+  const { data: memberRows } = await supabase.from("profiles").select("id, group_id");
+  visibleUserIds = new Set(
+    (memberRows || [])
+      .filter((member) => (groupFilter === "geen" ? !member.group_id : member.group_id === groupFilter))
+      .map((member) => String(member.id)),
+  );
+}
+
+const inFilter = (row) => !visibleUserIds || visibleUserIds.has(String(row.user_id));
+const filterLabel = groupFilter === "geen" ? "Zonder groep" : groupName(groupFilter);
 
 // Haalt alle opgeslagen cursusvoortgang op uit Supabase.
 // Nieuwste records komen bovenaan.
@@ -47,7 +73,7 @@ const { data: progress, error } = await supabase
 
 // Als er geen data is, gebruiken we een lege array zodat de pagina niet crasht.
 // Rijen met step_id "reset" (cursus opnieuw gestart) zijn geen echte stap en tellen niet mee.
-const records = (progress || []).filter((row) => row.step_id !== "reset");
+const records = (progress || []).filter((row) => row.step_id !== "reset" && inFilter(row));
 
 // Telt hoeveel unieke gebruikers er zijn.
 const uniqueUsers = new Set(records.map((row) => row.user_id)).size;
@@ -202,10 +228,11 @@ const missingTimedModules = courseModules.length - timedModules.length;
 
 // ── "Wat neem je mee?" ───────────────────────────────────────────
 // Haalt de antwoorden op de afsluitende reflectievraag van elke module op.
-// Admins mogen alle antwoorden lezen dankzij supabase/security_rls.sql.
+// Admins lezen de antwoorden van hun eigen groep dankzij supabase/groups.sql.
+// user_id is alleen nodig voor het groepsfilter van de hoofdadmin en wordt niet getoond.
 const { data: takeawayRows, error: takeawayError } = await supabase
   .from("course_answers")
-  .select("category, question_id, answer, updated_at")
+  .select("user_id, category, question_id, answer, updated_at")
   .like("question_id", "%_meenemen")
   .order("updated_at", { ascending: false });
 
@@ -217,7 +244,7 @@ const takeaways = Object.entries(moduleSteps)
     slug,
     name: mod.name,
     answers: (takeawayRows || [])
-      .filter((row) => row.category === slug)
+      .filter((row) => row.category === slug && inFilter(row))
       .map((row) => ({
         text: String(row.answer?.values?.[0] ?? "").trim(),
         date: row.updated_at,
@@ -251,8 +278,39 @@ const totalTakeaways = takeaways.reduce((sum, mod) => sum + mod.answers.length, 
     <header>
       <div class="header-left">
         <h1>Mensenkenners Adminpaneel</h1>
+        <p class="header-group">
+          {isSuperadmin
+            ? `Hoofdadmin · ${filterLabel ? `groep ${filterLabel}` : "alle groepen"}`
+            : ownGroupName
+              ? `Groep ${ownGroupName}`
+              : "Nog geen groep"}
+        </p>
       </div>
+
+        {/* Hoofdadmin: filter op één groep. Kiezen in de lijst laadt direct de groep. */}
+      {isSuperadmin && (
+        <form class="group-filter" method="get" data-group-filter>
+          <label for="groep">Toon groep</label>
+          <select id="groep" name="groep">
+            <option value="" selected={!groupFilter}>Alle groepen</option>
+            {groups.map((group) => (
+              <option value={group.id} selected={groupFilter === group.id}>{group.name}</option>
+            ))}
+            <option value="geen" selected={groupFilter === "geen"}>Zonder groep</option>
+          </select>
+          {/* Met JavaScript laadt de keuzelijst zelf de groep; de knop is alleen nodig zonder JavaScript. */}
+          <noscript><button type="submit" class="resetBtn">Toon</button></noscript>
+        </form>
+      )}
     </header>
+
+    {/* Een admin zonder groep ziet (door de RLS-regels) geen gegevens van anderen. */}
+    {!isSuperadmin && !profile.group_id && (
+      <div class="error-bar">
+        <span>⚠</span> Je account is nog niet aan een groep gekoppeld, daarom zie je geen gegevens van
+        deelnemers. Vraag de hoofdadmin om je aan een groep te koppelen.
+      </div>
+    )}
 
     <!-- Toont een foutmelding als Supabase data ophalen mislukt -->
     {
@@ -445,7 +503,7 @@ const totalTakeaways = takeaways.reduce((sum, mod) => sum + mod.answers.length, 
       {!takeawayError && totalTakeaways === 0 && (
         <p class="section-text">
           Er zijn nog geen antwoorden. Weet je zeker dat er wel antwoorden zijn? Controleer dan of
-          <code>supabase/security_rls.sql</code> in Supabase is uitgevoerd, zodat admins alle antwoorden mogen lezen.
+          <code>supabase/groups.sql</code> in Supabase is uitgevoerd, zodat admins de antwoorden van hun groep mogen lezen.
         </p>
       )}
 
@@ -511,7 +569,9 @@ const totalTakeaways = takeaways.reduce((sum, mod) => sum + mod.answers.length, 
 
         <!-- Formulier om adminrechten te beheren -->
         <p class="tool-description">
-          Maak een gebruiker admin, of verwijder admin rechten.
+          {isSuperadmin
+            ? "Maak een gebruiker admin, verwijder admin rechten, of wijzig de groep van een gebruiker. Deelnemers kunnen hun groep zelf niet wijzigen."
+            : "Maak een gebruiker uit jouw groep admin, of verwijder admin rechten. Groepen wijzigen kunnen alleen de beheerders van Mensenkenners."}
         </p>
 
         <form id="admin-role-form">
@@ -522,6 +582,15 @@ const totalTakeaways = takeaways.reduce((sum, mod) => sum + mod.answers.length, 
             required
           />
 
+          {isSuperadmin && (
+            <select id="admin-group" aria-label="Groep">
+              <option value="">Groep niet wijzigen</option>
+              {groups.map((group) => (
+                <option value={group.id}>{group.name}</option>
+              ))}
+            </select>
+          )}
+
           <button type="button" id="make-admin-btn" class="resetBtn">
             Maak admin
           </button>
@@ -530,11 +599,62 @@ const totalTakeaways = takeaways.reduce((sum, mod) => sum + mod.answers.length, 
             Verwijder admin
           </button>
 
+          {isSuperadmin && (
+            <button type="button" id="set-group-btn" class="resetBtn">
+              Alleen groep wijzigen
+            </button>
+          )}
+
           <!-- Hier komt feedback te staan na admin-actie -->
           <p id="admin-role-message"></p>
         </form>
       </div>
     </section>
+
+    <!-- Groepen beheren: alleen voor de hoofdadmin -->
+    {isSuperadmin && (
+      <section class="admin-tools card">
+        <div class="card-header">
+          <div class="cat-info">
+            <span class="cat-dot"></span>
+            <h2>Groepen</h2>
+          </div>
+        </div>
+
+        <div class="admin-tools-body">
+          <p class="tool-description">
+            Deelnemers kiezen hun groep bij het registreren. Verwijder je een groep, dan kiezen de
+            deelnemers uit die groep bij hun volgende bezoek opnieuw een groep.
+          </p>
+
+          {groups.length > 0 ? (
+            <ul class="group-list">
+              {groups.map((group) => (
+                <li class="group-item">
+                  <span>{group.name}</span>
+                  <button type="button" class="resetBtn" data-delete-group={group.id} data-group-name={group.name}>
+                    Verwijder
+                  </button>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p class="tool-description">Er zijn nog geen groepen.</p>
+          )}
+
+          <form id="group-form">
+            <input id="group-name" type="text" placeholder="Naam nieuwe groep" maxlength="100" required />
+            <button class="resetBtn" type="submit">Groep toevoegen</button>
+            <p id="group-message"></p>
+          </form>
+        </div>
+      </section>
+    )}
+
+    <!-- Terug naar de cursus (het dashboard van de deelnemers) -->
+    <nav class="back-to-course" aria-label="Terug naar de cursus">
+      <a href="/" class="resetBtn back-to-course-link">← Terug naar de cursus</a>
+    </nav>
   </div>
 </main>
 
@@ -581,19 +701,23 @@ const totalTakeaways = takeaways.reduce((sum, mod) => sum + mod.answers.length, 
   const removeAdminBtn = document.getElementById("remove-admin-btn");
   const adminRoleMessage = document.getElementById("admin-role-message");
 
-  // Functie die een gebruiker admin maakt of adminrechten verwijdert.
+  // Groepkeuze bij het beheren van een gebruiker.
+  const adminGroupSelect = document.getElementById("admin-group");
+
+  // Functie die een gebruiker admin maakt, adminrechten verwijdert of de groep wijzigt.
   async function updateAdminRole(action) {
-    // Haalt het ingevulde e-mailadres op.
+    // Haalt het ingevulde e-mailadres en eventueel de gekozen groep op.
     const email = adminEmailInput.value;
+    const groupId = adminGroupSelect?.value || undefined;
 
     // Stuurt de actie naar een server-side API-route.
-    // De server controleert daarna of de huidige gebruiker admin is.
+    // De server controleert daarna of de huidige gebruiker dit mag (eigen groep, of hoofdadmin).
     const response = await fetch("/api/admin-role", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ email, action }),
+      body: JSON.stringify({ email, action, groupId }),
     });
 
     // Leest het antwoord van de API-route.
@@ -602,6 +726,43 @@ const totalTakeaways = takeaways.reduce((sum, mod) => sum + mod.answers.length, 
     // Toont de melding op de pagina.
     adminRoleMessage.textContent = result.message;
   }
+
+  // Klik op "Alleen groep wijzigen".
+  document.getElementById("set-group-btn")?.addEventListener("click", () => {
+    updateAdminRole("group");
+  });
+
+  // Groepen toevoegen en verwijderen (hoofdadmin). Na succes herladen we de pagina,
+  // zodat de lijsten en het filter de nieuwe groepen tonen.
+  const groupMessage = document.getElementById("group-message");
+
+  async function sendGroupRequest(method, body) {
+    const response = await fetch("/api/groups", {
+      method,
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    });
+    const result = await response.json();
+    groupMessage.textContent = result.message;
+    if (response.ok) window.location.reload();
+  }
+
+  document.getElementById("group-form")?.addEventListener("submit", (e) => {
+    e.preventDefault();
+    sendGroupRequest("POST", { name: document.getElementById("group-name").value });
+  });
+
+  document.querySelectorAll("[data-delete-group]").forEach((button) => {
+    button.addEventListener("click", () => {
+      const name = button.dataset.groupName;
+      if (!confirm(`Groep "${name}" verwijderen? Deelnemers uit deze groep moeten daarna opnieuw een groep kiezen.`)) return;
+      sendGroupRequest("DELETE", { id: button.dataset.deleteGroup });
+    });
+  });
+
+  // Groepsfilter (hoofdadmin): direct tonen bij het kiezen van een groep.
+  const groupFilterForm = document.querySelector("[data-group-filter]");
+  groupFilterForm?.querySelector("select").addEventListener("change", () => groupFilterForm.submit());
 
   // Klik op "Maak admin".
   makeAdminBtn.addEventListener("click", () => {
@@ -746,6 +907,79 @@ const totalTakeaways = takeaways.reduce((sum, mod) => sum + mod.answers.length, 
   }
 
   /*
+    Formulier om groepen toe te voegen (hoofdadmin).
+  */
+  #group-form {
+    display: flex;
+    padding: 1rem;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  /*
+    Inputvelden en keuzelijsten in de admin tools en het groepsfilter.
+  */
+  #group-name,
+  #admin-group,
+  .group-filter select {
+    min-width: 200px;
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    background: var(--surface);
+    color: var(--text);
+    font-family: var(--font);
+    font-size: 0.875rem;
+  }
+
+  #group-name {
+    flex: 1;
+  }
+
+  /*
+    Lijst met bestaande groepen (hoofdadmin).
+  */
+  .group-list {
+    list-style: none;
+    margin: 0;
+    padding: 0 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .group-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  /*
+    Groepsnaam onder de titel, en het groepsfilter van de hoofdadmin.
+  */
+  .header-group {
+    margin: 0.35rem 0 0;
+    color: var(--muted);
+    font-size: 0.95rem;
+  }
+
+  .group-filter {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    flex-wrap: wrap;
+  }
+
+  .group-filter label {
+    color: var(--muted);
+    font-size: 0.875rem;
+  }
+
+  /*
     Inputveld voor admin e-mailadres.
   */
   #admin-email {
@@ -773,10 +1007,12 @@ const totalTakeaways = takeaways.reduce((sum, mod) => sum + mod.answers.length, 
   /*
     Bovenste header met titel links en admin badge rechts.
   */
+  /* Titel met daaronder het groepsfilter; links uitgelijnd, zodat de themaknop rechtsboven vrij blijft. */
   header {
     display: flex;
-    align-items: center;
-    justify-content: space-between;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1.25rem;
     margin-bottom: 2.5rem;
   }
 
@@ -820,6 +1056,20 @@ const totalTakeaways = takeaways.reduce((sum, mod) => sum + mod.answers.length, 
   }
 
   /*
+    Knop onderaan om terug te gaan naar de cursus.
+  */
+  .back-to-course {
+    display: flex;
+    justify-content: flex-start;
+    margin-top: 4rem;
+  }
+
+  .back-to-course-link {
+    font-size: 0.9rem;
+    padding: 0.7rem 1.4rem;
+  }
+
+  /*
     Centrale container van het dashboard.
   */
   .shell {
@@ -833,8 +1083,8 @@ const totalTakeaways = takeaways.reduce((sum, mod) => sum + mod.answers.length, 
   */
   .header-left {
     display: flex;
-    align-items: center;
-    gap: 0.75rem;
+    flex-direction: column;
+    align-items: flex-start;
   }
 
   /*

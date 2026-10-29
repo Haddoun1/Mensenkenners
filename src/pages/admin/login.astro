@@ -47,7 +47,7 @@ if (Astro.request.method === "POST") {
       .eq("id", data.user.id)
       .single();
 
-    if (profile?.role === "admin") {
+    if (profile?.role === "admin" || profile?.role === "superadmin") {
       // Admin: direct door naar het admin dashboard.
       return Astro.redirect("/admin");
     }
