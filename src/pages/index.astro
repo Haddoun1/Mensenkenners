@@ -462,9 +462,9 @@ import { courses } from "../data/courses.js";
 
       & .filter-button {
         padding: 0.5rem 1rem;
-        border: 2px solid var(--color-green);
+        border: 2px solid var(--color-cyan-dark);
         background-color: var(--button-background);
-        color: var(--color-green);
+        color: var(--color-cyan-dark);
         border-radius: 9999px;
         cursor: pointer;
         font-size: 0.9rem;
@@ -482,7 +482,7 @@ import { courses } from "../data/courses.js";
         }
 
         &.active {
-          background-color: var(--color-green);
+          background-color: var(--color-cyan-dark);
           color: var(--color-background);
         }
       }
@@ -490,6 +490,11 @@ import { courses } from "../data/courses.js";
   }
 
   /* Dark mode: niet-actieve filterknoppen wit, zodat ze leesbaar zijn op de donkere achtergrond. */
+  :global(html.dark-mode) .dashboard-cursus .dashboard-buttons .filter-button.active {
+    background-color: var(--color-green);
+    border-color: var(--color-green);
+  }
+
   :global(html.dark-mode) .dashboard-cursus .dashboard-buttons .filter-button:not(.active) {
     color: #ffffff;
     border-color: #ffffff;

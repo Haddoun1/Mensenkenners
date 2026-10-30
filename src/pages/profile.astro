@@ -243,6 +243,11 @@ import MainLayout from "../layouts/Layout.astro";
     }
   }
 
+  /* Dark mode: grijze teksten (e-mail, labels, hints, meldingen) wat lichter, maar niet helemaal wit. */
+  :global(html.dark-mode) .profile {
+    --color-text-muted: #d5d9dc;
+  }
+
   .profile-header {
     display: flex;
     flex-direction: column;
@@ -257,7 +262,7 @@ import MainLayout from "../layouts/Layout.astro";
 
   .profile-email {
     font-family: var(--font-light);
-    color: var(--color-text-muted);
+    color: var(--color-text);
   }
 
   .profile-grid {
@@ -333,7 +338,7 @@ import MainLayout from "../layouts/Layout.astro";
     padding: 0.6rem 1.5rem;
     border: none;
     border-radius: 9999px;
-    background: var(--color-green);
+    background: var(--color-cyan-dark);
     color: var(--color-background);
     font-family: var(--font-bold);
     font-size: var(--size-sm);

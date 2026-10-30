@@ -155,7 +155,9 @@ const { category, categorySlug, categoryItems, currentStep, totalSteps, accentCo
   .step-total {
     font-family: var(--font-light);
     font-size: var(--size-xs);
-    color: var(--color-text-muted);
+    /* Grijs is op de gekleurde moduleheader te licht; tekstkleur met wat transparantie blijft leesbaar. */
+    color: var(--color-text);
+    opacity: 0.8;
   }
 
   :global(html.dark-mode) .table-of-contents-icon {

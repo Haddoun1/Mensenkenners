@@ -1392,7 +1392,7 @@ const accentColor = categoryColorMap[categorySlug] ?? "#B1F2D9";
   .card-source {
     font-family: var(--font-light);
     font-size: var(--size-sm);
-    opacity: 0.55;
+    opacity: 0.85;
     margin: 0;
     display: flex;
     gap: 0.4rem;
@@ -1625,6 +1625,13 @@ const accentColor = categoryColorMap[categorySlug] ?? "#B1F2D9";
     box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-accent) 30%, transparent);
   }
 
+  /* Placeholder ("Typ hier je antwoord") in een vaste, leesbare kleur; browsers maken hem anders erg licht. */
+  .text-input::placeholder,
+  .text-area::placeholder {
+    color: var(--color-text-muted);
+    opacity: 1;
+  }
+
   /* Voorbeeldantwoord als placeholder: schuin, zodat het niet als echte invoer leest. */
   .has-example::placeholder {
     font-style: italic;
@@ -1635,7 +1642,7 @@ const accentColor = categoryColorMap[categorySlug] ?? "#B1F2D9";
   .mc-hint {
     font-family: var(--font-light);
     font-size: var(--size-sm);
-    opacity: 0.55;
+    opacity: 0.85;
     margin: 0;
   }
 
@@ -1701,7 +1708,7 @@ const accentColor = categoryColorMap[categorySlug] ?? "#B1F2D9";
     height: 2rem;
     border-radius: 7px;
     border: 1.5px solid color-mix(in srgb, var(--color-text) 12%, transparent);
-    background: color-mix(in srgb, var(--color-text) 4%, transparent);
+    background: color-mix(in srgb, var(--color-text) 2%, transparent);
     font-family: var(--font-bold);
     font-size: var(--size-sm);
     transition: background 0.18s, color 0.18s, border-color 0.18s;
@@ -1813,7 +1820,7 @@ const accentColor = categoryColorMap[categorySlug] ?? "#B1F2D9";
     font-family: var(--font-light);
     font-size: var(--size-sm);
     line-height: 1.3;
-    opacity: 0.72;
+    opacity: 0.85;
   }
 
   .rating-scale-labels span:last-child {
@@ -1897,7 +1904,7 @@ const accentColor = categoryColorMap[categorySlug] ?? "#B1F2D9";
     margin: 0;
     font-family: var(--font-semi-bold);
     font-size: var(--size-sm);
-    opacity: 0.7;
+    opacity: 0.85;
   }
 
   .scenario-situation {
@@ -2057,10 +2064,11 @@ const accentColor = categoryColorMap[categorySlug] ?? "#B1F2D9";
     box-shadow: 0 0 0 2px rgba(128, 146, 164, 0.25) !important;
   }
 
+  /* Donkerder groen dan --color-success-border, zodat de witte letter leesbaar is (WCAG AA). */
   .option-label.option-label--correct .option-key {
-    background: var(--color-success-border) !important;
+    background: #1c7356 !important;
     color: white !important;
-    border-color: var(--color-success-border) !important;
+    border-color: #1c7356 !important;
   }
 
   .option-label.option-label--incorrect .option-key {
@@ -2096,9 +2104,9 @@ const accentColor = categoryColorMap[categorySlug] ?? "#B1F2D9";
   }
 
   .matching-prompt.matching-prompt--correct .option-key {
-    background: #2fbf7f !important;
+    background: #1c7356 !important;
     color: white !important;
-    border-color: #2fbf7f !important;
+    border-color: #1c7356 !important;
   }
 
   .matching-prompt.matching-prompt--incorrect .option-key {
