@@ -540,7 +540,6 @@ const totalTakeaways = takeaways.reduce((sum, mod) => sum + mod.answers.length, 
     <section class="admin-tools card">
       <div class="card-header">
         <div class="cat-info">
-          <span class="cat-dot"></span>
           <h2>Admin Tools</h2>
         </div>
       </div>
@@ -614,15 +613,14 @@ const totalTakeaways = takeaways.reduce((sum, mod) => sum + mod.answers.length, 
       <section class="admin-tools card">
         <div class="card-header">
           <div class="cat-info">
-            <span class="cat-dot"></span>
             <h2>Groepen</h2>
           </div>
         </div>
 
         <div class="admin-tools-body">
-          <p class="tool-description">
-            Deelnemers kiezen hun groep bij het registreren. Verwijder je een groep, dan kiezen de
-            deelnemers uit die groep bij hun volgende bezoek opnieuw een groep.
+          <p class="tool-description group-intro">
+            Deelnemers kiezen hun groep bij het registreren. Verwijder je een groep, dan hebben de
+            deelnemers uit die groep geen groep meer; koppel ze daarna via Admin tools aan een andere groep.
           </p>
 
           {groups.length > 0 ? (
@@ -938,6 +936,12 @@ const totalTakeaways = takeaways.reduce((sum, mod) => sum + mod.answers.length, 
   /*
     Lijst met bestaande groepen (hoofdadmin).
   */
+  /* Wat ruimte tussen de uitleg en de lijst met groepen. */
+  /* Dubbele class, zodat .tool-description (verderop, met margin-bottom 0) dit niet overschrijft. */
+  .tool-description.group-intro {
+    margin-bottom: 1.25rem;
+  }
+
   .group-list {
     list-style: none;
     margin: 0;
@@ -954,6 +958,11 @@ const totalTakeaways = takeaways.reduce((sum, mod) => sum + mod.answers.length, 
     gap: 1rem;
     padding: 0.5rem 0;
     border-bottom: 1px solid var(--border);
+  }
+
+  /* Ook een streep boven de eerste groep, zodat de lijst aan beide kanten is afgesloten. */
+  .group-item:first-child {
+    border-top: 1px solid var(--border);
   }
 
   /*
@@ -990,6 +999,11 @@ const totalTakeaways = takeaways.reduce((sum, mod) => sum + mod.answers.length, 
     color: var(--text);
     font-family: var(--font);
     font-size: 0.875rem;
+  }
+
+  /* Alle tekst op deze pagina iets groter: de groottes staan in rem en schalen hiermee mee. */
+  :global(html) {
+    font-size: 112.5%;
   }
 
   /*
