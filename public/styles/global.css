@@ -82,15 +82,16 @@ html {
   --color-background: #ffffff;
   --color-green: #2AB789;
   --color-cyan: #B1F2D9;
-  --color-cyan-dark: #8bcab2;
+  /* Donker genoeg voor witte tekst erop én als tekstkleur op wit (WCAG AA, 4.5:1). */
+  --color-cyan-dark: #1c7356;
   --color-pink: #FF94E1;
-  --color-blue: #647bef;
+  --color-blue: #6b82f0;
   --color-red: #FF6631;
   --color-yellow: #E9F279;
-  --onboarding-text: #7e7676;
-  --onboarding-label:#73747a;
+  --onboarding-text: #6a6363;
+  --onboarding-label:#66676d;
   --onboarding-text-dark: #525252;
-  --onboarding-back-button: #ABADAC;
+  --onboarding-back-button: #5c605e;
   --error-login: #b43f3f;
   --button-background: transparent;
 
@@ -102,7 +103,7 @@ html {
   --module-text-input: #ffffffcc;
 
   --color-text-inverse: #ffffff;
-  --color-text-muted: #6b6e73;
+  --color-text-muted: #5f6267;
   --color-surface: #ffffff;
 
   --color-success-bg: #ecfff7;
@@ -129,13 +130,13 @@ html {
   --color-neutral-bg: #e7edf2;
   --color-neutral-border: #8092a4;
   --color-neutral-text: #2f4051;
-  --color-neutral-key: #687d91;
+  --color-neutral-key: #56697c;
 
   --accent-intro: #B1F2D9;
   --accent-module-1: #FF94E1;
   --accent-module-2: #E9F279;
   --accent-module-3: #FF6631;
-  --accent-module-4: #647bef;
+  --accent-module-4: #6b82f0;
 
   --accent-intro-dark: #1e4d3a;
   --accent-module-1-dark: #7a3d63;
@@ -199,15 +200,16 @@ html.dark-mode {
   --error-login: #fa4545;
   --button-background: #6ecfab2b;
 
-  --module-card-background: #9ebfaf47;
+  --module-card-background: #9ebfaf24;
   --module-wrong-error: #ffffff00;
   --module-right-correct: #12301f;
   --module-option-label-hover: #e2e2e290;
   --module-option-checked-letter: #ffffff00;
-  --module-text-input: #a0b4acab;
+  /* Donker invoerveld, zodat witte tekst en de placeholder leesbaar zijn. */
+  --module-text-input: #1b1f1dcc;
 
   --color-text-inverse: #142621;
-  --color-text-muted: #a3a9ae;
+  --color-text-muted: #b9bec2;
   --color-surface: #1b1f1d;
 
   --color-success-bg: #12301f;
@@ -234,7 +236,7 @@ html.dark-mode {
   --color-neutral-bg: #232b33;
   --color-neutral-border: #8092a4;
   --color-neutral-text: #dbe3ea;
-  --color-neutral-key: #687d91;
+  --color-neutral-key: #56697c;
 
   --accent-intro: var(--accent-intro-dark);
   --accent-module-1: var(--accent-module-1-dark);
