@@ -194,6 +194,11 @@ const lastUpdated = "26 oktober 2026";
     color: var(--color-text-muted);
   }
 
+  /* Staat los op de groene achtergrond; grijs is daar in dark mode te zwak. */
+  :global(html.dark-mode) .privacy-updated {
+    color: var(--color-text);
+  }
+
   .privacy-card {
     background: color-mix(in srgb, var(--color-surface) 72%, transparent);
     border: 1px solid color-mix(in srgb, var(--color-text) 10%, transparent);
