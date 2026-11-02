@@ -11,8 +11,13 @@ import { courses } from "../data/courses.js";
   <section class="dashboard">
     <div class="dashboard-left">
       <div class="dashboard-title">
-        <h1 id="welcome"></h1>
-        <!-- WELCOME tekst injected by JS -->
+        <!-- Begroeting links, groep rechts op dezelfde regel (op smalle schermen eronder). -->
+        <div class="welcome-row">
+          <h1 id="welcome"></h1>
+          <!-- WELCOME tekst injected by JS -->
+          <!-- Groep van de ingelogde deelnemer; wordt door het script gevuld en zichtbaar gemaakt. -->
+          <p id="welcome-group" class="welcome-group" hidden></p>
+        </div>
         <hr />
       </div>
       <div class="dashboard-cursus">
@@ -237,6 +242,18 @@ import { courses } from "../data/courses.js";
   if (user) {
     document.getElementById("welcome").innerText =
       `${greeting}, ${capitalizedUsername}! Ga verder waar je gebleven was.`;
+
+    // Toont bij welke groep de deelnemer hoort (alleen lezen; wijzigen kan een beheerder).
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("groups(name)")
+      .eq("id", user.id)
+      .maybeSingle();
+    const groupLabel = document.getElementById("welcome-group");
+    groupLabel.textContent = profile?.groups?.name
+      ? `Groep: ${profile.groups.name}`
+      : "Je zit nog niet in een groep";
+    groupLabel.hidden = false;
   } else {
     document.getElementById("welcome").innerText = `${greeting}!`;
   }
@@ -467,6 +484,31 @@ import { courses } from "../data/courses.js";
       border: 2px solid var(--color-green);
       width: 200px;
     }
+  }
+
+  /* Klein label met de groep onder de begroeting. Tekstkleur i.p.v. grijs, zodat het ook op de
+     groene achtergrond in dark mode goed leesbaar is. */
+  .welcome-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--size-sm) 1.5rem;
+  }
+
+  .welcome-group {
+    margin: 0;
+    white-space: nowrap;
+    padding: 0.35rem 1rem;
+    border: 2px solid color-mix(in srgb, var(--color-text) 55%, transparent);
+    border-radius: 999px;
+    color: var(--color-text);
+    font-family: var(--font-semi-bold);
+    font-size: var(--size-base);
+  }
+
+  .welcome-group[hidden] {
+    display: none;
   }
 
   .dashboard-cursus {
