@@ -42,6 +42,15 @@ import MainLayout from "../layouts/Layout.astro";
         <h2>Wachtwoord wijzigen</h2>
         <form id="password-form">
           <label>
+            Huidig wachtwoord
+            <input
+              type="password"
+              id="current-password"
+              autocomplete="current-password"
+              required
+            />
+          </label>
+          <label>
             Nieuw wachtwoord
             <input
               type="password"
@@ -164,6 +173,12 @@ import MainLayout from "../layouts/Layout.astro";
   const detailsForm = document.getElementById("details-form");
   const detailsMessage = document.getElementById("details-message");
 
+  // Zet een melding onder een formulier; foutmeldingen in het rood.
+  function showMessage(element, text, isError = false) {
+    element.textContent = text;
+    element.classList.toggle("is-error", isError);
+  }
+
   detailsForm?.addEventListener("submit", async (e) => {
     e.preventDefault();
 
@@ -175,9 +190,7 @@ import MainLayout from "../layouts/Layout.astro";
       data: { name, surname, birthdate },
     });
 
-    detailsMessage.textContent = error
-      ? error.message
-      : "Gegevens opgeslagen.";
+    showMessage(detailsMessage, error ? error.message : "Gegevens opgeslagen.", Boolean(error));
   });
 
   const passwordForm = document.getElementById("password-form");
@@ -187,16 +200,34 @@ import MainLayout from "../layouts/Layout.astro";
   passwordForm?.addEventListener("submit", async (e) => {
     e.preventDefault();
 
+    const currentPassword = document.getElementById("current-password").value;
     const newPassword = document.getElementById("new-password").value;
     const confirmPassword = document.getElementById("confirm-password").value;
 
     if (!isStrongPassword(newPassword)) {
-      passwordMessage.textContent = "Je nieuwe wachtwoord voldoet nog niet aan alle eisen.";
+      showMessage(passwordMessage, "Je nieuwe wachtwoord voldoet nog niet aan alle eisen.", true);
       return;
     }
 
     if (newPassword !== confirmPassword) {
-      passwordMessage.textContent = "De wachtwoorden komen niet overeen.";
+      showMessage(passwordMessage, "De wachtwoorden komen niet overeen.", true);
+      return;
+    }
+
+    if (newPassword === currentPassword) {
+      showMessage(passwordMessage, "Je nieuwe wachtwoord moet anders zijn dan je huidige.", true);
+      return;
+    }
+
+    // Eerst controleren of het huidige wachtwoord klopt door er opnieuw mee in te loggen.
+    // Zo kan iemand op een onbewaakte, ingelogde computer niet zomaar je wachtwoord veranderen.
+    const { error: checkError } = await supabase.auth.signInWithPassword({
+      email: user.email,
+      password: currentPassword,
+    });
+
+    if (checkError) {
+      showMessage(passwordMessage, "Je huidige wachtwoord klopt niet.", true);
       return;
     }
 
@@ -204,9 +235,7 @@ import MainLayout from "../layouts/Layout.astro";
       password: newPassword,
     });
 
-    passwordMessage.textContent = error
-      ? error.message
-      : "Wachtwoord bijgewerkt.";
+    showMessage(passwordMessage, error ? error.message : "Wachtwoord bijgewerkt.", Boolean(error));
 
     if (!error) {
       passwordForm.reset();
@@ -355,6 +384,12 @@ import MainLayout from "../layouts/Layout.astro";
     font-size: var(--size-sm);
     color: var(--color-text-muted);
     min-height: 1.2em;
+  }
+
+  /* Foutmelding in het rood (in dark mode een lichter rood, zodat het leesbaar blijft). */
+  .form-message.is-error {
+    color: var(--color-error-text);
+    font-family: var(--font-semi-bold);
   }
 
   .completed-list {

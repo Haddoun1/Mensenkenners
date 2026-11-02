@@ -8,7 +8,7 @@ export const prerender = false;
 <MainLayout
   title="login"
   nextHref="/"
-  backHref="/onboarding/step-11"
+  backHref="/"
   headingText=""
   bodyText=""
   step={1}
@@ -50,6 +50,15 @@ export const prerender = false;
           />
           <p class="error">Vul hier je wachtwoord in.</p>
         </label>
+        <a class="forgot-password" href="/onboarding/wachtwoord-vergeten">Wachtwoord vergeten?</a>
+      </div>
+
+      <!-- Meldingen bij het inloggen, bijvoorbeeld als het e-mailadres nog niet is bevestigd. -->
+      <div class="login-status" id="login-status" role="alert" hidden>
+        <p id="login-status-text"></p>
+        <button type="button" class="login-resend" id="login-resend" hidden>
+          Stuur de bevestigingsmail opnieuw
+        </button>
       </div>
 
       <p class="login-link">
@@ -60,7 +69,8 @@ export const prerender = false;
     </fieldset>
 
     <div class="buttons-onboarding">
-      <a class="button-back" href="/onboarding/step-11" id="back-btn">
+      <!-- "Ga terug" gaat altijd naar het dashboard. -->
+      <a class="button-back" href="/" id="back-btn">
         <span class="onboarding-btn">Ga terug</span>
       </a>
       <button type="submit">Login</button>
@@ -82,48 +92,7 @@ export const prerender = false;
   import { supabase, authHeaders } from "../../lib/supabase";
   import { safeNextUrl } from "../../lib/safeNextUrl";
   import { saveSignupGroup } from "../../lib/groups";
-
-  // Stuurt de "Ga terug"-knop naar de pagina waar de gebruiker vandaan kwam,
-  // met de laatste onboardingstap (de standaard-href) als terugvaloptie.
-  // Kwam de gebruiker van een pagina die alleen voor ingelogde gebruikers is
-  // (een module of het profiel), dan zou teruggaan meteen weer naar de
-  // login-pagina sturen. Stuur die gevallen daarom naar het dashboard.
-
-  // Vorige pagina: bij een view transition uit sessionStorage (gezet in Layout-onboarding.astro),
-  // alleen als die overgang echt naar deze pagina ging; anders bij een gewone paginalading de referrer.
-  function getPreviousPage() {
-    const here = location.pathname + location.search;
-    try {
-      const nav = JSON.parse(sessionStorage.getItem("onboardingPreviousPage") || "null");
-      if (nav?.to === here) return nav.from;
-    } catch {}
-    try {
-      const referrerUrl = new URL(document.referrer);
-      if (referrerUrl.origin === location.origin) return referrerUrl.pathname + referrerUrl.search;
-    } catch {}
-    return null;
-  }
-
-  function setBackHref() {
-    // Het script blijft actief na een view transition; alleen op de loginpagina uitvoeren.
-    if (location.pathname !== "/onboarding/login") return;
-    const backBtn = document.getElementById("back-btn");
-    const previous = getPreviousPage();
-    if (!backBtn || !previous) return;
-
-    const previousPath = previous.split("?")[0];
-    const cameFromProtectedPage = /^\/module-\d+\//.test(previousPath) || previousPath === "/profile";
-
-    if (cameFromProtectedPage) {
-      backBtn.setAttribute("href", "/");
-    } else if (previousPath !== location.pathname && previousPath !== "/onboarding/register") {
-      // Register zelf niet: daar wijst "Ga terug" weer naar login, dan blijf je heen en weer gaan.
-      backBtn.setAttribute("href", previous);
-    }
-  }
-
-  setBackHref();
-  document.addEventListener("astro:page-load", setBackHref);
+  import { resendConfirmation, isEmailNotConfirmed } from "../../lib/emailConfirm";
 
   // Slaat onboardingstappen op die zijn doorlopen voordat de gebruiker inlogde
   // (zie saveProgress in Layout-onboarding.astro).
@@ -188,16 +157,71 @@ export const prerender = false;
       .forEach((link) => link.setAttribute("href", `/onboarding/register?next=${encodeURIComponent(afterLoginUrl)}`));
   }
 
-  // Al ingelogd en via de onboarding hier gekomen: direct door naar de volgende stap.
-  if (nextParam) {
-    supabase.auth.getUser().then(({ data: { user } }) => {
-      if (user) window.location.replace(afterLoginUrl);
-    });
-  }
-
   const form = document.querySelector(".login-form");
   const emailInput = document.getElementById("email");
   const passwordInput = document.getElementById("password");
+
+  // Melding boven "Maak een account". Met showResend verschijnt ook de knop om de bevestigingsmail opnieuw te sturen.
+  const status = document.getElementById("login-status");
+  const statusText = document.getElementById("login-status-text");
+  const resendBtn = document.getElementById("login-resend");
+
+  function showStatus(message, { error = false, showResend = false } = {}) {
+    statusText.textContent = message;
+    status.classList.toggle("is-error", error);
+    resendBtn.hidden = !showResend;
+    status.hidden = false;
+  }
+
+  resendBtn.addEventListener("click", async () => {
+    const email = emailInput.value.trim();
+    if (!email) {
+      showStatus("Vul eerst je e-mailadres in.", { error: true, showResend: true });
+      return;
+    }
+    resendBtn.disabled = true;
+    const error = await resendConfirmation(email, nextParam);
+    showStatus(
+      error
+        ? "Opnieuw sturen lukte niet: " + error
+        : `De bevestigingsmail is opnieuw verstuurd naar ${email}.`,
+      { error: Boolean(error), showResend: true },
+    );
+    // Even wachten voordat het weer kan; Supabase staat maar een paar mails per tijd toe.
+    setTimeout(() => (resendBtn.disabled = false), 30000);
+  });
+
+  // Alles wat na een geslaagde login moet gebeuren, daarna door naar de bestemming.
+  async function finishLogin(user) {
+    await savePendingOnboardingProgress(user);
+    await savePendingOnboardingAnswers(user);
+
+    // Groep die bij het registreren is gekozen opslaan in het profiel.
+    await saveSignupGroup(user);
+    window.location.replace(afterLoginUrl);
+  }
+
+  // Terug via de link in de bevestigingsmail (?bevestigd=1). Supabase logt dan meestal direct in.
+  const fromConfirmLink = new URLSearchParams(window.location.search).has("bevestigd");
+  const hashParams = new URLSearchParams(window.location.hash.slice(1));
+
+  if (fromConfirmLink && hashParams.get("error")) {
+    // Bijvoorbeeld een verlopen of al gebruikte link.
+    showStatus(
+      "Deze bevestigingslink is verlopen of al gebruikt. Vul je e-mailadres in en vraag een nieuwe mail aan, of log in als je al bevestigd bent.",
+      { error: true, showResend: true },
+    );
+  }
+
+  // Al ingelogd (via de onboarding of de bevestigingslink): direct door naar de volgende stap.
+  if (nextParam || fromConfirmLink) {
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (user) finishLogin(user);
+      else if (fromConfirmLink && !hashParams.get("error")) {
+        showStatus("Je e-mailadres is bevestigd. Log nu in om verder te gaan.");
+      }
+    });
+  }
 
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
@@ -212,15 +236,19 @@ export const prerender = false;
 
     if (error) {
       console.error("Login error:", error.message);
-      alert("Inloggen mislukt: " + error.message);
+      if (isEmailNotConfirmed(error)) {
+        showStatus(
+          "Je e-mailadres is nog niet bevestigd. Klik op de link in de mail die we je hebben gestuurd.",
+          { error: true, showResend: true },
+        );
+      } else if (error.code === "invalid_credentials" || /invalid login credentials/i.test(error.message)) {
+        showStatus("Het e-mailadres of wachtwoord klopt niet.", { error: true });
+      } else {
+        showStatus("Inloggen mislukt: " + error.message, { error: true });
+      }
       return;
     }
 
-    await savePendingOnboardingProgress(data.user);
-    await savePendingOnboardingAnswers(data.user);
-
-    // Groep die bij het registreren is gekozen opslaan in het profiel.
-    await saveSignupGroup(data.user);
-    window.location.replace(afterLoginUrl);
+    await finishLogin(data.user);
   });
 </script>

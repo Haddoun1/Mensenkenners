@@ -439,9 +439,8 @@ import { courses } from "../data/courses.js";
       review.hidden = !reviewable;
       review.href = reviewHref(courseId, resumeHref);
       review.style.setProperty("background-color", data.color);
-      document
-        .getElementById("detail-progress")
-        .style.setProperty("color", data.color);
+      // Modulekleur voor het percentage (zie .detail-progress in de CSS).
+      detail.style.setProperty("--detail-color", data.color);
 
       const placeholder = document.querySelector(".detail-image-placeholder");
       placeholder.style.backgroundImage = `url('${data.image}')`;
@@ -681,6 +680,13 @@ import { courses } from "../data/courses.js";
     font-size: 0.9rem;
     margin: 0;
     font-family: var(--font-bold);
+    /* Modulekleur, maar donkerder: lichte kleuren zoals geel zijn anders onleesbaar op wit. */
+    color: color-mix(in srgb, var(--detail-color, var(--color-cyan-dark)) 50%, black);
+  }
+
+  /* Dark mode: de modulekleuren zijn daar donker, dus lichter mengen voor de tekst. */
+  :global(html.dark-mode) .detail-progress {
+    color: color-mix(in srgb, var(--detail-color, var(--color-cyan-dark)) 25%, white);
   }
 
   .detail-description {

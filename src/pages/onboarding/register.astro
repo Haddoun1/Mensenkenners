@@ -97,6 +97,24 @@ showDashboardButton={false}
     </div>
 
 </form>
+
+<!-- Na het registreren: vraag om het e-mailadres te bevestigen (alleen als "Confirm email" in Supabase aan staat). -->
+<section class="register-done" id="register-done" hidden>
+    <h1>Check je e-mail</h1>
+    <p>
+        We hebben een bevestigingsmail gestuurd naar <strong id="register-done-email"></strong>.
+        Klik op de link in die mail om je account te activeren. Daarna kun je verder.
+    </p>
+    <p class="register-done-hint">Geen mail gekregen? Kijk ook in je spam, of stuur de mail opnieuw.</p>
+    <p class="register-done-hint" id="resend-message" role="status"></p>
+
+    <div class="buttons-onboarding">
+    <button type="button" class="resend-btn" id="resend-btn">Stuur de mail opnieuw</button>
+    <a class="button-back" href="/onboarding/login">
+        <span class="onboarding-btn">Naar inloggen</span>
+    </a>
+    </div>
+</section>
 </MainLayout>
 
 <script>
@@ -104,6 +122,7 @@ showDashboardButton={false}
 import { supabase } from "../../lib/supabase";
 import { loadGroups, fillGroupSelect } from "../../lib/groups";
 import { attachPasswordRules } from "../../lib/passwordRules";
+import { confirmRedirectUrl, resendConfirmation } from "../../lib/emailConfirm";
 
 // Vult de keuzelijst met groepen. Admins zien later alleen de deelnemers uit hun eigen groep.
 const groupSelect = document.getElementById("group");
@@ -134,10 +153,12 @@ form.addEventListener("submit", async (e) => {
     // Wordt na het eerste inloggen vastgezet in het profiel (zie saveSignupGroup in src/lib/groups.js).
     const groupId = groupSelect.value || null;
 
-    const { error } = await supabase.auth.signUp({
+    const { data, error } = await supabase.auth.signUp({
     email,
     password,
     options: {
+        // De link in de bevestigingsmail komt terug op de loginpagina, met de bestemming uit de onboarding.
+        emailRedirectTo: confirmRedirectUrl(nextQuery),
         data: {
         name: name,
         surname: surname,
@@ -152,10 +173,32 @@ form.addEventListener("submit", async (e) => {
     return;
     }
 
+    // E-mailverificatie aan: nog geen sessie. Vraag de gebruiker de mail te bevestigen.
+    if (!data.session) {
+    form.hidden = true;
+    document.getElementById("register-done-email").textContent = email;
+    document.getElementById("register-done").hidden = false;
+    return;
+    }
+
     // Geeft de bestemming uit de onboarding door aan de login, zodat je daarna terugkomt waar je was.
     window.location.href = nextQuery
       ? `/onboarding/login?next=${encodeURIComponent(nextQuery)}`
       : "/onboarding/login";
+});
+
+// Bevestigingsmail opnieuw sturen vanaf het "Check je e-mail"-scherm.
+const resendBtn = document.getElementById("resend-btn");
+const resendMessage = document.getElementById("resend-message");
+
+resendBtn.addEventListener("click", async () => {
+    resendBtn.disabled = true;
+    const error = await resendConfirmation(emailInput.value.trim(), nextQuery);
+    resendMessage.textContent = error
+    ? "Opnieuw sturen lukte niet: " + error
+    : "De mail is opnieuw verstuurd.";
+    // Even wachten voordat het weer kan; Supabase staat maar een paar mails per tijd toe.
+    setTimeout(() => (resendBtn.disabled = false), 30000);
 });
 </script>
 
@@ -205,6 +248,36 @@ img {
     color: var(--color-cyan-dark);
     }
 }
+/* Het formulier en het bevestigingsscherm wisselen elkaar af via het hidden-attribuut. */
+.register-form[hidden],
+.register-done[hidden] {
+    display: none;
+}
+
+.register-done {
+    display: flex;
+    flex-direction: column;
+    gap: var(--size-base);
+    width: 100%;
+    margin: var(--size-xl) 0;
+
+    & h1 {
+    font-size: var(--size-lg);
+    font-family: var(--font-extra-bold);
+    color: var(--color-text);
+    }
+
+    & p {
+    color: var(--color-text);
+    line-height: 1.5;
+    }
+
+    & .register-done-hint {
+    font-size: var(--size-sm);
+    color: var(--color-text-muted);
+    }
+}
+
 form{
     display: flex;
     flex-direction: column;
@@ -291,7 +364,8 @@ label {
     }
 }
 
-button[type="submit"] {
+button[type="submit"],
+.resend-btn {
     width: 100%;
     padding: var(--size-xs) var(--size-2xl);
     border-radius: 25px;
@@ -302,6 +376,11 @@ button[type="submit"] {
     color: var(--color-background);
 
     /* margin-top:6em; */
+}
+
+.resend-btn:disabled {
+    opacity: 0.6;
+    cursor: default;
 }
 
 :global(html.dark-mode) .register-link a {

@@ -1,0 +1,97 @@
+---
+import MainLayout from "../../layouts/Layout-onboarding.astro";
+import ThemeLogo from "../../components/ThemeLogo.astro";
+
+export const prerender = false;
+---
+
+<MainLayout
+  title="Wachtwoord vergeten"
+  nextHref="/onboarding/login"
+  backHref="/onboarding/login"
+  headingText=""
+  bodyText=""
+  step={1}
+  totalSteps={5}
+  showProgress={false}
+  showBack={false}
+  showNext={false}
+  mockupSrc="/images/Mensenkennerskaderdoof.webp"
+  mockupAlt="Vrouw maakt een handgebaar"
+  showDashboardButton={false}
+  variant="login"
+>
+  <div class="logo-container-theme">
+    <ThemeLogo class="logo-image" />
+  </div>
+
+  <form class="login-form" id="forgot-form">
+    <fieldset>
+      <div class="title-login">
+        <legend>Wachtwoord vergeten</legend>
+        <p>Vul je e-mailadres in. We sturen je een link waarmee je een nieuw wachtwoord kiest.</p>
+      </div>
+
+      <div class="container-name">
+        <label for="email">
+          E-mailadres
+          <input type="email" id="email" name="email" autocomplete="email" required />
+          <p class="error">Vul hier je e-mailadres in.</p>
+        </label>
+      </div>
+
+      <div class="login-status" id="forgot-status" role="status" hidden>
+        <p id="forgot-status-text"></p>
+      </div>
+    </fieldset>
+
+    <div class="buttons-onboarding">
+      <a class="button-back" href="/onboarding/login">
+        <span class="onboarding-btn">Terug naar inloggen</span>
+      </a>
+      <button type="submit" id="forgot-submit">Stuur de link</button>
+    </div>
+  </form>
+</MainLayout>
+
+<style>
+  .logo-image {
+    height: 40px;
+    width: 160px;
+    object-fit: contain;
+    object-position: left;
+  }
+</style>
+
+<script>
+  // @ts-nocheck
+  import { supabase } from "../../lib/supabase";
+
+  const form = document.getElementById("forgot-form");
+  const emailInput = document.getElementById("email");
+  const submitBtn = document.getElementById("forgot-submit");
+  const status = document.getElementById("forgot-status");
+  const statusText = document.getElementById("forgot-status-text");
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    submitBtn.disabled = true;
+
+    // De link in de mail opent /update-password; dat adres moet in Supabase bij de Redirect URLs staan.
+    const { error } = await supabase.auth.resetPasswordForEmail(emailInput.value.trim(), {
+      redirectTo: `${window.location.origin}/update-password`,
+    });
+
+    // Bewust dezelfde melding of er nu wel of geen account bij dit adres hoort,
+    // zodat niemand via dit formulier kan uitzoeken welke e-mailadressen een account hebben.
+    statusText.textContent = error
+      ? "Versturen lukte niet: " + error.message
+      : "Als er een account bij dit e-mailadres hoort, hebben we een mail gestuurd met een link om je wachtwoord te wijzigen. Kijk ook in je spam.";
+    status.classList.toggle("is-error", Boolean(error));
+    status.classList.toggle("is-success", !error);
+    status.hidden = false;
+
+    // Even wachten voordat het weer kan; Supabase staat maar een paar mails per tijd toe.
+    setTimeout(() => (submitBtn.disabled = false), 30000);
+  });
+</script>
