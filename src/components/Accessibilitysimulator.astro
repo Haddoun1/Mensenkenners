@@ -201,13 +201,16 @@
         while((match = re.exec(textNode.nodeValue)) != null) {
           wordsMeta.push({ length: match[0].length, position: match.index });
         }
-        textNodes.push({ text: textNode, wordsMeta: wordsMeta });
+        // De originele tekst bewaren, zodat we die bij "Uit" kunnen terugzetten.
+        textNodes.push({ text: textNode, wordsMeta: wordsMeta, original: textNode.nodeValue, messed: null });
       }
     }
   }
 
   function startMessUpWords(chance, tempo) {
     stopMessUpWords();
+    // Opnieuw zoeken, zodat ook tekst die later op de pagina is gekomen meedoet.
+    findTextNodes();
     letterChangeInterval = setInterval(() => {
       textNodes.forEach(textNode => {
         textNode.wordsMeta.forEach(wordMeta => {
@@ -218,6 +221,7 @@
             textNode.text.nodeValue = before + messUpWord(word) + after;
           }
         });
+        textNode.messed = textNode.text.nodeValue;
       });
     }, tempo);
   }
@@ -238,6 +242,14 @@
 
   function stopMessUpWords() {
     clearInterval(letterChangeInterval);
+    // Zet de letters terug. Alleen als de tekst nog door ons is gehusseld,
+    // zodat we tekst die de pagina zelf intussen heeft aangepast niet overschrijven.
+    textNodes.forEach(textNode => {
+      if(textNode.messed !== null && textNode.text.nodeValue === textNode.messed) {
+        textNode.text.nodeValue = textNode.original;
+      }
+      textNode.messed = null;
+    });
   }
 
   // INI

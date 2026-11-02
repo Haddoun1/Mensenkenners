@@ -153,6 +153,15 @@
       "Category": "Module 2"
     },
     {
+      "id": "m2_video_hand_geven",
+      "type": "video",
+      "section": "module_2_perspectief_inlevingsvermogen",
+      "title": "Video over een hand geven",
+      "text": "Een hand geven voelt voor veel mensen vanzelfsprekend. Maar niet iedereen kan of wil op dezelfde manier begroeten. Let op wat iemand zelf aangeeft en stem je begroeting daarop af.",
+      "url": "https://vimeo.com/reviews/cc07abb6-20d0-4d53-9768-7278306dcb9a/videos/1238261148",
+      "Category": "Module 2"
+    },
+    {
       "id": "m2_content_01",
       "type": "question",
       "section": "module_2_perspectief_inlevingsvermogen",
@@ -161,15 +170,6 @@
       "question": "Wat doe jij vanzelfsprekend in contact met anderen, waar anderen misschien niet bij stilstaan?",
       "input_type": "long_text",
       "required": true,
-      "Category": "Module 2"
-    },
-    {
-      "id": "m2_video_hand_geven",
-      "type": "video",
-      "section": "module_2_perspectief_inlevingsvermogen",
-      "title": "Video over een hand geven",
-      "text": "Een hand geven voelt voor veel mensen vanzelfsprekend. Maar niet iedereen kan of wil op dezelfde manier begroeten. Let op wat iemand zelf aangeeft en stem je begroeting daarop af.",
-      "url": "https://vimeo.com/reviews/cc07abb6-20d0-4d53-9768-7278306dcb9a/videos/1238261148",
       "Category": "Module 2"
     },
     {

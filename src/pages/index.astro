@@ -118,10 +118,17 @@ import { courses } from "../data/courses.js";
     data: { user },
   } = await supabase.auth.getUser();
 
-  function getResumeHref(courseId, latestRow, percentage) {
-    // De onboarding begint altijd bij de welkomstpagina.
-    if (courseId === "onboarding") {
-      return courseStartHref.onboarding;
+  // Onboarding: ga verder bij de eerste stap die nog niet is afgerond. Nog niets gedaan,
+  // of alles al af? Dan begint hij bij de welkomstpagina.
+  function getOnboardingResumeHref(doneStepIds) {
+    if (doneStepIds.size === 0) return courseStartHref.onboarding;
+    const nextStep = onboardingSteps.find((step) => !doneStepIds.has(String(step.stepId)));
+    return nextStep ? `/onboarding/step-${nextStep.id}` : courseStartHref.onboarding;
+  }
+
+  function getResumeHref(courseId, latestRow, percentage, doneStepIds) {
+    if (courseId === "onboarding" && percentage < 100) {
+      return getOnboardingResumeHref(doneStepIds);
     }
 
     // Als de cursus al afgerond is, mag de gebruiker opnieuw starten bij stap 1.
@@ -138,8 +145,25 @@ import { courses } from "../data/courses.js";
     return courseStartHref[courseId] || "/";
   }
 
+  // Niet ingelogd: de onboarding-voortgang staat dan alleen lokaal (zie Layout-onboarding.astro).
+  // Ook dan gaat hij verder bij de eerste stap die nog niet is afgerond.
+  function loadLocalOnboardingResume() {
+    try {
+      const pending = JSON.parse(localStorage.getItem("pendingOnboardingProgress") || "[]");
+      const card = document.querySelector('[data-course-id="onboarding"]');
+      if (card) {
+        card.dataset.resumeHref = getOnboardingResumeHref(new Set(pending.map((s) => String(s.stepId))));
+      }
+    } catch {
+      // localStorage niet beschikbaar: begin gewoon bij de welkomstpagina.
+    }
+  }
+
   async function loadProgress() {
-    if (!user) return;
+    if (!user) {
+      loadLocalOnboardingResume();
+      return;
+    }
 
     const response = await fetch("/api/get-progress", {
       method: "POST",
@@ -205,7 +229,7 @@ import { courses } from "../data/courses.js";
       card.dataset.progress = String(percentage);
 
       const latestRow = latestByCourse[key];
-      const resumeHref = getResumeHref(key, latestRow, percentage);
+      const resumeHref = getResumeHref(key, latestRow, percentage, completed[key]);
       card.dataset.resumeHref = resumeHref;
     });
   }
