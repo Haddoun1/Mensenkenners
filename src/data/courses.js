@@ -4,8 +4,8 @@
 // Afbeeldingen worden geïmporteerd zodat Astro's <Image /> ze kan verkleinen en optimaliseren.
 import onboardingImage from "../assets/images/mockupmensenkenners.webp";
 import module1Image from "../assets/images/Mensenkennerskaderdoof.webp";
-import module2Image from "../assets/images/Mensenkennerskaderroller.webp";
-import module3Image from "../assets/images/Mensenkennerskadersd.webp";
+import module2Image from "../assets/images/Mensenkennerskadersd.webp";
+import module3Image from "../assets/images/Mensenkennerskaderroller.webp";
 import module4Image from "../assets/images/Mensenkennerskadervisueel.webp";
 
 export const courses = [
