@@ -47,7 +47,7 @@
     "nextHref": "/onboarding/step-5",
     "backHref": "/onboarding/step-3",
     "headingText": "De beperking simulator",
-    "bodyText": "Rechtsboven in elke cursuspagina vind je de knop 'Simulator'. Daarmee boots je een beperking na, zoals wazig zicht, weinig contrast, dyslexie of een trillende hand. Zo ervaar je zelf hoe het is om de cursus te volgen als niet alles vanzelf gaat. Je kunt instellingen combineren en met 'Reset alle instellingen' zet je alles weer terug.",
+    "bodyText": "Rechtsboven in elke cursuspagina vind je de knop 'Simulator'. Daarmee kun je een aantal beperkingen nabootsen, zoals wazig zicht, weinig contrast, dyslexie of een trillende hand. Zo krijg je een klein beetje gevoel bij hoe het kan zijn om de cursus te volgen als niet alles vanzelf gaat. Het is een benadering: de echte ervaring van iemand met een beperking kun je hiermee niet evenaren. Je kunt instellingen combineren en met 'Reset alle instellingen' zet je alles weer terug.",
     "step": 4,
     "totalSteps": 10,
     "stepId": "onboarding_step-4",

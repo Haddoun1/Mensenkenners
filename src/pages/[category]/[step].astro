@@ -147,7 +147,8 @@ const scenarios = (item.scenarios || []).map((scenario) => {
 });
 const scenarioLabel = item.scenario_label || "Moment";
 
-// Een open vraag zonder voorbeeldantwoord wordt alleen ingestuurd, zonder voorbeeld te tonen.
+// Een open vraag zonder voorbeeldantwoord heeft geen check-knop: het antwoord wordt al
+// tijdens het typen opgeslagen, dus "Volgende" is genoeg.
 const isSubmitOnlyQuestion = isOpenReflectionQuestion && !exampleAnswer;
 
 // Husselt de antwoorden van een matchingvraag, zodat ze niet in dezelfde volgorde staan als de stellingen.
@@ -210,7 +211,7 @@ const accentColor = categoryColorMap[categorySlug] ?? "#B1F2D9";
         class="content-col"
         data-step-id={String(currentStep)}
         data-category={categorySlug}
-        data-requires-check={(isCheckableQuestion && !(isSubmitOnlyQuestion && item.required === false)) || isScenarioGame ? "true" : "false"}
+        data-requires-check={(isCheckableQuestion && !isSubmitOnlyQuestion) || isScenarioGame ? "true" : "false"}
         data-input-type={item.input_type || ""}
         data-question-id={item.type === "question" ? item.id : undefined}
       >
@@ -517,9 +518,11 @@ const accentColor = categoryColorMap[categorySlug] ?? "#B1F2D9";
 
               {isCheckableQuestion && (
                 <div class="question-check-row">
-                  <button type="button" class="btn btn--primary" id="check-answer-btn">
-                    {isSubmitOnlyQuestion ? "Antwoord insturen" : "Check antwoord"}
-                  </button>
+                  {!isSubmitOnlyQuestion && (
+                    <button type="button" class="btn btn--primary" id="check-answer-btn">
+                      Check antwoord
+                    </button>
+                  )}
                   <div
                     class="answer-feedback"
                     id="answer-feedback"
@@ -529,6 +532,7 @@ const accentColor = categoryColorMap[categorySlug] ?? "#B1F2D9";
                     data-explanation={item.explanation || ""}
                     data-example-answer={exampleAnswer}
                     data-submit-only={isSubmitOnlyQuestion ? "true" : "false"}
+                    data-answer-required={item.required === false ? "false" : "true"}
                   />
                 </div>
               )}
@@ -700,16 +704,23 @@ const accentColor = categoryColorMap[categorySlug] ?? "#B1F2D9";
     navNext.addEventListener("click", async (e) => {
       e.preventDefault();
 
+      // Open vraag zonder check-knop: alleen controleren of er iets is ingevuld.
+      if (answerFeedback?.dataset.submitOnly === "true" && answerFeedback.dataset.answerRequired === "true") {
+        const result = getOpenQuestionResult();
+        if (result && !result.valid) {
+          answerFeedback.hidden = false;
+          answerFeedback.className = "answer-feedback answer-feedback--warning";
+          answerFeedback.textContent = result.message;
+          return;
+        }
+      }
+
       if (requiresCheck && navNext.dataset.checked !== "true") {
         answerFeedback.hidden = false;
         answerFeedback.className = "answer-feedback answer-feedback--warning";
-        if (scenarioGame) {
-          answerFeedback.textContent = "Doorloop eerst alle momenten voordat je verdergaat.";
-        } else {
-          answerFeedback.textContent = answerFeedback.dataset.submitOnly === "true"
-            ? "Stuur eerst je antwoord in voordat je verdergaat."
-            : "Check eerst je antwoord voordat je verdergaat.";
-        }
+        answerFeedback.textContent = scenarioGame
+          ? "Doorloop eerst alle momenten voordat je verdergaat."
+          : "Check eerst je antwoord voordat je verdergaat.";
         return;
       }
 
@@ -907,10 +918,7 @@ const accentColor = categoryColorMap[categorySlug] ?? "#B1F2D9";
     const explanation = result.optionFeedback || answerFeedback.dataset.explanation;
     const exampleAnswer = answerFeedback.dataset.exampleAnswer;
 
-    if (result.isOpenQuestion && answerFeedback.dataset.submitOnly === "true") {
-      answerFeedback.className = "answer-feedback answer-feedback--correct";
-      answerFeedback.textContent = "Je antwoord is ingestuurd.";
-    } else if (result.isOpenQuestion) {
+    if (result.isOpenQuestion) {
       answerFeedback.className = "answer-feedback answer-feedback--example";
       answerFeedback.innerHTML = `<p>${escapeHtml(exampleAnswer)}</p>`;
     } else if (result.correct) {
