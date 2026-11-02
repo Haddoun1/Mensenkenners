@@ -264,12 +264,84 @@ const {
     return { saveProgress, user };
   }
 
+  // Antwoorden op de onboardingvragen bewaren, net als bij de modules: in de tabel course_answers
+  // (categorie "onboarding", vraag-id = name van de vraag). Nog niet ingelogd? Dan lokaal bewaren;
+  // login.astro slaat ze op zodra de gebruiker is ingelogd.
+  async function setupAnswers(user) {
+    const inputs = [...document.querySelectorAll('main .question input[type="radio"], main .question input[type="checkbox"]')];
+    const questionId = inputs[0]?.name;
+    if (!questionId) return;
+
+    const isMulti = inputs[0].type === "checkbox";
+    const readAnswer = () => {
+      const chosen = inputs.filter((input) => input.checked).map((input) => input.value);
+      return isMulti ? { choices: chosen } : { choice: chosen[0] ?? null };
+    };
+
+    // Eerder gegeven antwoord terugzetten.
+    let saved = null;
+    if (user?.id) {
+      const { data, error } = await supabase
+        .from("course_answers")
+        .select("answer")
+        .eq("user_id", user.id)
+        .eq("category", "onboarding")
+        .eq("question_id", questionId)
+        .maybeSingle();
+      if (error) console.error("Antwoord ophalen mislukt:", error.message);
+      saved = data?.answer;
+    } else {
+      try {
+        saved = JSON.parse(localStorage.getItem("pendingOnboardingAnswers") || "{}")[questionId];
+      } catch {}
+    }
+
+    if (saved) {
+      const chosen = isMulti ? saved.choices ?? [] : [saved.choice];
+      inputs.forEach((input) => (input.checked = chosen.includes(input.value)));
+      // Bevestigingstekst (QuestionSingle) ook tonen als er al een antwoord stond.
+      const confirmation = document.querySelector("main .confirmation-text");
+      if (confirmation && inputs.some((input) => input.checked)) confirmation.hidden = false;
+    }
+
+    // Elke keuze direct opslaan.
+    const save = async () => {
+      const answer = readAnswer();
+
+      if (!user?.id) {
+        try {
+          const pending = JSON.parse(localStorage.getItem("pendingOnboardingAnswers") || "{}");
+          pending[questionId] = answer;
+          localStorage.setItem("pendingOnboardingAnswers", JSON.stringify(pending));
+        } catch {
+          // localStorage niet beschikbaar: antwoord wordt niet bewaard.
+        }
+        return;
+      }
+
+      const { error } = await supabase.from("course_answers").upsert(
+        {
+          user_id: user.id,
+          category: "onboarding",
+          question_id: questionId,
+          answer,
+          updated_at: new Date().toISOString(),
+        },
+        { onConflict: "user_id,category,question_id" },
+      );
+      if (error) console.error("Antwoord opslaan mislukt:", error.message);
+    };
+
+    inputs.forEach((input) => input.addEventListener("change", save));
+  }
+
   async function setupNavigation() {
     controller.abort();
     controller = new AbortController();
     const signal = controller.signal;
 
     const { saveProgress, user } = await setupTracking();
+    await setupAnswers(user);
 
     const backBtn = document.getElementById("back-btn");
     const nextBtn = document.querySelector(".button-next");

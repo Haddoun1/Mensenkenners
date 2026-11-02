@@ -150,6 +150,32 @@ export const prerender = false;
     localStorage.removeItem("pendingOnboardingProgress");
   }
 
+  // Slaat antwoorden op onboardingvragen op die zijn gegeven voordat de gebruiker inlogde
+  // (zie setupAnswers in Layout-onboarding.astro).
+  async function savePendingOnboardingAnswers(user) {
+    let pending = {};
+    try {
+      pending = JSON.parse(localStorage.getItem("pendingOnboardingAnswers") || "{}");
+    } catch {
+      return;
+    }
+    const rows = Object.entries(pending).map(([questionId, answer]) => ({
+      user_id: user?.id,
+      category: "onboarding",
+      question_id: questionId,
+      answer,
+      updated_at: new Date().toISOString(),
+    }));
+    if (!user?.id || rows.length === 0) return;
+
+    const { error } = await supabase
+      .from("course_answers")
+      .upsert(rows, { onConflict: "user_id,category,question_id" });
+
+    if (error) console.error("Onboarding-antwoorden opslaan mislukt:", error.message);
+    else localStorage.removeItem("pendingOnboardingAnswers");
+  }
+
   // Waar de gebruiker na het inloggen heen gaat, bijvoorbeeld terug naar de onboarding.
   // Alleen interne paden zijn toegestaan (zie safeNextUrl); anders naar het dashboard.
   const nextParam = new URLSearchParams(window.location.search).get("next");
@@ -191,6 +217,7 @@ export const prerender = false;
     }
 
     await savePendingOnboardingProgress(data.user);
+    await savePendingOnboardingAnswers(data.user);
 
     // Groep die bij het registreren is gekozen opslaan in het profiel.
     await saveSignupGroup(data.user);

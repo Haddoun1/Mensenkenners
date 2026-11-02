@@ -108,6 +108,7 @@ import { courses } from "../data/courses.js";
   // @ts-nocheck
   import { supabase, authHeaders } from "../lib/supabase";
   import { totals, courseStartHref, categoryToCourseId } from "../data/courses.js";
+  import onboardingSteps from "../data/onboarding-steps.json";
 
   // Get user data for progress
 
@@ -321,9 +322,15 @@ import { courses } from "../data/courses.js";
     if (cta.dataset.status === "completed") restartCourse(e, cta.dataset.courseId);
   });
 
-  // Een afgeronde module kun je opnieuw doen of terugkijken. De onboarding bewaart geen antwoorden,
-  // dus daar is terugkijken niet nodig.
-  const canReview = (courseId, status) => status === "completed" && courseId !== "onboarding";
+  // Een afgeronde cursus kun je opnieuw doen of terugkijken (ook de onboarding bewaart antwoorden).
+  const canReview = (courseId, status) => status === "completed";
+
+  // Terugkijken van de onboarding begint bij de eerste vraag; de stappen daarvoor zijn alleen uitleg.
+  const firstOnboardingQuestion = onboardingSteps.find((step) => step.question);
+  const reviewHref = (courseId, resumeHref) =>
+    courseId === "onboarding" && firstOnboardingQuestion
+      ? `/onboarding/step-${firstOnboardingQuestion.id}`
+      : resumeHref;
 
   // Keuzevenster voor telefoon en tablet.
   const courseDialog = document.getElementById("course-dialog");
@@ -354,7 +361,7 @@ import { courses } from "../data/courses.js";
           document.getElementById("course-dialog-title").textContent = courseData[courseId]?.title || "";
           dialogRestart.href = href;
           dialogRestart.dataset.courseId = courseId;
-          dialogReview.href = href;
+          dialogReview.href = reviewHref(courseId, href);
           // Zelfde modulekleur als in het detailpaneel.
           const color = courseData[courseId]?.color;
           if (color) {
@@ -411,7 +418,7 @@ import { courses } from "../data/courses.js";
 
       const review = document.getElementById("detail-review");
       review.hidden = !reviewable;
-      review.href = resumeHref;
+      review.href = reviewHref(courseId, resumeHref);
       review.style.setProperty("background-color", data.color);
       document
         .getElementById("detail-progress")
