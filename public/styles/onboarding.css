@@ -553,7 +553,7 @@ html {
           font-family: var(--font-light);
           text-align: center;
           max-width: 70vw;
-          color: #525252;
+          color: var(--onboarding-text-dark); /* licht: #525252, dark mode: wit */
         }
       }
 
@@ -699,7 +699,7 @@ html {
       }
 
       .login-link {
-        text-align: left;
+        text-align: center;
       }
 
       .logo-desktop-login {
@@ -885,5 +885,72 @@ html {
 
 /* Dark mode: de donkergroene linkkleur is te zwak op de donkere achtergrond. */
 html.dark-mode .login-link a {
+  color: var(--color-success-text);
+}
+
+/* Meldingen op de login-, wachtwoord-vergeten- en nieuw-wachtwoordpagina. */
+.login-status {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.5rem;
+  padding: 0.85rem 1rem;
+  border: 1.5px solid var(--color-info-border);
+  border-radius: 14px;
+  background: var(--color-info-bg);
+  color: var(--color-info-text);
+  font-size: var(--size-sm);
+  line-height: 1.5;
+}
+
+.login-status[hidden],
+.login-resend[hidden] {
+  display: none;
+}
+
+.login-status.is-error {
+  border-color: var(--color-error-border);
+  background: var(--color-error-bg);
+  color: var(--color-error-text);
+}
+
+.login-status.is-success {
+  border-color: var(--color-success-border);
+  background: var(--color-success-bg);
+  color: var(--color-success-text);
+}
+
+/* Knop die eruitziet als een link, bijvoorbeeld "Stuur de bevestigingsmail opnieuw". */
+.login-resend {
+  padding: 0;
+  border: none;
+  background: none;
+  color: inherit;
+  font: inherit;
+  font-family: var(--font-bold);
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.login-resend:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+/* "Wachtwoord vergeten?" onder het wachtwoordveld. */
+.forgot-password {
+  align-self: flex-end;
+  margin-top: -0.5rem;
+  font-size: var(--size-sm);
+  font-family: var(--font-bold);
+  color: var(--color-cyan-dark);
+  text-decoration: none;
+}
+
+.forgot-password:hover {
+  text-decoration: underline;
+}
+
+html.dark-mode .forgot-password {
   color: var(--color-success-text);
 }
