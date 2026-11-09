@@ -23,7 +23,8 @@ export default defineConfig({
       directives: [
         "default-src 'self'",
         "img-src 'self' data: blob:",
-        "font-src 'self' https://fonts.gstatic.com",
+        // Lettertypes alleen van de eigen server: geen IP-adressen naar Google Fonts.
+        "font-src 'self'",
         `connect-src 'self' ${PUBLIC_SUPABASE_URL}`,
         "frame-src https://www.youtube.com https://www.youtube-nocookie.com https://player.vimeo.com",
         "object-src 'none'",
@@ -32,7 +33,7 @@ export default defineConfig({
       ],
       // Inline style-attributen (zoals style="--color-accent: ...") zijn nodig voor de modulekleuren.
       styleDirective: {
-        resources: ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
+        resources: ["'self'", "'unsafe-inline'"],
       },
     },
   },
