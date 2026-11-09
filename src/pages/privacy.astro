@@ -2,7 +2,11 @@
 import MainLayout from "../layouts/Layout.astro";
 
 // Datum van de laatste inhoudelijke wijziging van deze verklaring. Aanpassen als de tekst verandert.
-const lastUpdated = "26 oktober 2026";
+const lastUpdated = "9 november 2026";
+
+// Zet op true zodra de verwerkersovereenkomst (DPA) met Supabase is getekend
+// (Supabase dashboard > Organization settings > Legal documents > DPA).
+const supabaseDpaSigned = false;
 ---
 
 <MainLayout title="Privacy">
@@ -20,7 +24,10 @@ const lastUpdated = "26 oktober 2026";
       <h2>Wie is verantwoordelijk?</h2>
       <p>
         Stichting Mensenkenners is verantwoordelijk voor de gegevens die via deze training worden verwerkt.
-        Vragen over je gegevens kun je stellen via de{" "}
+      </p>
+      <p>
+        <strong>Vragen over privacy?</strong> Voor vragen over je gegevens, of om je rechten te gebruiken,
+        kun je terecht bij de{" "}
         <a href="https://www.stichtingmensenkenners.nl/contact">contactpagina van Stichting Mensenkenners</a>.
       </p>
     </section>
@@ -30,7 +37,7 @@ const lastUpdated = "26 oktober 2026";
       <ul>
         <li>
           <strong>Accountgegevens:</strong> je e-mailadres, je voor- en achternaam en je wachtwoord. Je
-          wachtwoord wordt versleuteld opgeslagen; niemand kan het inzien.
+          wachtwoord wordt versleuteld opgeslagen.
         </li>
         <li>
           <strong>Geboortedatum:</strong> alleen als je die zelf invult op je profielpagina. Dit is niet
@@ -57,8 +64,8 @@ const lastUpdated = "26 oktober 2026";
         <li>Om je voortgang te bewaren, zodat je verder kunt waar je gebleven was.</li>
         <li>
           Om de training te verbeteren. We kijken hoe ver deelnemers komen, bij welke stap ze afhaken en
-          wat ze antwoorden op de reflecterende vragen. Dit gebeurt <strong>anoniem</strong>: je naam en
-          e-mailadres worden daarbij niet getoond.
+          wat ze antwoorden op de reflecterende vragen. In het adminpaneel gebeurt dit
+          <strong>anoniem</strong>: je naam en e-mailadres worden daarbij niet getoond.
         </li>
       </ul>
       <p>
@@ -68,24 +75,54 @@ const lastUpdated = "26 oktober 2026";
     </section>
 
     <section class="privacy-card">
+      <h2>Op welke grond gebruiken we je gegevens?</h2>
+      <p>De AVG (artikel 6) noemt de redenen waarom gegevens gebruikt mogen worden. Voor deze training zijn dat:</p>
+      <ul>
+        <li>
+          <strong>Uitvoering van de overeenkomst</strong> (artikel 6 lid 1b): je account, je groep, je
+          voortgang en je antwoorden zijn nodig om je de training te laten volgen en verder te laten gaan
+          waar je gebleven was.
+        </li>
+        <li>
+          <strong>Gerechtvaardigd belang</strong> (artikel 6 lid 1f): we bekijken anoniem hoe ver
+          deelnemers komen en wat ze meenemen, om de training te verbeteren. Daarbij worden geen namen of
+          e-mailadressen getoond.
+        </li>
+        <li>
+          <strong>Toestemming</strong> (artikel 6 lid 1a): je geboortedatum vul je alleen in als je dat zelf
+          wilt. Je kunt hem op je profielpagina altijd weer weghalen.
+        </li>
+      </ul>
+    </section>
+
+    <section class="privacy-card">
       <h2>Wie kan je gegevens zien?</h2>
       <ul>
         <li>Jij ziet alleen je eigen gegevens, voortgang en antwoorden.</li>
         <li>
-          Alleen een <strong>kleine groep Head-Admins</strong> van Stichting Mensenkenners kan de gegevens
-          van alle deelnemers inzien. Zij zien je voortgang en je antwoorden op de reflecterende vragen,
-          allebei <strong>anoniem</strong>.
+          De <strong>groepsleiders van jouw groep</strong> zien in het adminpaneel de voortgang en de
+          reflecties van deelnemers uit jouw groep, <strong>anoniem</strong>: zonder naam of e-mailadres.
+          Ze kunnen je antwoorden ook niet op een andere manier aan jou koppelen. Groepsleiders van andere
+          groepen zien niets van jou.
         </li>
         <li>
-          De beheerders van <strong>jouw groep</strong> zien op dezelfde anonieme manier alleen de
-          voortgang en reflecties van deelnemers uit jouw groep. Beheerders van andere groepen zien
-          niets van jou.
-        </li>
-        <li>
-          De gegevens worden opgeslagen bij <strong>Supabase</strong>, de dienst die wij gebruiken voor
-          inloggen en de database. Supabase verwerkt de gegevens alleen in onze opdracht.
+          Alleen een <strong>kleine groep Head-Admins</strong> van Stichting Mensenkenners heeft toegang tot
+          de database. Zij kunnen alle gegevens inzien, ook je naam en e-mailadres, en gebruiken die alleen
+          voor het beheer van accounts en groepen. In het adminpaneel zien ook zij de antwoorden anoniem.
         </li>
       </ul>
+    </section>
+
+    <section class="privacy-card">
+      <h2>Waar worden je gegevens opgeslagen?</h2>
+      <p>
+        De gegevens worden opgeslagen bij <strong>Supabase</strong>, de dienst die wij gebruiken voor
+        inloggen en de database. De database staat in een datacenter in de <strong>Europese Unie</strong>
+        (Ierland). Supabase verwerkt de gegevens alleen in onze opdracht en gebruikt ze niet voor zichzelf.
+        {supabaseDpaSigned
+          ? " Daarover hebben we met Supabase een verwerkersovereenkomst afgesloten."
+          : " Daarover sluiten we met Supabase een verwerkersovereenkomst af."}
+      </p>
     </section>
 
     <section class="privacy-card">
@@ -115,8 +152,14 @@ const lastUpdated = "26 oktober 2026";
     <section class="privacy-card">
       <h2>Hoe lang bewaren we je gegevens?</h2>
       <p>
-        We bewaren je gegevens zolang je account bestaat. Wil je dat je account en alle bijbehorende
-        gegevens worden verwijderd? Neem dan contact met ons op.
+        We bewaren je gegevens zolang je account bestaat. Wordt je account verwijderd, dan verwijderen we
+        ook direct je profiel, je voortgang en je antwoorden. Wil je dat je account wordt verwijderd? Neem
+        dan contact met ons op via de{" "}
+        <a href="https://www.stichtingmensenkenners.nl/contact">contactpagina</a>.
+      </p>
+      <p>
+        Wat in je eigen browser staat (je inlogsessie, je gekozen weergave en je voortgang in de onboarding
+        voordat je inlogt), blijft daar tot je uitlogt of je browsergegevens wist.
       </p>
     </section>
 
@@ -124,9 +167,8 @@ const lastUpdated = "26 oktober 2026";
       <h2>Beveiliging</h2>
       <p>
         Je gegevens zijn alleen bereikbaar voor wie daar toegang toe moet hebben: jij voor je eigen
-        gegevens, en de Head-Admins en de beheerders van jouw groep (anoniem) voor het verbeteren van de
-        training. Verbindingen met de site zijn
-        versleuteld.
+        gegevens, de groepsleiders van jouw groep (anoniem) en de Head-Admins van Stichting Mensenkenners
+        voor het beheer en het verbeteren van de training. Verbindingen met de site zijn versleuteld.
       </p>
     </section>
 
