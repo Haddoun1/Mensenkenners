@@ -2,7 +2,8 @@
 --
 -- Rollen in profiles.role:
 --   - 'user'        gewone deelnemer;
---   - 'admin'       ziet voortgang en antwoorden van deelnemers uit de eigen groep (profiles.group_id);
+--   - 'admin'       groepsleider: ziet voortgang en antwoorden van deelnemers uit de eigen groep (profiles.group_id),
+--                   anoniem: geen namen, e-mailadressen of gebruikers-id's bij de antwoorden;
 --   - 'superadmin'  hoofdadmin: ziet alle groepen, beheert de groepen en koppelt admins aan een groep.
 --
 -- Voer dit uit NA supabase/security_rls.sql.
@@ -161,7 +162,11 @@ create policy "Hoofdadmin beheert groepen"
   with check (public.is_superadmin());
 
 
--- 5. Admins lezen voortaan alleen hun eigen groep (vervangt de "alles lezen"-policies uit security_rls.sql).
+-- 5. Wie mag wat lezen (vervangt de "alles lezen"-policies uit security_rls.sql).
+--    - Voortgang: admins lezen alleen hun eigen groep. Daarin staat geen naam of e-mailadres.
+--    - Profielen (met e-mailadres) en antwoorden: alleen de hoofdadmin (Mensenkenners) leest de tabellen zelf.
+--      Een groepsadmin krijgt de antwoorden alleen via group_takeaways() hieronder: zonder gebruikers-id,
+--      zodat antwoorden niet aan personen te koppelen zijn, ook niet met een eigen verzoek aan de database.
 drop policy if exists "Admins lezen alle voortgang" on public.course_progress;
 drop policy if exists "Admins lezen alle profielen" on public.profiles;
 drop policy if exists "Admins lezen alle antwoorden" on public.course_answers;
@@ -174,15 +179,52 @@ create policy "Admins lezen voortgang van hun groep"
   to authenticated
   using (public.can_see_user(user_id::text));
 
-create policy "Admins lezen profielen van hun groep"
+drop policy if exists "Hoofdadmin leest alle profielen" on public.profiles;
+drop policy if exists "Hoofdadmin leest alle antwoorden" on public.course_answers;
+
+create policy "Hoofdadmin leest alle profielen"
   on public.profiles for select
   to authenticated
-  using (public.can_see_user(id::text));
+  using (public.is_superadmin());
 
-create policy "Admins lezen antwoorden van hun groep"
+create policy "Hoofdadmin leest alle antwoorden"
   on public.course_answers for select
   to authenticated
-  using (public.can_see_user(user_id::text));
+  using (public.is_superadmin());
+
+-- Antwoorden op de reflectievraag "Wat neem je mee?" voor het adminpaneel, anoniem:
+-- alleen module, vraag, antwoordtekst en datum, geen gebruikers-id.
+-- Een admin krijgt alleen zijn eigen groep (via can_see_user). De hoofdadmin krijgt alles,
+-- of met filter_group alleen die ene groep.
+-- Oude versie met een andere uitvoer eerst weghalen, anders weigert "create or replace".
+drop function if exists public.group_takeaways(uuid);
+
+create function public.group_takeaways(filter_group uuid default null)
+returns table (category text, question_id text, answer_text text, updated_at timestamptz)
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select a.category::text,
+         a.question_id::text,
+         trim(coalesce(a.answer -> 'values' ->> 0, '')),
+         a.updated_at
+  from public.course_answers a
+  where a.question_id like '%\_meenemen'
+    and public.can_see_user(a.user_id::text)
+    and (
+      filter_group is null
+      or exists (
+        select 1 from public.profiles p
+        where p.id::text = a.user_id::text and p.group_id = filter_group
+      )
+    )
+  order by a.updated_at desc;
+$$;
+
+revoke all on function public.group_takeaways(uuid) from public, anon;
+grant execute on function public.group_takeaways(uuid) to authenticated;
 
 
 -- 6. Startgroepen. Bestaan ze al, dan gebeurt er niets. Later beheert de hoofdadmin de groepen in het adminpaneel.

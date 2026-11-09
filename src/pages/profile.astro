@@ -252,6 +252,13 @@ import MainLayout from "../layouts/Layout.astro";
       return;
     }
 
+    // Sluit ook de sessie van het adminpaneel (een aparte cookie), zodat /admin
+    // op een gedeelde pc na het uitloggen niet meer open staat.
+    await fetch("/api/admin-logout", {
+      method: "POST",
+      headers: { Accept: "application/json" },
+    }).catch((err) => console.error("Admin-uitloggen mislukt:", err));
+
     window.location.href = "/onboarding/login";
   });
 </script>

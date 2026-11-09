@@ -15,6 +15,9 @@ let email = "";
 const noAccessMessage = "Dit account heeft geen toegang tot het adminpaneel. Log in met een admin-account, of vraag een admin om je toegang te geven.";
 let noAccess = Astro.url.searchParams.has("geen-toegang");
 
+// Na "Uitloggen" in het adminpaneel komt de admin hier terug met ?uitgelogd.
+const loggedOut = Astro.url.searchParams.has("uitgelogd");
+
 // Controleert of het formulier werd verstuurd.
 if (Astro.request.method === "POST") {
   // Leest alle velden uit het formulier.
@@ -62,13 +65,8 @@ if (Astro.request.method === "POST") {
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Inloggen | Mensenkenners Adminpaneel</title>
 
-<!-- Zelfde lettertypes als het adminpaneel -->
-<link rel="preconnect" href="https://fonts.googleapis.com" />
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link
-  href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&display=swap"
-  rel="stylesheet"
-/>
+<!-- Zelfde lettertypes als het adminpaneel, vanaf onze eigen server (geen Google Fonts) -->
+<link rel="stylesheet" href="/styles/admin-fonts.css" />
 <script is:inline src="/scripts/theme-init.js"></script>
 
 <!-- Light/dark mode knop rechtsboven, net als op de andere pagina's -->
@@ -95,6 +93,10 @@ if (Astro.request.method === "POST") {
         <p class="notice-title">Geen toegang</p>
         <p>{noAccessMessage}</p>
       </div>
+    )}
+
+    {loggedOut && !noAccess && !errorMessage && (
+      <p class="success" role="status">Je bent uitgelogd.</p>
     )}
 
     {errorMessage && (
@@ -127,6 +129,17 @@ if (Astro.request.method === "POST") {
     <a class="back-link" href="/">← Terug naar de training</a>
   </section>
 </main>
+
+<script>
+  // @ts-nocheck
+  // Uitgelogd in het adminpaneel: sluit ook de sessie van het deelnemersdeel (browseropslag),
+  // zodat er op deze pc niemand meer ingelogd is.
+  import { supabase } from "../../lib/supabase";
+
+  if (new URLSearchParams(window.location.search).has("uitgelogd")) {
+    supabase.auth.signOut({ scope: "local" });
+  }
+</script>
 
 <style>
   *,
@@ -227,6 +240,17 @@ if (Astro.request.method === "POST") {
     color: var(--danger);
     background: var(--danger-light);
     border: 1px solid var(--danger-mid);
+    border-radius: 10px;
+    padding: 0.75rem 1rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .success {
+    font-size: 0.85rem;
+    line-height: 1.4;
+    color: light-dark(#1c7356, #8ee3c4);
+    background: light-dark(#e9f8f2, #14302a);
+    border: 1px solid var(--accent);
     border-radius: 10px;
     padding: 0.75rem 1rem;
     margin-bottom: 1.25rem;
