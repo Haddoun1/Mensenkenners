@@ -252,6 +252,14 @@ const takeaways = Object.entries(moduleSteps)
   }));
 
 const totalTakeaways = takeaways.reduce((sum, mod) => sum + mod.answers.length, 0);
+
+// ── Feedbackgesprek ──────────────────────────────────────────────
+// Deelnemers die aan het eind van module 4 toestemming gaven om benaderd te worden.
+// Alleen voor de hoofdadmin, met naam en e-mailadres (zie supabase/feedback_contact.sql).
+const { data: contactRows, error: contactError } = isSuperadmin
+  ? await supabase.rpc("feedback_contacts")
+  : { data: [], error: null };
+const feedbackContacts = (contactRows || []).filter((row) => !filterLabel || row.groep === filterLabel);
 ---
 
 <!-- Zorgt dat tekens als – en ë goed worden weergegeven -->
@@ -529,6 +537,44 @@ const totalTakeaways = takeaways.reduce((sum, mod) => sum + mod.answers.length, 
           </details>
         ))}
     </section>
+
+    <!-- Feedbackgesprek: alleen voor de hoofdadmin. Deelnemers hebben hier zelf toestemming voor gegeven. -->
+    {isSuperadmin && (
+      <section class="takeaways">
+        <div class="section-intro">
+          <h2 class="section-title">Feedbackgesprek</h2>
+          <p class="section-text">
+            Deelnemers die aan het eind van module 4 "Ja, dat mag" kozen bij de vraag of we ze mogen
+            benaderen voor een online feedbackgesprek. Alleen zichtbaar voor de beheerders van Mensenkenners.
+          </p>
+        </div>
+
+        {contactError ? (
+          <div class="error-bar">
+            <span>⚠</span> Lijst ophalen mislukt: {contactError.message}. Is supabase/feedback_contact.sql
+            in Supabase uitgevoerd?
+          </div>
+        ) : feedbackContacts.length === 0 ? (
+          <p class="section-text">Nog niemand heeft toestemming gegeven.</p>
+        ) : (
+          <div class="card">
+            <ul class="takeaway-list">
+              {feedbackContacts.map((contact) => (
+                <li class="takeaway">
+                  <p class="takeaway-text">
+                    {contact.naam || "Naam onbekend"} · <a href={`mailto:${contact.email}`}>{contact.email}</a>
+                    {contact.groep && <span class="muted"> · {contact.groep}</span>}
+                  </p>
+                  <span class="takeaway-date mono muted">
+                    {new Date(contact.gekozen_op).toLocaleDateString("nl-NL")}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+      </section>
+    )}
 
     <!-- Admin tools onderaan het dashboard -->
     <section class="admin-tools card">
@@ -1677,6 +1723,12 @@ const totalTakeaways = takeaways.reduce((sum, mod) => sum + mod.answers.length, 
     display: block;
     margin-top: 0.35rem;
     font-size: 0.72rem;
+  }
+
+  /* E-maillink in de lijst Feedbackgesprek: zelfde kleur als de tekst, met onderstreping. */
+  .takeaway-text a {
+    color: inherit;
+    text-underline-offset: 2px;
   }
 
   .takeaway-text {

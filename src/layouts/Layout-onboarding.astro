@@ -142,7 +142,8 @@ const {
             }
             <div class="questionnaire">
               <h1>{headingText}</h1>
-              <p>{bodyText}</p>
+              {/* Een lege regel (\n\n) in de bodyText wordt een nieuwe alinea met witregel ertussen. */}
+              {String(bodyText).split(/\n\s*\n/).map((paragraph) => <p>{paragraph}</p>)}
             </div>
           </div>
 

@@ -2,7 +2,7 @@
 import MainLayout from "../layouts/Layout.astro";
 
 // Datum van de laatste inhoudelijke wijziging van deze verklaring. Aanpassen als de tekst verandert.
-const lastUpdated = "9 november 2026";
+const lastUpdated = "10 november 2026";
 
 // Zet op true zodra de verwerkersovereenkomst (DPA) met Supabase is getekend
 // (Supabase dashboard > Organization settings > Legal documents > DPA).
@@ -75,6 +75,36 @@ const supabaseDpaSigned = false;
     </section>
 
     <section class="privacy-card">
+      <h2>Benaderen voor een feedbackgesprek</h2>
+      <p>
+        Aan het eind van module 4 vragen we of we je mogen benaderen voor een online gesprek, om feedback
+        te geven op de training. Deze vraag is niet verplicht.
+      </p>
+      <ul>
+        <li>
+          <strong>Kies je 'Ja, dat mag'</strong>, dan zien de Head-Admins van Stichting Mensenkenners in het
+          adminpaneel je naam, je e-mailadres, je groep en de datum waarop je 'Ja' koos. Ze gebruiken die
+          gegevens alleen om je te mailen over een feedbackgesprek.
+        </li>
+        <li>
+          <strong>Kies je 'Nee, liever niet'</strong> of sla je de vraag over, dan benaderen we je niet en
+          kom je niet op deze lijst.
+        </li>
+        <li>
+          De groepsleiders van jouw groep zien je keuze <strong>niet</strong>.
+        </li>
+        <li>
+          Je kunt je keuze altijd wijzigen: ga terug naar deze vraag in module 4 en kies 'Nee, liever niet'.
+          Je verdwijnt dan direct van de lijst.
+        </li>
+        <li>
+          Een gesprek is altijd vrijblijvend. Ook als je 'Ja' hebt gekozen, kun je een uitnodiging gewoon
+          afslaan.
+        </li>
+      </ul>
+    </section>
+
+    <section class="privacy-card">
       <h2>Op welke grond gebruiken we je gegevens?</h2>
       <p>De AVG (artikel 6) noemt de redenen waarom gegevens gebruikt mogen worden. Voor deze training zijn dat:</p>
       <ul>
@@ -92,6 +122,11 @@ const supabaseDpaSigned = false;
           <strong>Toestemming</strong> (artikel 6 lid 1a): je geboortedatum vul je alleen in als je dat zelf
           wilt. Je kunt hem op je profielpagina altijd weer weghalen.
         </li>
+        <li>
+          <strong>Toestemming</strong> (artikel 6 lid 1a): we benaderen je alleen voor een feedbackgesprek
+          als je daar aan het eind van module 4 zelf 'Ja' op hebt gezegd (zie "Benaderen voor een
+          feedbackgesprek" hierboven). Je kunt die toestemming altijd intrekken.
+        </li>
       </ul>
     </section>
 
@@ -108,7 +143,9 @@ const supabaseDpaSigned = false;
         <li>
           Alleen een <strong>kleine groep Head-Admins</strong> van Stichting Mensenkenners heeft toegang tot
           de database. Zij kunnen alle gegevens inzien, ook je naam en e-mailadres, en gebruiken die alleen
-          voor het beheer van accounts en groepen. In het adminpaneel zien ook zij de antwoorden anoniem.
+          voor het beheer van accounts en groepen. In het adminpaneel zien ook zij de antwoorden anoniem. De
+          enige uitzondering: heb je 'Ja' gezegd op een feedbackgesprek, dan zien zij daar je naam,
+          e-mailadres en groep, zodat ze je kunnen benaderen.
         </li>
       </ul>
     </section>

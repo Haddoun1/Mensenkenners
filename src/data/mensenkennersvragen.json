@@ -93,21 +93,22 @@
       "type": "question",
       "section": "module_1_inclusief_contact",
       "title": "Gedrag en effect",
+      "text": "Jouw gedrag heeft invloed op de persoon met wie je in contact bent. Deze oefening vraagt je om stil te staan bij het effect dat je kunt hebben in een gesprek met iemand met een auditieve beperking.",
       "question": "Matching oefening: koppel gedrag aan het effect dat je denkt dat het gedrag heeft.",
       "input_type": "matching",
       "required": true,
       "pairs": [
         {
           "prompt": "Je herhaalt je vraag rustig op een andere manier.",
-          "answer": "De bezoeker aan de balie voelt zich serieus genomen."
+          "answer": "De bezoeker voelt zich serieus genomen."
         },
         {
           "prompt": "Je praat harder in plaats van duidelijker.",
-          "answer": "De bezoeker voelt zich niet gehoord, ook al hoort die je wel."
+          "answer": "Je collega voelt zich niet gehoord, ook al hoort die je wel."
         },
         {
           "prompt": "Je vraagt of opschrijven ook werkt.",
-          "answer": "De bezoeker krijgt zelf de regie over hoe het gesprek verloopt."
+          "answer": "Je buurman krijgt zelf de regie over hoe het gesprek verloopt."
         }
       ],
       "Category": "Module 1"
@@ -117,12 +118,13 @@
       "type": "question",
       "section": "module_1_inclusief_contact",
       "title": "Situatie en reactie",
+      "text": "Je weet niet altijd wat iemand nodig heeft als een gesprek anders verloopt dan je gewend bent. Je weet ook niet altijd wat voor beperking iemand heeft, en dat is ook niet altijd belangrijk voor het gesprek. Probeer te bedenken hoe je gepast op de volgende situaties reageert.",
       "question": "Matching oefening nu met voorbeelden uit de praktijk: bijeenkomst, activiteit, harder praten vs. rustig herhalen.",
       "input_type": "matching",
       "required": true,
       "pairs": [
         {
-          "prompt": "Een bezoeker aan de balie kijkt je bij binnenkomst aan en reageert traag op je vraag.",
+          "prompt": "Een bezoeker kijkt je bij binnenkomst aan en reageert traag op je vraag.",
           "answer": "Je geeft rustig de tijd en herhaalt de vraag zo nodig op een andere manier."
         },
         {
@@ -157,7 +159,7 @@
       "type": "video",
       "section": "module_2_perspectief_inlevingsvermogen",
       "title": "Video over een hand geven",
-      "text": "Een hand geven voelt voor veel mensen vanzelfsprekend. Maar niet iedereen kan of wil op dezelfde manier begroeten. Let op wat iemand zelf aangeeft en stem je begroeting daarop af.",
+      "text": "Een hand geven voelt voor veel mensen vanzelfsprekend. Maar niet iedereen kan of wil op dezelfde manier begroeten. Vraag wat iemand prettig vindt en stem je begroeting daarop af.",
       "url": "https://vimeo.com/reviews/cc07abb6-20d0-4d53-9768-7278306dcb9a/videos/1238261148",
       "Category": "Module 2"
     },
@@ -186,7 +188,8 @@
       "type": "question",
       "section": "module_2_perspectief_inlevingsvermogen",
       "title": "Aanname of vraag?",
-      "question": "Je krijgt drie korte momenten te zien. Kies bij elk moment wat jij zou doen.",
+      "text": "Weten of je wel of juist niet hulp moet aanbieden, is voor veel mensen lastig. Hoe ga jij hiermee om?",
+      "question": "Je krijgt drie situaties te zien. Kies bij elk moment wat jij zou doen.",
       "input_type": "scenarios",
       "required": true,
       "quotes": {
@@ -232,7 +235,8 @@
       "type": "question",
       "section": "module_2_perspectief_inlevingsvermogen",
       "title": "Kleine keuzes, groot verschil",
-      "question": "Koppel het principe aan de juiste toepassing.",
+      "text": "Hieronder staan enkele uitgangspunten voor de omgang met iemand met een beperking.",
+      "question": "Koppel deze principes aan hoe dit eruitziet in de praktijk.",
       "input_type": "matching",
       "required": true,
       "pairs": [
@@ -246,10 +250,10 @@
         },
         {
           "prompt": "Neutraal taalgebruik",
-          "answer": "Je zegt \"bezoeker met een beperking\" in plaats van een etiket te gebruiken."
+          "answer": "Je hebt het alleen over een beperking als het relevant is in de situatie (meestal is het niet relevant)."
         },
         {
-          "prompt": "Zelf niet invullen",
+          "prompt": "Niet voor iemand invullen",
           "answer": "Je vraagt door in plaats van te veronderstellen wat iemand bedoelt."
         }
       ],
@@ -410,10 +414,7 @@
       "type": "content",
       "section": "module_4_praktijksituaties_toepassing",
       "title": "Module 4 - Praktijksituaties en toepassing",
-      "paragraphs": [
-        "Het leren toepassen van de kennis uit deze online training maakt het verschil voor mensen met een beperking in de praktijk.",
-        "Test je reacties in deze module"
-      ],
+      "text": "Het leren toepassen van de kennis uit deze online training maakt het verschil voor mensen met een beperking in de praktijk. Test je reacties in deze module.",
       "Category": "Module 4"
     },
     {
@@ -612,6 +613,27 @@
       "question": "Wat neem je uit deze module mee naar je eigen dag, bijeenkomst of activiteit?",
       "input_type": "long_text",
       "required": true,
+      "Category": "Module 4"
+    },
+    {
+      "id": "m4_feedback_contact",
+      "type": "question",
+      "section": "module_4_praktijksituaties_toepassing",
+      "title": "Feedback geven?",
+      "text": "We willen deze training blijven verbeteren, en jouw ervaring helpt daarbij. Kies je 'Ja', dan kan Stichting Mensenkenners je via je e-mailadres benaderen voor een kort online gesprek. Je zit nergens aan vast.",
+      "question": "Mogen we je benaderen om in een online gesprek feedback te geven op deze training?",
+      "input_type": "single_choice",
+      "required": false,
+      "options": [
+        {
+          "id": "A",
+          "text": "Ja, dat mag"
+        },
+        {
+          "id": "B",
+          "text": "Nee, liever niet"
+        }
+      ],
       "Category": "Module 4"
     },
     {
