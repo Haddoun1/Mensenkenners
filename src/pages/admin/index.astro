@@ -38,6 +38,10 @@ if (profileError || !["admin", "superadmin"].includes(profile?.role)) {
   return Astro.redirect("/admin/login?geen-toegang");
 }
 
+// Niet bewaren in de browsercache: anders toont de Terug-knop na het uitloggen
+// (bijvoorbeeld op een gedeelde pc) nog de gegevens van deelnemers.
+Astro.response.headers.set("Cache-Control", "no-store");
+
 // ── Groepen ──────────────────────────────────────────────────────
 // Welke gegevens een admin te zien krijgt, regelt de database zelf (RLS in supabase/groups.sql):
 // een admin krijgt alleen rijen van deelnemers uit de eigen groep, de hoofdadmin alles.
@@ -228,15 +232,11 @@ const missingTimedModules = courseModules.length - timedModules.length;
 
 // ── "Wat neem je mee?" ───────────────────────────────────────────
 // Haalt de antwoorden op de afsluitende reflectievraag van elke module op.
-// Admins lezen de antwoorden van hun eigen groep dankzij supabase/groups.sql.
-// user_id is alleen nodig voor het groepsfilter van de hoofdadmin en wordt niet getoond.
-const { data: takeawayRows, error: takeawayError } = await supabase
-  .from("course_answers")
-  .select("user_id, category, question_id, answer, updated_at")
-  .like("question_id", "%_meenemen")
-  .order("updated_at", { ascending: false });
-
-// Antwoorden worden bewust anoniem getoond: geen naam, e-mail of gebruikers-id.
+// Via de databasefunctie group_takeaways (supabase/groups.sql): die geeft alleen de antwoorden
+// van de eigen groep, en zonder gebruikers-id. Zo zijn de antwoorden echt anoniem, ook buiten dit paneel.
+const { data: takeawayRows, error: takeawayError } = await supabase.rpc("group_takeaways", {
+  filter_group: groupFilter || null,
+});
 
 const takeaways = Object.entries(moduleSteps)
   .filter(([slug]) => slug.startsWith("module-"))
@@ -244,12 +244,11 @@ const takeaways = Object.entries(moduleSteps)
     slug,
     name: mod.name,
     answers: (takeawayRows || [])
-      .filter((row) => row.category === slug && inFilter(row))
+      .filter((row) => row.category === slug && row.answer_text)
       .map((row) => ({
-        text: String(row.answer?.values?.[0] ?? "").trim(),
+        text: row.answer_text,
         date: row.updated_at,
-      }))
-      .filter((answer) => answer.text),
+      })),
   }));
 
 const totalTakeaways = takeaways.reduce((sum, mod) => sum + mod.answers.length, 0);
@@ -260,13 +259,8 @@ const totalTakeaways = takeaways.reduce((sum, mod) => sum + mod.answers.length, 
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Mensenkenners Adminpaneel</title>
 
-<!-- Laadt Google Fonts voor het admin dashboard -->
-<link rel="preconnect" href="https://fonts.googleapis.com" />
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link
-  href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;600&display=swap"
-  rel="stylesheet"
-/>
+<!-- Lettertypes van het adminpaneel, vanaf onze eigen server (geen Google Fonts) -->
+<link rel="stylesheet" href="/styles/admin-fonts.css" />
 <script is:inline src="/scripts/theme-init.js"></script>
 
 <!-- Light/dark mode knop rechtsboven, net als op de andere pagina's -->
@@ -647,9 +641,13 @@ const totalTakeaways = takeaways.reduce((sum, mod) => sum + mod.answers.length, 
       </section>
     )}
 
-    <!-- Terug naar de cursus (het dashboard van de deelnemers) -->
-    <nav class="back-to-course" aria-label="Terug naar de cursus">
+    <!-- Terug naar de cursus (het dashboard van de deelnemers) en uitloggen.
+         Uitloggen sluit de adminsessie (cookie) én de sessie van het deelnemersdeel. -->
+    <nav class="back-to-course" aria-label="Terug naar de cursus of uitloggen">
       <a href="/" class="resetBtn back-to-course-link">← Terug naar de cursus</a>
+      <form method="post" action="/api/admin-logout">
+        <button type="submit" class="resetBtn back-to-course-link">Uitloggen</button>
+      </form>
     </nav>
   </div>
 </main>
@@ -732,15 +730,29 @@ const totalTakeaways = takeaways.reduce((sum, mod) => sum + mod.answers.length, 
   // zodat de lijsten en het filter de nieuwe groepen tonen.
   const groupMessage = document.getElementById("group-message");
 
+  // Toont altijd een melding, ook als de server geen JSON terugstuurt of onbereikbaar is.
   async function sendGroupRequest(method, body) {
-    const response = await fetch("/api/groups", {
-      method,
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body),
-    });
-    const result = await response.json();
-    groupMessage.textContent = result.message;
-    if (response.ok) window.location.reload();
+    groupMessage.textContent = "Bezig…";
+    try {
+      const response = await fetch("/api/groups", {
+        method,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+      const text = await response.text();
+      let message = text;
+      try {
+        message = JSON.parse(text).message;
+      } catch {
+        // Geen JSON (bijvoorbeeld een foutpagina): toon de statuscode.
+        message = `Er ging iets mis (status ${response.status}).`;
+      }
+      groupMessage.textContent = message;
+      if (response.ok) window.location.reload();
+    } catch (err) {
+      console.error("Groep opslaan mislukt:", err);
+      groupMessage.textContent = "De server is niet bereikbaar. Probeer het opnieuw.";
+    }
   }
 
   document.getElementById("group-form")?.addEventListener("submit", (e) => {
@@ -1072,6 +1084,9 @@ const totalTakeaways = takeaways.reduce((sum, mod) => sum + mod.answers.length, 
   */
   .back-to-course {
     display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.75rem;
     justify-content: flex-start;
     margin-top: 4rem;
   }
