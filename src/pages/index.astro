@@ -62,6 +62,12 @@ import { courses } from "../data/courses.js";
               ))
             }
           </ul>
+
+          <!-- Melding als er bij het gekozen filter geen cursussen zijn; het filterscript vult de tekst. -->
+          <div class="carousel-empty" id="carousel-empty" role="status" hidden>
+            <p id="carousel-empty-text"></p>
+            <button type="button" class="carousel-empty-btn" id="carousel-empty-btn">Toon alle cursussen</button>
+          </div>
         </div>
       </div>
     </div>
@@ -239,6 +245,15 @@ import { courses } from "../data/courses.js";
   // Filters
   const filterButtons = document.querySelectorAll(".filter-button");
   const carouselItems = document.querySelectorAll(".carousel-item");
+  const emptyMessage = document.getElementById("carousel-empty");
+  const emptyText = document.getElementById("carousel-empty-text");
+
+  // Tekst als er bij een filter geen enkele cursus past.
+  const emptyTexts = {
+    "not-started": "Je bent al aan alle cursussen begonnen. Goed bezig!",
+    "in-progress": "Je bent op dit moment niet met een cursus bezig. Kies een cursus om te beginnen.",
+    completed: "Je hebt nog geen cursus afgerond. Rond een cursus af, dan zie je hem hier terug.",
+  };
 
   filterButtons.forEach((btn) => {
     btn.addEventListener("click", () => {
@@ -246,13 +261,23 @@ import { courses } from "../data/courses.js";
       btn.classList.add("active");
 
       const filter = btn.id;
+      let visible = 0;
 
       carouselItems.forEach((item) => {
         const status = item.dataset.status || "not-started";
-        item.style.display =
-          filter === "all-courses" || status === filter ? "" : "none";
+        const show = filter === "all-courses" || status === filter;
+        item.style.display = show ? "" : "none";
+        if (show) visible += 1;
       });
+
+      emptyText.textContent = emptyTexts[filter] || "Er zijn hier geen cursussen.";
+      emptyMessage.hidden = visible > 0;
     });
+  });
+
+  // "Toon alle cursussen" in de melding: zelfde als op het filter "Alle cursussen" klikken.
+  document.getElementById("carousel-empty-btn")?.addEventListener("click", () => {
+    document.getElementById("all-courses")?.click();
   });
 
   // WELCOME tekst JS
@@ -617,6 +642,42 @@ import { courses } from "../data/courses.js";
   .carousel-item {
     min-width: 0;
     display: flex;
+  }
+
+  /* Melding bij een filter zonder cursussen. */
+  .carousel-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 1.5rem;
+    border: 1.5px dashed color-mix(in srgb, var(--color-text) 35%, transparent);
+    border-radius: 12px;
+    color: var(--color-text);
+
+    & p {
+      margin: 0;
+      font-size: var(--size-base);
+    }
+  }
+
+  .carousel-empty[hidden] {
+    display: none;
+  }
+
+  .carousel-empty-btn {
+    font-family: var(--font-semi-bold);
+    font-size: var(--size-sm);
+    color: var(--color-text);
+    background: transparent;
+    border: 1.5px solid var(--color-text);
+    border-radius: 99px;
+    padding: 0.45rem 1.1rem;
+    cursor: pointer;
+  }
+
+  .carousel-empty-btn:hover {
+    background: color-mix(in srgb, var(--color-text) 8%, transparent);
   }
 
   /* ASIDE/DETAIL */
