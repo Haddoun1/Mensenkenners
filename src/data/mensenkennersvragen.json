@@ -642,19 +642,69 @@
       "section": "module_4_praktijksituaties_toepassing",
       "title": "Module 4 afgerond",
       "paragraphs": [
-        "Goed gedaan! Je hebt alle modules afgerond. Wil je nog meer leren? Bekijk hier korte video's over de omgang met verschillende beperkingen, of ga terug naar het dashboard"
+        "Goed gedaan! Je hebt alle modules afgerond. Wil je nog meer leren? Bekijk hier korte video's over de omgang met verschillende beperkingen, of ga terug naar het dashboard. Kies hieronder een onderwerp om alleen die video's te zien."
       ],
       "videos": [
-        { "title": "Video 1", "url": "" },
-        { "title": "Video 2", "url": "" },
-        { "title": "Video 3", "url": "" },
-        { "title": "Video 4", "url": "" },
-        { "title": "Video 5", "url": "" },
-        { "title": "Video 6", "url": "" },
-        { "title": "Video 7", "url": "" },
-        { "title": "Video 8", "url": "" },
-        { "title": "Video 9", "url": "" },
-        { "title": "Video 10", "url": "" }
+        {
+          "category": "Doof",
+          "title": "Doven en slechthorenden (SIRE, 1984)",
+          "url": "https://www.youtube.com/watch?v=25o6L0CGAbk"
+        },
+        {
+          "category": "Doof",
+          "title": "Short Film: Geen antwoord",
+          "url": "https://vimeo.com/356165691"
+        },
+        {
+          "category": "Doof",
+          "title": "Serhat (Gemeente Amsterdam)",
+          "url": "https://vimeo.com/622281969"
+        },
+        {
+          "category": "Slechtziend",
+          "title": "Zo gebruikt Aisha haar witte stok",
+          "url": "https://www.youtube.com/watch?v=kn1Gdcrk3yY"
+        },
+        {
+          "category": "Slechtziend",
+          "title": "Scooters, fietsen en Canta's staan slechtzienden in de weg",
+          "url": "https://www.youtube.com/watch?v=e5X1dgYMbtk"
+        },
+        {
+          "category": "Fysieke toegankelijkheid",
+          "title": "NOS Stories op TikTok",
+          "url": "https://www.tiktok.com/@nosstories/video/7400322703544159521"
+        },
+        {
+          "category": "Algemeen",
+          "title": "Campagne 'Heb je iets nodig?'",
+          "url": "https://www.youtube.com/watch?v=0JkEZZmWpvc"
+        },
+        {
+          "category": "Spraakbeperking",
+          "title": "Leven met afasie: wel willen praten maar de woorden komen niet",
+          "url": "https://www.youtube.com/watch?v=2xGAQyP_Ew0"
+        },
+        {
+          "category": "Spraakbeperking",
+          "title": "Rebecca stottert en is blij met Wereldstotterdag",
+          "url": "https://www.youtube.com/watch?v=en5QMeLhceA"
+        },
+        {
+          "category": "Niet zichtbare beperking",
+          "title": "NPO Radio 1 op Facebook",
+          "url": "https://www.facebook.com/NPORadio1/videos/142451667795483/"
+        },
+        {
+          "category": "Niet zichtbare beperking",
+          "title": "Iedereen is een beetje autistisch... of toch niet?",
+          "url": "https://www.youtube.com/watch?v=jUxNP8WeVss"
+        },
+        {
+          "category": "Toegankelijkheid in je onderneming",
+          "title": "MKB Toegankelijk: Gastvrijheidsbooster met Cynthia",
+          "url": "https://www.youtube.com/watch?v=5RUIdzKcPwM"
+        }
       ],
       "Category": "Module 4"
     },

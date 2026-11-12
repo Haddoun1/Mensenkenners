@@ -87,10 +87,20 @@ const toEmbedUrl = (url) => {
 let embedUrl = toEmbedUrl(item.url);
 
 // Carousel met meerdere video's (bijvoorbeeld aan het einde van module 4).
-const carouselVideos = (item.videos || []).map((video) => ({
-  ...video,
-  embedUrl: toEmbedUrl(video.url)?.trim() || "",
-}));
+// Alleen YouTube en Vimeo spelen we af in de pagina (zie frame-src in astro.config.mjs).
+// Andere video's (TikTok, Facebook) worden een kaart met een link naar de video op die site.
+const externalPlatforms = { "tiktok.com": "TikTok", "facebook.com": "Facebook" };
+const carouselVideos = (item.videos || []).map((video) => {
+  const platform = Object.entries(externalPlatforms).find(([domain]) => video.url?.includes(domain))?.[1];
+  return {
+    ...video,
+    platform,
+    embedUrl: platform ? "" : toEmbedUrl(video.url)?.trim() || "",
+  };
+});
+
+// Onderwerpen van de video's, in de volgorde waarin ze in de JSON staan.
+const videoCategories = [...new Set(carouselVideos.map((video) => video.category).filter(Boolean))];
 
 // Bepaalt welk type vraag getoond wordt en of de check-knop nodig is.
 
@@ -283,17 +293,38 @@ const accentColor = categoryColorMap[categorySlug] ?? "#B1F2D9";
         <!-- Videocarousel: één video tegelijk, bladeren met de knoppen. -->
           {carouselVideos.length > 0 && (
             <div class="video-carousel" data-video-carousel role="region" aria-roledescription="carousel" aria-label={item.title}>
+              {/* Onderwerpen: kies er één om alleen die video's in de carousel te tonen. */}
+              {videoCategories.length > 1 && (
+                <div class="video-filter" role="group" aria-label="Kies een onderwerp">
+                  <button type="button" class="video-filter-btn" data-video-filter="" aria-pressed="true">
+                    Alle video's
+                  </button>
+                  {videoCategories.map((videoCategory) => (
+                    <button type="button" class="video-filter-btn" data-video-filter={videoCategory} aria-pressed="false">
+                      {videoCategory}
+                    </button>
+                  ))}
+                </div>
+              )}
+
               <div class="carousel-track" data-carousel-track>
-                {carouselVideos.map((video, index) => (
+                {carouselVideos.map((video) => (
                   <figure
                     class="carousel-slide"
                     data-carousel-slide
+                    data-video-category={video.category || ""}
                     role="group"
                     aria-roledescription="slide"
-                    aria-label={`${index + 1} van ${carouselVideos.length}: ${video.title}`}
+                    aria-label={video.title}
                   >
                     <div class="video-wrapper">
-                      {video.embedUrl ? (
+                      {video.platform ? (
+                        <a class="video-external" href={video.url} target="_blank" rel="noopener noreferrer">
+                          <span class="video-external-play" aria-hidden="true">▶</span>
+                          <span>Bekijk deze video op {video.platform}</span>
+                          <span class="video-external-note">Opent in een nieuw tabblad</span>
+                        </a>
+                      ) : video.embedUrl ? (
                         <iframe
                           src={video.embedUrl}
                           title={video.title}
@@ -307,6 +338,7 @@ const accentColor = categoryColorMap[categorySlug] ?? "#B1F2D9";
                       )}
                     </div>
                     <figcaption class="carousel-caption">
+                      {video.category && <span class="carousel-video-category">{video.category}</span>}
                       <span class="carousel-video-title">{video.title}</span>
                       {video.text && <span class="carousel-video-text">{video.text}</span>}
                     </figcaption>
@@ -585,10 +617,14 @@ const accentColor = categoryColorMap[categorySlug] ?? "#B1F2D9";
   const videoCarousel = document.querySelector("[data-video-carousel]");
   if (videoCarousel) {
     const track = videoCarousel.querySelector("[data-carousel-track]");
-    const slides = [...videoCarousel.querySelectorAll("[data-carousel-slide]")];
+    const allSlides = [...videoCarousel.querySelectorAll("[data-carousel-slide]")];
     const prevBtn = videoCarousel.querySelector("[data-carousel-prev]");
     const nextBtn = videoCarousel.querySelector("[data-carousel-next]");
     const counter = videoCarousel.querySelector("[data-carousel-counter]");
+    const filterButtons = [...videoCarousel.querySelectorAll("[data-video-filter]")];
+
+    // Alleen de video's van het gekozen onderwerp tellen mee.
+    let slides = allSlides;
 
     // De actieve video is de slide die het dichtst bij het midden van de track staat.
     const currentIndex = () => {
@@ -607,6 +643,7 @@ const accentColor = categoryColorMap[categorySlug] ?? "#B1F2D9";
     };
     const updateControls = () => {
       const index = currentIndex();
+      allSlides.forEach((slide) => slide.classList.remove("is-active"));
       slides.forEach((slide, i) => {
         slide.classList.toggle("is-active", i === index);
         // inert i.p.v. aria-hidden: dan is de iframe van een verborgen slide ook niet met Tab bereikbaar.
@@ -620,9 +657,42 @@ const accentColor = categoryColorMap[categorySlug] ?? "#B1F2D9";
     prevBtn.addEventListener("click", () => goTo(currentIndex() - 1));
     nextBtn.addEventListener("click", () => goTo(currentIndex() + 1));
     // Klik op een zij-video om die naar het midden te halen.
-    slides.forEach((slide, index) => {
+    allSlides.forEach((slide) => {
       slide.addEventListener("click", () => {
-        if (!slide.classList.contains("is-active")) goTo(index);
+        if (!slide.classList.contains("is-active")) goTo(slides.indexOf(slide));
+      });
+    });
+
+    // Even hoog bij elk onderwerp: de track krijgt de hoogte van de hoogste video (met de langste titel).
+    // Gemeten met alle video's zichtbaar; opnieuw bij een andere schermbreedte.
+    const fixTrackHeight = () => {
+      const hiddenNow = allSlides.filter((slide) => slide.hidden);
+      hiddenNow.forEach((slide) => (slide.hidden = false));
+      track.style.minHeight = "";
+      const tallest = Math.max(...allSlides.map((slide) => slide.offsetHeight));
+      const padding = parseFloat(getComputedStyle(track).paddingTop) + parseFloat(getComputedStyle(track).paddingBottom);
+      track.style.minHeight = `${tallest + padding}px`;
+      hiddenNow.forEach((slide) => (slide.hidden = true));
+    };
+    fixTrackHeight();
+    // Na het laden van de lettertypes kunnen titels anders afbreken: dan opnieuw meten.
+    document.fonts?.ready.then(fixTrackHeight);
+    window.addEventListener("resize", fixTrackHeight);
+
+    // Onderwerp kiezen: toont alleen die video's en begint weer bij de eerste.
+    filterButtons.forEach((button) => {
+      button.addEventListener("click", () => {
+        const chosen = button.dataset.videoFilter;
+        filterButtons.forEach((other) => other.setAttribute("aria-pressed", String(other === button)));
+        allSlides.forEach((slide) => {
+          slide.hidden = Boolean(chosen) && slide.dataset.videoCategory !== chosen;
+        });
+        slides = allSlides.filter((slide) => !slide.hidden);
+        // Eén video in dit onderwerp: zet hem in het midden (er valt niets te scrollen).
+        track.classList.toggle("is-single", slides.length === 1);
+        track.scrollTo({ left: 0, behavior: "instant" });
+        goTo(0);
+        updateControls();
       });
     });
     track.addEventListener("scroll", updateControls, { passive: true });
@@ -1328,6 +1398,9 @@ const accentColor = categoryColorMap[categorySlug] ?? "#B1F2D9";
   }
 
   .content-col {
+    /* min-width: 0, anders rekt de kolom mee met brede inhoud (zoals de videocarousel)
+       en verandert de breedte van de kaart als je van onderwerp wisselt. */
+    min-width: 0;
     padding: 5rem 0 7rem;
     display: flex;
     flex-direction: column;
@@ -1471,8 +1544,89 @@ const accentColor = categoryColorMap[categorySlug] ?? "#B1F2D9";
     transition: transform 0.3s ease, opacity 0.3s ease;
   }
 
+  .carousel-track.is-single {
+    justify-content: center;
+  }
+
+  /* Video's van een ander onderwerp verbergen (display: flex hierboven zou [hidden] anders overrulen). */
+  .carousel-slide[hidden] {
+    display: none;
+  }
+
   .carousel-slide iframe {
     pointer-events: none;
+  }
+
+  /* Onderwerpknoppen boven de videocarousel. */
+  .video-filter {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.5rem;
+  }
+
+  .video-filter-btn {
+    font-family: var(--font-semi-bold);
+    font-size: var(--size-sm);
+    color: var(--color-text);
+    background: transparent;
+    border: 1.5px solid color-mix(in srgb, var(--color-text) 45%, transparent);
+    border-radius: 99px;
+    padding: 0.35rem 0.9rem;
+    cursor: pointer;
+  }
+
+  .video-filter-btn:hover {
+    background: color-mix(in srgb, var(--color-text) 8%, transparent);
+  }
+
+  .video-filter-btn[aria-pressed="true"] {
+    background: var(--color-text);
+    border-color: var(--color-text);
+    color: var(--color-text-inverse);
+  }
+
+  /* Kaart voor video's die niet in de pagina kunnen spelen (TikTok, Facebook). */
+  .video-external {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    padding: 1rem;
+    text-align: center;
+    font-family: var(--font-semi-bold);
+    color: var(--color-text);
+    text-decoration: none;
+    background: color-mix(in srgb, var(--color-accent) 20%, transparent);
+  }
+
+  .video-external:hover span:nth-child(2) {
+    text-decoration: underline;
+  }
+
+  .video-external-play {
+    display: grid;
+    place-items: center;
+    width: 3rem;
+    height: 3rem;
+    border-radius: 50%;
+    background: var(--color-text);
+    color: var(--color-text-inverse);
+    font-size: 1.1rem;
+  }
+
+  .video-external-note {
+    font-family: var(--font-light);
+    font-size: var(--size-sm);
+  }
+
+  .carousel-video-category {
+    font-family: var(--font-semi-bold);
+    font-size: var(--size-sm);
+    color: var(--color-text-muted);
   }
 
   .carousel-slide.is-active {
@@ -1493,13 +1647,16 @@ const accentColor = categoryColorMap[categorySlug] ?? "#B1F2D9";
     box-shadow: 0 6px 20px color-mix(in srgb, var(--color-text) 12%, transparent);
   }
 
+  /* Telefoon: de video vult bijna de hele breedte; de buren piepen er maar net naast. */
   @media (max-width: 600px) {
     .carousel-track {
-      padding: 0.5rem 12%;
+      padding: 0.5rem 3%;
+      -webkit-mask-image: linear-gradient(to right, transparent, black 3%, black 97%, transparent);
+      mask-image: linear-gradient(to right, transparent, black 3%, black 97%, transparent);
     }
 
     .carousel-slide {
-      flex-basis: 76%;
+      flex-basis: 92%;
     }
   }
 
