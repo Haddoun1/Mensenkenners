@@ -158,7 +158,6 @@ html {
     background: var(--color-green);
     border: 1px solid rgba(0, 0, 0, 0.08);
     border-radius: 99px;
-    /* Zelfde formaat als de Dashboard-knop op de modulepagina's */
     height: 2.65rem;
     padding: 0 1.4rem;
     display: inline-flex;
@@ -203,13 +202,10 @@ html {
     padding: var(--size-base) 0;
   }
 
-  /* Knoplabel in de onboarding-links. Was een <button> in een <a> (ongeldige HTML); nu een span
-     met dezelfde standaardwaarden als een browserknop, zodat het er hetzelfde uitziet. */
   .onboarding-btn {
     display: inline-block;
     box-sizing: border-box;
     text-align: center;
-    /* Losse eigenschappen, geen font-shorthand: die zou de line-height uit global.css (*) overschrijven. */
     font-family: Arial;
     font-size: 13.3333px;
     font-weight: 400;
@@ -218,7 +214,6 @@ html {
   .button-next,
   .button-back {
     width: 100%;
-    /* Een <button> hield de onderstreping van de link tegen, een span niet. */
     text-decoration: none;
 
     & .onboarding-btn {
@@ -272,14 +267,6 @@ html {
   scale:1.4;
 }
 
-  /* Infoschermen (gecentreerde tekst) en vraagschermen (tekst bovenaan,
-     gevuld tot de rand voor de antwoordopties) gebruiken bewust andere
-     transition-namen ("content" vs "content-quiz"). Zouden ze dezelfde
-     naam delen, dan probeert de browser het tekstblok te "morphen" van de
-     ene positie/grootte naar de andere, wat samen met de bounce-animatie
-     hieronder een "glitch"-effect gaf. Met verschillende namen behandelt
-     de browser oud en nieuw als losse elementen die simpelweg op hun
-     eigen plek in-/uitfaden. */
   ::view-transition-group(content),
   ::view-transition-group(content-quiz),
   ::view-transition-group(mockup),
@@ -558,7 +545,7 @@ html {
           font-family: var(--font-light);
           text-align: center;
           max-width: 70vw;
-          color: var(--onboarding-text-dark); /* licht: #525252, dark mode: wit */
+          color: var(--onboarding-text-dark); 
         }
       }
 
@@ -722,7 +709,6 @@ html {
   ::view-transition-new(panel-left),
   ::view-transition-old(panel-left) {
     z-index: 1;
-    /* lager dan de content-transitie */
   }
 
   ::view-transition-new(content),
