@@ -190,7 +190,8 @@
       "section": "module_2_perspectief_inlevingsvermogen",
       "title": "Aanname of vraag?",
       "text": "Weten of je wel of juist niet hulp moet aanbieden, is voor veel mensen lastig. Hoe ga jij hiermee om?",
-      "question": "Je krijgt hieronder 3 momenten te zien, kies bij elk wat jij zou doen.",
+      "question": "Je krijgt hieronder 3 situaties te zien, kies bij elk wat jij zou doen.",
+      "scenario_label": "Situatie",
       "input_type": "scenarios",
       "required": true,
       "quotes": {
