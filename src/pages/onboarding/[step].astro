@@ -12,7 +12,7 @@ type Step = (typeof stepsJson)[number] & {
   requireLogin?: boolean;
   nextLabel?: string;
   animated?: boolean;
-  question?: { confirmation?: string };
+  question?: { confirmation?: string; other?: string };
 };
 const steps: Step[] = stepsJson;
 
@@ -40,7 +40,7 @@ if (!data) return Astro.redirect("/onboarding/step-1");
   hasQuestion={Boolean(data.question)}
 >
   {data.question?.type === "single" && (
-    <QuestionSingle slot="question" name={data.question.name} options={data.question.options} confirmation={data.question.confirmation} />
+    <QuestionSingle slot="question" name={data.question.name} options={data.question.options} confirmation={data.question.confirmation} other={data.question.other} />
   )}
   {data.question?.type === "multi" && (
     <QuestionMulti slot="question" name={data.question.name} options={data.question.options} />

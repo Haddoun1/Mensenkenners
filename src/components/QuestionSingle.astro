@@ -1,6 +1,8 @@
 ---
 // @ts-nocheck
-const { question, options, name, confirmation } = Astro.props;
+// other: de tekst van de optie (bijvoorbeeld "Anders...") waarbij een tekstvak verschijnt.
+// Tonen, verbergen en opslaan van dat tekstvak regelt setupAnswers in Layout-onboarding.astro.
+const { question, options, name, confirmation, other } = Astro.props;
 ---
 
 <div class="question" data-confirmation={confirmation ? "true" : "false"}>
@@ -14,6 +16,12 @@ const { question, options, name, confirmation } = Astro.props;
       ))
     }
   </div>
+  {other && (
+    <label class="question-other" data-other-option={other} hidden>
+      <span class="question-other-label">Vul je eigen antwoord in</span>
+      <textarea name={`${name}-anders`} rows="3" maxlength="500" placeholder="Typ hier je antwoord"></textarea>
+    </label>
+  )}
   {confirmation && <p class="confirmation-text" hidden>{confirmation}</p>}
 </div>
 
@@ -94,6 +102,43 @@ const { question, options, name, confirmation } = Astro.props;
     opacity: 0;
     width: 0;
     height: 0;
+  }
+
+  /* Tekstvak bij "Anders...". */
+  .question-other {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    margin-top: var(--size-base);
+    font-family: var(--font-medium);
+    font-size: var(--size-sm);
+    color: var(--onboarding-label);
+  }
+
+  .question-other[hidden] {
+    display: none;
+  }
+
+  .question-other textarea {
+    width: 100%;
+    padding: 0.7em 0.9em;
+    font-family: var(--font-regular);
+    font-size: var(--size-base);
+    color: var(--color-text);
+    background: var(--color-surface);
+    border: 1px solid var(--onboarding-label);
+    border-radius: 8px;
+    resize: vertical;
+  }
+
+  .question-other textarea::placeholder {
+    color: var(--color-text-muted);
+    opacity: 1;
+  }
+
+  .question-other textarea:focus-visible {
+    outline: 2px solid var(--color-cyan-dark);
+    outline-offset: 2px;
   }
 
   .confirmation-text {

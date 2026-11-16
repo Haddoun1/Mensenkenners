@@ -162,6 +162,7 @@
     "question": {
       "type": "single",
       "name": "motivatie",
+      "other": "Anders...",
       "options": [
         "Ik wil me zekerder voelen in contact met bezoekers",
         "Ik wil weten wat wél werkt, niet alleen wat niet mag",
