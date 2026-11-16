@@ -9,6 +9,7 @@ import QuestionNav from "../../components/Questionnav.astro";
 import BottomNav from "../../components/BottomNav.astro";
 import BaseHead from '../../components/BaseHead.astro';
 import FixedThemeToggle from '../../components/FixedThemeToggle.astro';
+import { toEmbedUrl, prepareVideos, videoCategoriesOf } from "../../lib/videos";
 
 function getStepPaths() {
 
@@ -66,41 +67,12 @@ const ratings = Array.from(
   (_, i) => minRating + i,
 );
 
-// Zet video-URL's om naar embed-URL's wanneer een videoblok wordt gebruikt.
-
-const toEmbedUrl = (url) => {
-  if (url?.includes("vimeo.com")) {
-    const id = url.split("/").filter(Boolean).pop()?.split("?")[0];
-    return `https://player.vimeo.com/video/${id}`;
-  }
-  if (url?.includes("youtube.com/watch?v=")) {
-    const id = url.split("v=")[1]?.split("&")[0];
-    return `https://www.youtube.com/embed/${id}`;
-  }
-  if (url?.includes("youtu.be/")) {
-    const id = url.split("youtu.be/")[1]?.split("?")[0];
-    return `https://www.youtube.com/embed/${id}`;
-  }
-  return url;
-};
-
+// Zet de video-URL om naar een embed-URL wanneer een videoblok wordt gebruikt (zie src/lib/videos.js).
 let embedUrl = toEmbedUrl(item.url);
 
-// Carousel met meerdere video's (bijvoorbeeld aan het einde van module 4).
-// Alleen YouTube en Vimeo spelen we af in de pagina (zie frame-src in astro.config.mjs).
-// Andere video's (TikTok, Facebook) worden een kaart met een link naar de video op die site.
-const externalPlatforms = { "tiktok.com": "TikTok", "facebook.com": "Facebook" };
-const carouselVideos = (item.videos || []).map((video) => {
-  const platform = Object.entries(externalPlatforms).find(([domain]) => video.url?.includes(domain))?.[1];
-  return {
-    ...video,
-    platform,
-    embedUrl: platform ? "" : toEmbedUrl(video.url)?.trim() || "",
-  };
-});
-
-// Onderwerpen van de video's, in de volgorde waarin ze in de JSON staan.
-const videoCategories = [...new Set(carouselVideos.map((video) => video.category).filter(Boolean))];
+// Carousel met meerdere video's (bijvoorbeeld aan het einde van module 4), met hun onderwerpen.
+const carouselVideos = prepareVideos(item.videos);
+const videoCategories = videoCategoriesOf(carouselVideos);
 
 // Bepaalt welk type vraag getoond wordt en of de check-knop nodig is.
 
@@ -361,6 +333,13 @@ const accentColor = categoryColorMap[categorySlug] ?? "#B1F2D9";
                 <h2 class:list={["question-text", { "question-text--plain": item.text }]}>{item.question}</h2>
               )}
               {item.description && <p class="card-body">{item.description}</p>}
+              {/* Korte melding bij de vraag, bijvoorbeeld wie het antwoord kan lezen ("note" in de JSON). */}
+              {item.note && (
+                <p class="answer-note">
+                  <span class="answer-note-icon" aria-hidden="true">💬</span>
+                  <span>{item.note}</span>
+                </p>
+              )}
               {item.label && <label class="field-label">{item.label}</label>}
 
               {item.input_type === "text" && (
@@ -415,6 +394,7 @@ const accentColor = categoryColorMap[categorySlug] ?? "#B1F2D9";
                             class="option-input"
                             data-correct={typeof option === "object" && option.is_correct === true ? "true" : "false"}
                             data-feedback={feedback}
+                            data-exclusive={typeof option === "object" && option.exclusive === true ? "true" : undefined}
                             />
                             <span class="option-key">{String.fromCharCode(65 + index)}</span>
                             <span class="option-text">{text}</span>
@@ -1103,6 +1083,15 @@ const accentColor = categoryColorMap[categorySlug] ?? "#B1F2D9";
     checkboxes.forEach((checkbox) => {
       checkbox.addEventListener("change", updateMcCheckButton);
       checkbox.addEventListener("change", (e) => {
+        // Een optie als "Nog niks" ("exclusive": true in de JSON) sluit de andere opties uit, en andersom.
+        if (e.target.checked) {
+          const isExclusive = e.target.dataset.exclusive === "true";
+          checkboxes.forEach((other) => {
+            if (other !== e.target && (isExclusive || other.dataset.exclusive === "true")) other.checked = false;
+          });
+          updateMcCheckButton();
+        }
+
         const checked = [...checkboxes].filter((cb) => cb.checked);
         const maxSelections = Number(mcBlock.dataset.maxSelections || 2);
 
@@ -1750,6 +1739,35 @@ const accentColor = categoryColorMap[categorySlug] ?? "#B1F2D9";
   }
 
   /* Vraag onder een inleidende tekst: zelfde stijl als die tekst, zodat het één geheel vormt. */
+  /* Melding bij een vraag, zoals wie het antwoord kan lezen. In de kleur van de module (--color-accent). */
+  .answer-note {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.6rem;
+    margin: 0;
+    padding: 0.75rem 1rem;
+    font-family: var(--font-light);
+    font-size: var(--size-sm);
+    line-height: 1.5;
+    color: var(--color-text);
+    /* Zacht en vriendelijk: lichte tint van de modulekleur, geen harde rand. */
+    background: color-mix(in srgb, var(--color-accent) 15%, transparent);
+    border-radius: 12px;
+  }
+
+  /* Wolkje in een rondje in de modulekleur. */
+  .answer-note-icon {
+    flex-shrink: 0;
+    display: grid;
+    place-items: center;
+    width: 1.9rem;
+    height: 1.9rem;
+    border-radius: 50%;
+    background: color-mix(in srgb, var(--color-accent) 45%, transparent);
+    font-size: 0.95rem;
+    line-height: 1;
+  }
+
   .question-text--plain {
     font-family: var(--font-light);
     font-size: var(--size-lg);

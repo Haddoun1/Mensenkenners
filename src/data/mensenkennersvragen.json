@@ -85,6 +85,7 @@
       "type": "video",
       "section": "module_1_inclusief_contact",
       "title": "Bekijk deze korte video",
+      "library_title": "Onbeperkt werken begint met de vraag: Heb je iets nodig?",
       "url": "https://youtu.be/Exd7KPKudOI?si=6mTWNFaArUTTinZX",
       "Category": "Module 1"
     },
@@ -104,11 +105,11 @@
         },
         {
           "prompt": "Je praat harder in plaats van duidelijker.",
-          "answer": "Je collega voelt zich niet gehoord, ook al hoort die je wel."
+          "answer": "De bezoeker voelt zich niet gehoord, ook al hoort die je wel."
         },
         {
           "prompt": "Je vraagt of opschrijven ook werkt.",
-          "answer": "Je buurman krijgt zelf de regie over hoe het gesprek verloopt."
+          "answer": "De bezoeker krijgt zelf de regie over hoe het gesprek verloopt."
         }
       ],
       "Category": "Module 1"
@@ -189,7 +190,7 @@
       "section": "module_2_perspectief_inlevingsvermogen",
       "title": "Aanname of vraag?",
       "text": "Weten of je wel of juist niet hulp moet aanbieden, is voor veel mensen lastig. Hoe ga jij hiermee om?",
-      "question": "Je krijgt drie situaties te zien. Kies bij elk moment wat jij zou doen.",
+      "question": "Je krijgt hieronder 3 momenten te zien, kies bij elk wat jij zou doen.",
       "input_type": "scenarios",
       "required": true,
       "quotes": {
@@ -265,6 +266,7 @@
       "section": "module_2_perspectief_inlevingsvermogen",
       "title": "Wat neem je mee?",
       "question": "Wat neem je uit deze module mee naar je eigen dag, bijeenkomst of activiteit?",
+      "note": "Goed om te weten: je groepsleider (bijvoorbeeld je leidinggevende) en Stichting Mensenkenners kunnen je antwoord lezen, zonder je naam of e-mailadres. Zo zien we samen wat de training oplevert.",
       "input_type": "long_text",
       "required": true,
       "Category": "Module 2"
@@ -341,7 +343,8 @@
       "options": [
         "Informatie over de ingang",
         "Informatie over toegankelijke toiletten",
-        "Informatie over hulpmiddelen"
+        "Informatie over hulpmiddelen",
+        { "text": "Geen informatie/Niet duidelijk", "exclusive": true }
       ],
       "Category": "Module 3"
     },
@@ -573,9 +576,9 @@
       "type": "question",
       "section": "module_4_praktijksituaties_toepassing",
       "title": "Kernprincipes toepassen",
-      "question": "Je ziet drie korte fragmenten uit de praktijk. Welk kernprincipe zie jij hier terug?",
+      "question": "Je ziet hieronder 3 situaties, kies bij elk wat jij zou doen.",
       "input_type": "scenarios",
-      "scenario_label": "Fragment",
+      "scenario_label": "Situatie",
       "required": true,
       "principles": [
         "Vraag voordat je helpt.",
@@ -611,6 +614,7 @@
       "section": "module_4_praktijksituaties_toepassing",
       "title": "Wat neem je mee?",
       "question": "Wat neem je uit deze module mee naar je eigen dag, bijeenkomst of activiteit?",
+      "note": "Goed om te weten: je groepsleider (bijvoorbeeld je leidinggevende) en Stichting Mensenkenners kunnen je antwoord lezen, zonder je naam of e-mailadres. Zo zien we samen wat de training oplevert.",
       "input_type": "long_text",
       "required": true,
       "Category": "Module 4"
@@ -759,6 +763,7 @@
       "section": "module_1_inclusief_contact",
       "title": "Wat neem je mee?",
       "question": "Wat neem je uit deze module mee naar je eigen dag, bijeenkomst of activiteit?",
+      "note": "Goed om te weten: je groepsleider (bijvoorbeeld je leidinggevende) en Stichting Mensenkenners kunnen je antwoord lezen, zonder je naam of e-mailadres. Zo zien we samen wat de training oplevert.",
       "input_type": "long_text",
       "required": true,
       "Category": "Module 1"
@@ -777,6 +782,7 @@
       "section": "module_3_toegankelijkheid_werkplek",
       "title": "Wat neem je mee?",
       "question": "Wat neem je uit deze module mee naar je eigen dag, bijeenkomst of activiteit?",
+      "note": "Goed om te weten: je groepsleider (bijvoorbeeld je leidinggevende) en Stichting Mensenkenners kunnen je antwoord lezen, zonder je naam of e-mailadres. Zo zien we samen wat de training oplevert.",
       "input_type": "long_text",
       "required": true,
       "Category": "Module 3"
