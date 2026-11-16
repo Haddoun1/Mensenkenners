@@ -9,6 +9,10 @@ const {
   href = '#',
   color = '#2AB789',
   duration = null,
+  // Tekst voor het label rechtsboven in plaats van de duur, bijvoorbeeld "21 video's".
+  badge = null,
+  // false voor een kaart zonder voortgang, zoals de videokaart op het dashboard.
+  showProgress = true,
   // "high" = eerste zichtbare kaart, "eager" = ook direct zichtbaar, "lazy" = pas laden bij scrollen.
   imagePriority = 'lazy'
 } = Astro.props;
@@ -30,8 +34,17 @@ const {
     </span>
   )}
 
+  {!duration && badge && (
+    <span class="duration-badge">
+      <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+        <polygon points="7 4 20 12 7 20 7 4"/>
+      </svg>
+      {badge}
+    </span>
+  )}
+
   <div class="image-wrapper">
-    {image && (
+    {image ? (
       <Image
         src={image}
         alt=""
@@ -40,6 +53,9 @@ const {
         loading={imagePriority === 'lazy' ? 'lazy' : 'eager'}
         fetchpriority={imagePriority === 'high' ? 'high' : 'auto'}
       />
+    ) : (
+      // Zonder foto: eigen beeld via <Fragment slot="visual">, zoals het video-icoon op de videokaart.
+      <slot name="visual" />
     )}
   </div>
 
@@ -48,22 +64,24 @@ const {
     <p>{description}</p>
   </div>
 
-  <div class="progress-row">
-    <progress
-      data-progress-bar
-      value={progress}
-      max="100"
-    >
-      {progress}%
-    </progress>
+  {showProgress && (
+    <div class="progress-row">
+      <progress
+        data-progress-bar
+        value={progress}
+        max="100"
+      >
+        {progress}%
+      </progress>
 
-    <span
-      data-progress-text
-      class="progress-label"
-    >
-      {progress}%
-    </span>
-  </div>
+      <span
+        data-progress-text
+        class="progress-label"
+      >
+        {progress}%
+      </span>
+    </div>
+  )}
 </a>
 
 <style>
