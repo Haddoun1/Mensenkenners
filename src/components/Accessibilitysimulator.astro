@@ -2,6 +2,9 @@
 // @ts-nocheck
 ---
 
+<!-- Laag over de pagina (onder het simulatorpaneel) voor wazig zicht, helderheid en contrast. -->
+<div class="sim-filter-layer" id="simFilterLayer" aria-hidden="true" hidden></div>
+
 <!-- Vertraagde cursor stip (motorieke beperking simulatie) -->
 <div class="cursor-dot" id="cursorDot" aria-hidden="true"></div>
 
@@ -106,7 +109,9 @@
     </div>
 
     <div class="setting-footer">
-      <button class="setting-reset" id="simReset">Reset alle instellingen</button>
+      <button type="button" class="setting-reset" id="simReset">
+        <span aria-hidden="true">↺</span> Reset alle instellingen
+      </button>
     </div>
 
   </div>
@@ -122,13 +127,23 @@
 
   let filterState = { contrast: 100, brightness: 100, blur: 0 };
 
+  // Wazig zicht, helderheid en contrast gelden voor de pagina, niet voor het simulatorpaneel zelf:
+  // een doorzichtige laag (simFilterLayer) met backdrop-filter ligt over de pagina en onder het paneel.
+  // Zo blijft het paneel (en "Reset alle instellingen") goed te lezen, en verandert er aan de pagina zelf niets.
+  const simFilterLayer = document.getElementById("simFilterLayer");
+
   function applyFilters(overrides = {}) {
     Object.assign(filterState, overrides);
     let f = "";
     if(filterState.contrast   !== 100) f += `contrast(${filterState.contrast}%) `;
     if(filterState.brightness !== 100) f += `brightness(${filterState.brightness}%) `;
     if(filterState.blur        >  0)   f += `blur(${filterState.blur}px) `;
-    document.documentElement.style.filter = f.trim();
+    f = f.trim();
+
+    if (!simFilterLayer) return;
+    simFilterLayer.style.backdropFilter = f;
+    simFilterLayer.style.webkitBackdropFilter = f;
+    simFilterLayer.hidden = !f;
   }
 
   function updateSettingContrast(e) {
@@ -297,12 +312,14 @@
   function followCursor(e) {
     document.body.style.setProperty("--client-x", e.clientX);
     document.body.style.setProperty("--client-y", e.clientY);
+    // Boven het simulatorpaneel: gewone muisaanwijzer, zonder vertraagde stip.
+    document.body.classList.toggle("cursor-in-panel", Boolean(e.target.closest?.(".setting-panel")));
   }
 
   function setCursorDelay(seconds) {
     if(seconds == 0) {
       document.body.removeEventListener("pointermove", followCursor);
-      document.body.classList.remove("cursor-delayed");
+      document.body.classList.remove("cursor-delayed", "cursor-in-panel");
       if(cursorDot) cursorDot.style.transition = "";
     } else {
       document.body.addEventListener("pointermove", followCursor);
@@ -333,8 +350,7 @@
   /////////////////////
 
   function resetSimulator() {
-    filterState = { contrast: 100, brightness: 100, blur: 0 };
-    document.documentElement.style.filter = "";
+    applyFilters({ contrast: 100, brightness: 100, blur: 0 });
     document.getElementById("contrastRange").value   = 100;
     document.getElementById("brightnessRange").value = 100;
     document.getElementById("blurRange").value       = 0;
@@ -607,24 +623,33 @@
 
   }
 
+  /* Resetknop: een echte knop over de hele breedte van het paneel. */
   .setting-reset {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    width: 100%;
+    height: auto;
+    padding: 0.7rem 1rem;
     font-family: var(--font-semi-bold);
     font-size: var(--size-base);
-    color: var(--sim-muted);
-    background: none;
-    border: none;
+    color: var(--color-text);
+    background: transparent;
+    border: 1.5px solid var(--color-text);
+    border-radius: 99px;
     cursor: pointer;
-    padding: 0;
-    width: auto;
-    height: auto;
-    border-radius: 0;
-    transition: color 0.15s;
-    text-decoration: underline;
+    transition: background 0.15s, color 0.15s;
   }
 
   .setting-reset:hover {
-    background: none;
-    color: var(--color-text);
+    background: var(--color-text);
+    color: var(--color-text-inverse);
+  }
+
+  .setting-reset:focus-visible {
+    outline: 3px solid var(--color-text);
+    outline-offset: 3px;
   }
 
   /* ── Cursor vertraging ───────────────────────────────────────── */
@@ -651,6 +676,29 @@
 
   body.cursor-delayed .cursor-dot {
     display: block;
+  }
+
+  /* Het simulatorpaneel doet niet mee met de cursorvertraging: daar een gewone muisaanwijzer en geen stip. */
+  :global(body.cursor-delayed) .setting-panel {
+    cursor: auto;
+  }
+
+  :global(body.cursor-in-panel) .cursor-dot {
+    display: none;
+  }
+
+  /* Filterlaag voor wazig zicht, helderheid en contrast: boven de pagina (en de themaknop, z-index 200),
+     onder de overlay (250) en het simulatorpaneel (300). Klikken gaan er gewoon doorheen. */
+  .sim-filter-layer {
+    position: fixed;
+    /* Iets groter dan het scherm, zodat er bij trilling geen ongefilterde rand zichtbaar wordt. */
+    inset: -30px;
+    z-index: 240;
+    pointer-events: none;
+  }
+
+  .sim-filter-layer[hidden] {
+    display: none;
   }
 </style>
 
