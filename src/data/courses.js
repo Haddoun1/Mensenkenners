@@ -66,12 +66,14 @@ export const courses = [
 ];
 
 // Totale aantal vragen per cursus, gebruikt om het voortgangspercentage te berekenen.
+// Het afrondscherm aan het eind van een module (bijv. m4_submit) telt niet mee: veel deelnemers gaan
+// daar via de Dashboard-knop bovenaan weg, waardoor die stap niet wordt opgeslagen en de module op 90% bleef staan.
 export const totals = {
   onboarding: 10,
   module_1: 8,
   module_2: 9,
   module_3: 12,
-  module_4: 10,
+  module_4: 9,
 };
 
 // Startpagina van elke cursus.
