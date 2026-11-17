@@ -18,8 +18,24 @@ html {
     flex-direction: column;
     align-items: center;
     height: 100vh;
-    overflow: hidden;
+    /* dvh: de echte zichtbare hoogte op telefoons (zonder de adresbalk). */
+    height: 100dvh;
+    /* Past de inhoud niet (bijv. registreren op een kleine telefoon), dan kun je scrollen
+       naar de knoppen. Past het wel, dan verandert er niets. */
+    overflow-x: hidden;
+    overflow-y: auto;
     padding: var(--size-base) var(--size-2xl);
+  }
+
+  /* Telefoon: de hele pagina scrolt (zoals een gewone webpagina), dat werkt met vegen op elke telefoon.
+     Minstens schermhoog, maar langer als de inhoud dat nodig heeft (bijv. het registratieformulier). */
+  @media (max-width: 767px) {
+    .container {
+      height: auto;
+      min-height: 100vh;
+      min-height: 100dvh;
+      overflow: visible;
+    }
   }
 
   .content {
