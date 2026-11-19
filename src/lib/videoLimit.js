@@ -1,6 +1,6 @@
 // Laat ingesloten YouTube-video's met een eindtijd (end=<seconden> in het adres, zie toEmbedUrl in videos.js)
 // niet verder spelen dan dat einde. Nodig als het stuk daarna op YouTube kapot is.
-// - Bij gewoon afspelen pauzeert de video bij het einde.
+// - Bij gewoon afspelen stopt de video bij het einde; met de afspeelknop kijk je hem opnieuw vanaf 0:00.
 // - Klikt iemand op de tijdbalk voorbij het einde, dan zet YouTube de video zelf op 0:00 (het stuk daarna
 //   is kapot). Dat zetten we terug: de video gaat verder waar je was, en blijft spelen als hij speelde.
 //   YouTube meldt zo'n klik precies hetzelfde als een bewuste klik op 0:00. Daarom: sta je al bij het einde,
@@ -57,9 +57,10 @@ export function limitVideoEnds() {
     if (currentTime > player.end + 0.5) {
       send(player.iframe, { event: "command", func: "seekTo", args: [player.end - 1, true] });
     }
-    // Bij (of voorbij) het einde: pauzeren.
+    // Bij (of voorbij) het einde: stoppen. YouTube toont dan het beginscherm met de grote afspeelknop,
+    // zodat je de video met één klik opnieuw kunt bekijken (vanaf 0:00).
     if (currentTime >= player.end - 0.5) {
-      send(player.iframe, { event: "command", func: "pauseVideo", args: [] });
+      send(player.iframe, { event: "command", func: "stopVideo", args: [] });
     }
 
     if (currentTime >= 0.5 && currentTime <= player.end) player.lastTime = currentTime;
