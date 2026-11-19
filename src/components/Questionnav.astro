@@ -39,19 +39,29 @@ const { category, categorySlug, categoryItems, currentStep, totalSteps, accentCo
 <!-- Slide-in nav panel. inert zolang het dicht is: dan kun je er niet in tabben en leest een schermlezer het niet voor. -->
 <nav class="qnav-panel" id="qnav-panel" aria-label="Vragennavigatie" style={`--color-accent: ${accentColor}`} inert>
   <div class="qnav-header">
-    <span class="qnav-title">{category}</span>
+    <div class="qnav-heading">
+      <span class="qnav-title">{category}</span>
+      <!-- Wordt door het script gevuld, bijvoorbeeld "3 van 9 gedaan". -->
+      <span class="qnav-done-count" id="qnav-done-count" hidden></span>
+    </div>
     <button class="qnav-close-btn" id="qnav-close-btn" aria-label="Sluit vragennavigatie">&#10005;</button>
   </div>
-  <ul class="qnav-list">
+  <ul class="qnav-list" data-category={categorySlug}>
     {categoryItems.map((navItem, idx) => (
-      <li>
+      <li data-step={idx + 1}>
         <a
           href={`/${categorySlug}/${idx + 1}`}
           class={idx + 1 === currentStep ? "active" : ""}
+          aria-current={idx + 1 === currentStep ? "page" : undefined}
         >
           <span class="qnav-step-num">{idx + 1}</span>
           <span class="qnav-step-title">
             {navItem.title || navItem.question || `Stap ${idx + 1}`}
+          </span>
+          <!-- Gedaan (vinkje) of nog niet gedaan (leeg rondje); wordt door het script gezet. -->
+          <span class="qnav-status" data-status hidden>
+            <span class="qnav-status-icon" aria-hidden="true"></span>
+            <span class="visually-hidden" data-status-text></span>
           </span>
         </a>
       </li>
@@ -60,6 +70,8 @@ const { category, categorySlug, categoryItems, currentStep, totalSteps, accentCo
 </nav>
 
 <script>
+  import { supabase, authHeaders } from "../lib/supabase";
+
   const hamburgerBtn = document.getElementById("qnav-hamburger-btn");
   const overlay = document.getElementById("qnav-overlay");
   const panel = document.getElementById("qnav-panel");
@@ -97,6 +109,45 @@ const { category, categorySlug, categoryItems, currentStep, totalSteps, accentCo
   document.addEventListener("keydown", (e) => {
     if (e.key === "Escape" && panel?.classList.contains("open")) close();
   });
+
+  // Gedaan of nog niet: een stap telt als gedaan als die in de voortgang staat (opgeslagen bij "Volgende").
+  // Zo zie je welke vragen je hebt overgeslagen en kun je er via deze lijst naar teruggaan.
+  async function markDoneSteps() {
+    const list = panel?.querySelector<HTMLElement>(".qnav-list");
+    if (!list) return;
+
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
+    if (!session) return;
+
+    const response = await fetch("/api/get-progress", { method: "POST", headers: await authHeaders() });
+    if (!response.ok) return;
+    const { data: rows } = (await response.json()) as { data: { category: string; step_id: string }[] | null };
+
+    const done = new Set(
+      (rows || []).filter((row) => row.category === list.dataset.category).map((row) => String(row.step_id)),
+    );
+
+    const items = [...list.querySelectorAll<HTMLElement>("li[data-step]")];
+    items.forEach((item) => {
+      const isDone = done.has(item.dataset.step ?? "");
+      item.classList.toggle("is-done", isDone);
+      const status = item.querySelector<HTMLElement>("[data-status]");
+      const text = item.querySelector<HTMLElement>("[data-status-text]");
+      if (status) status.hidden = false;
+      if (text) text.textContent = isDone ? "(gedaan)" : "(nog niet gedaan)";
+    });
+
+    const count = document.getElementById("qnav-done-count");
+    if (count) {
+      const doneCount = items.filter((item) => item.classList.contains("is-done")).length;
+      count.textContent = `${doneCount} van ${items.length} gedaan`;
+      count.hidden = false;
+    }
+  }
+
+  markDoneSteps().catch((err) => console.error("Voortgang voor de vragenlijst ophalen mislukt:", err));
 </script>
 
 <style>
@@ -301,5 +352,69 @@ const { category, categorySlug, categoryItems, currentStep, totalSteps, accentCo
     line-height: 1.35;
     flex: 1;
     color: var(--color-text);
+  }
+
+  .qnav-heading {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+  }
+
+  .qnav-done-count {
+    font-family: var(--font-semi-bold);
+    font-size: var(--size-sm);
+    color: var(--color-text);
+  }
+
+  .qnav-done-count[hidden] {
+    display: none;
+  }
+
+  /* Status per stap: groen vinkje = gedaan, leeg rondje = nog niet gedaan. */
+  .qnav-status {
+    flex-shrink: 0;
+    display: flex;
+  }
+
+  .qnav-status[hidden] {
+    display: none;
+  }
+
+  .qnav-status-icon {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    border: 2px solid color-mix(in srgb, var(--color-text) 45%, transparent);
+    display: grid;
+    place-items: center;
+    font-size: 12px;
+    line-height: 1;
+  }
+
+  .is-done .qnav-status-icon {
+    background: var(--color-cyan-dark);
+    border-color: var(--color-cyan-dark);
+    color: #ffffff;
+  }
+
+  .is-done .qnav-status-icon::before {
+    content: "✓";
+    font-family: var(--font-bold);
+  }
+
+  :global(html.dark-mode) .is-done .qnav-status-icon {
+    background: #2ab789;
+    border-color: #2ab789;
+    color: #142621;
+  }
+
+  .visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
   }
 </style>

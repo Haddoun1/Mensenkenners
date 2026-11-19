@@ -579,6 +579,10 @@ const accentColor = categoryColorMap[categorySlug] ?? "#B1F2D9";
 <script>
   // @ts-nocheck
   import { supabase, authHeaders } from "../../lib/supabase";
+  import { limitVideoEnds } from "../../lib/videoLimit";
+
+  // Video's met een eindtijd niet verder laten spelen dan dat einde (zie src/lib/videoLimit.js).
+  limitVideoEnds();
 
   // Haalt de belangrijkste DOM-elementen en stapmetadata op.
   const main = document.querySelector("main.content-col");
