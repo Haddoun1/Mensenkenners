@@ -139,7 +139,7 @@ import { allVideos } from "../lib/videos";
 <script>
   // @ts-nocheck
   import { supabase, authHeaders } from "../lib/supabase";
-  import { totals, courseStartHref, categoryToCourseId } from "../data/courses.js";
+  import { totals, courseStartHref, categoryToCourseId, countsForProgress } from "../data/courses.js";
   import onboardingSteps from "../data/onboarding-steps.json";
 
   // Get user data for progress
@@ -166,12 +166,16 @@ import { allVideos } from "../lib/videos";
       return courseStartHref[courseId] || "/";
     }
 
-    // Gebruik de opgeslagen URL, bijvoorbeeld /module-2/4.
-    if (latestRow?.current_url) {
-      return latestRow.current_url;
+    // Module: ga verder bij de eerste vraag die nog niet gedaan is, ook als je die eerder hebt overgeslagen.
+    // (Niet de laatst bezochte stap: dan kom je na overslaan nooit meer bij die vraag terug.)
+    const slug = Object.keys(categoryToCourseId).find((key) => categoryToCourseId[key] === courseId);
+    if (slug && doneStepIds.size > 0) {
+      for (let step = 1; step <= totals[courseId]; step++) {
+        if (!doneStepIds.has(String(step))) return `/${slug}/${step}`;
+      }
     }
 
-    // Fallback als er nog geen progress of current_url is.
+    // Fallback als er nog geen voortgang is: de eerste stap van de cursus.
     return courseStartHref[courseId] || "/";
   }
 
@@ -217,7 +221,8 @@ import { allVideos } from "../lib/videos";
       const courseId = categoryToCourseId[row.category];
       if (!courseId || !completed[courseId]) return;
 
-      completed[courseId].add(String(row.step_id));
+      // Alleen echte vragen/stappen tellen mee, niet het afrondscherm (zie countsForProgress in courses.js).
+      if (countsForProgress(courseId, row.step_id)) completed[courseId].add(String(row.step_id));
 
       const currentLatest = latestByCourse[courseId];
       const rowTime = new Date(

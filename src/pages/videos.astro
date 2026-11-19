@@ -86,6 +86,11 @@ const videoCategories = videoCategoriesOf(allVideos);
 
 <script>
   // @ts-nocheck
+  import { limitVideoEnds } from "../lib/videoLimit";
+
+  // Video's met een eindtijd niet verder laten spelen dan dat einde (zie src/lib/videoLimit.js).
+  limitVideoEnds();
+
   // Onderwerp kiezen: toont alleen die video's.
   const filterButtons = [...document.querySelectorAll("[data-video-filter]")];
   const tiles = [...document.querySelectorAll(".video-tile")];

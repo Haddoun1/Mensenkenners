@@ -3,18 +3,25 @@
 import data from "../data/mensenkennersvragen.json";
 
 // Zet een YouTube- of Vimeo-adres om naar het adres van de speler die in een iframe past.
+// Een YouTube-adres mag "end=<seconden>" bevatten: dan stopt de video op dat moment
+// (bijv. als de rest van een video op YouTube kapot is).
 export const toEmbedUrl = (url) => {
   if (url?.includes("vimeo.com")) {
     const id = url.split("/").filter(Boolean).pop()?.split("?")[0];
     return `https://player.vimeo.com/video/${id}`;
   }
+  const end = url?.match(/[?&]end=(\d+)/)?.[1];
+  // De eindtijd bewaakt limitVideoEnds() (src/lib/videoLimit.js), niet YouTube zelf: met YouTube's eigen
+  // end-parameter springt de video naar 0:00 als iemand voorbij het einde klikt.
+  // enablejsapi=1 laat de site de speler volgen; #einde=… is alleen voor ons script (YouTube negeert het).
+  const endParam = end ? `?enablejsapi=1#einde=${end}` : "";
   if (url?.includes("youtube.com/watch?v=")) {
     const id = url.split("v=")[1]?.split("&")[0];
-    return `https://www.youtube.com/embed/${id}`;
+    return `https://www.youtube.com/embed/${id}${endParam}`;
   }
   if (url?.includes("youtu.be/")) {
     const id = url.split("youtu.be/")[1]?.split("?")[0];
-    return `https://www.youtube.com/embed/${id}`;
+    return `https://www.youtube.com/embed/${id}${endParam}`;
   }
   return url;
 };

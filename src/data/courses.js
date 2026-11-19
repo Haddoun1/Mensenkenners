@@ -72,9 +72,17 @@ export const totals = {
   onboarding: 10,
   module_1: 8,
   module_2: 9,
-  module_3: 12,
+  module_3: 11,
   module_4: 9,
 };
+
+// Telt deze opgeslagen stap mee voor de voortgang? Alleen stap 1 t/m het totaal hierboven.
+// Zo telt het afrondscherm niet mee: wie een vraag overslaat en daarna op "Module afronden" klikt,
+// komt niet op 100%. Stap-id's zijn "4" (modules) of "onboarding_step-4" (onboarding).
+export function countsForProgress(courseId, stepId) {
+  const stepNumber = Number(String(stepId).match(/(\d+)$/)?.[1]);
+  return stepNumber >= 1 && stepNumber <= (totals[courseId] ?? 0);
+}
 
 // Startpagina van elke cursus.
 export const courseStartHref = {

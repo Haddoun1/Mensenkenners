@@ -88,7 +88,7 @@ import MainLayout from "../layouts/Layout.astro";
   // @ts-nocheck
   import { supabase, authHeaders } from "../lib/supabase";
   import { attachPasswordRules, isStrongPassword } from "../lib/passwordRules";
-  import { courses, totals, categoryToCourseId } from "../data/courses.js";
+  import { courses, totals, categoryToCourseId, countsForProgress } from "../data/courses.js";
 
   const {
     data: { user },
@@ -129,7 +129,8 @@ import MainLayout from "../layouts/Layout.astro";
       if (!completedStepsByCourse[courseId]) {
         completedStepsByCourse[courseId] = new Set();
       }
-      completedStepsByCourse[courseId].add(String(row.step_id));
+      // Alleen echte vragen/stappen tellen mee, niet het afrondscherm (zie countsForProgress in courses.js).
+      if (countsForProgress(courseId, row.step_id)) completedStepsByCourse[courseId].add(String(row.step_id));
     });
 
     const completedCourses = courses.filter((course) => {
